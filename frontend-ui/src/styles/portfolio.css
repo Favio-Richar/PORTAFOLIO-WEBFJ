@@ -1,0 +1,80 @@
+/* ===============================
+   PORTAFOLIO UI – COMPONENTES
+   =============================== */
+
+/* Glass cards */
+.glass {
+  background: color-mix(in oklch, var(--card) 85%, transparent);
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  box-shadow:
+    0 20px 40px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.05);
+  transition: transform .35s ease, box-shadow .35s ease;
+}
+
+.glass:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 60px rgba(0,0,0,.45);
+}
+
+/* Botón principal */
+.btn-neon {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .75rem 1.6rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  color: var(--primary-foreground);
+  background: linear-gradient(
+    135deg,
+    oklch(0.72 0.19 245),
+    oklch(0.68 0.22 255)
+  );
+  box-shadow: 0 12px 35px rgba(56,189,248,.45);
+  transition: transform .25s ease;
+}
+
+.btn-neon:hover {
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Títulos */
+.section-title {
+  font-size: clamp(2.2rem, 4vw, 3rem);
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 4rem;
+  background: linear-gradient(
+    90deg,
+    oklch(0.72 0.19 245),
+    oklch(0.68 0.22 255)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+/* ===============================
+   SWIPER TESTIMONIOS
+   =============================== */
+
+.swiper {
+  padding-bottom: 3rem;
+}
+
+.swiper-slide {
+  width: 360px !important;
+  height: auto;
+  display: flex;
+  align-items: stretch;
+}
+
+.swiper-pagination-bullet {
+  background: rgba(255,255,255,.4);
+  opacity: 1;
+}
+
+.swiper-pagination-bullet-active {
+  background: oklch(0.72 0.19 245);
+}

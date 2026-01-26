@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+/* Swiper */
+@import "swiper/css";
+@import "swiper/css/effect-coverflow";
+@import "swiper/css/pagination";
+
+/* Sistema */
+@import "../styles/system.css";
+@import "../styles/ui.css";
+
+/* =========================================
+   FUTURISTIC GLOBAL THEME
+   ========================================= */
+
+:root {
+    --background: #020617;
+    /* Slate 950 - Deep Space Pro */
+    --foreground: #f8fafc;
+    /* Slate 50 - High Contrast White */
+
+    --primary: #06b6d4;
+    /* Neon Cyan */
+    --primary-glow: rgba(6, 182, 212, 0.6);
+
+    --secondary: #8b5cf6;
+    /* Violet 500 */
+
+    --muted: rgba(255, 255, 255, 0.05);
+    --muted-foreground: #94a3b8;
+    /* Slate 400 */
+
+    --border: rgba(255, 255, 255, 0.1);
+    --card: rgba(15, 23, 42, 0.6);
+    /* Translucent Deep Glass */
+}
+
+body {
+    background-color: var(--background);
+    color: var(--foreground);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glassmorphism Global Utils (Pro Level) */
+.glass-panel {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+.text-glow {
+    text-shadow: 0 0 20px var(--primary-glow);
+}
+
+/* Selection color */
+::selection {
+    background: var(--primary);
+    color: black;
+}
