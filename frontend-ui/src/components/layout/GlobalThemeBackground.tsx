@@ -1,63 +1,42 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { Canvas } from "@react-three/fiber";
-import { EffectComposer, Bloom, ChromaticAberration, Vignette, Noise } from "@react-three/postprocessing";
-import * as THREE from "three";
-import ComputingBackground from "@/components/3d/ComputingBackground";
+import { useEffect, useState } from "react";
 
 export default function GlobalThemeBackground() {
-    const [hasMounted, setHasMounted] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setHasMounted(true);
+        setMounted(true);
     }, []);
 
-    if (!hasMounted) return (
-        <div className="fixed inset-0 -z-[10] bg-[#020617] overflow-hidden pointer-events-none" />
-    );
+    if (!mounted) return <div className="fixed inset-0 -z-50 bg-[#0f172a]" />;
 
     return (
-        <div
-            className="fixed inset-0 -z-[10] bg-[#020617] overflow-hidden pointer-events-none"
-        >
-            <Canvas
-                camera={{ position: [0, 0, 20], fov: 60 }}
-                dpr={[1, 2]}
-                gl={{ antialias: true, alpha: true }}
-            >
-                <Suspense fallback={null}>
-                    <ComputingBackground />
-                    <EffectComposer enableNormalPass={false}>
-                        <Bloom
-                            intensity={0.8}
-                            luminanceThreshold={0.2}
-                            luminanceSmoothing={0.9}
-                            mipmapBlur
-                        />
-                        <ChromaticAberration
-                            offset={new THREE.Vector2(0.0015, 0.0015)}
-                            radialModulation={false}
-                            modulationOffset={0}
-                        />
-                        <Vignette eskil={false} offset={0.5} darkness={0.5} />
-                        <Noise opacity={0.05} />
-                    </EffectComposer>
-                </Suspense>
-            </Canvas>
+        <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none">
+            {/* Base Background */}
+            <div className="absolute inset-0 bg-slate-900" />
 
-            {/* Technical Scanline Overlay */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-                <div className="absolute top-0 left-0 w-full h-[1px] bg-cyan-400 scanline-anim"></div>
-            </div>
+            {/* Abstract Gradient Orbs */}
+            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-900/30 rounded-full blur-[120px] mix-blend-screen animate-pulse-slow" />
+            <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-slate-800/40 rounded-full blur-[120px] mix-blend-screen" />
+            <div className="absolute top-[20%] right-[20%] w-[30%] h-[30%] bg-blue-900/20 rounded-full blur-[100px] mix-blend-screen animate-float" />
+
+            {/* Noise Overlay for Texture */}
+            <div className="absolute inset-0 opacity-[0.03] bg-[url('/noise.png')] mix-blend-overlay" />
+
+            {/* Subtle Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-transparent to-slate-900/80" />
 
             <style jsx>{`
-                .scanline-anim {
-                    animation: scan 8s linear infinite;
+                @keyframes float {
+                    0%, 100% { transform: translate(0, 0); }
+                    50% { transform: translate(-20px, 20px); }
                 }
-                @keyframes scan {
-                    0% { top: -5%; }
-                    100% { top: 105%; }
+                .animate-float {
+                    animation: float 10s ease-in-out infinite;
+                }
+                .animate-pulse-slow {
+                    animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
                 }
             `}</style>
         </div>

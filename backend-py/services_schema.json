@@ -1,0 +1,222 @@
+{
+  "service": [
+    {
+      "name": "id",
+      "type": "integer"
+    },
+    {
+      "name": "name",
+      "type": "character varying"
+    },
+    {
+      "name": "description",
+      "type": "character varying"
+    }
+  ],
+  "professionalplan": [
+    {
+      "name": "id",
+      "type": "integer"
+    },
+    {
+      "name": "name",
+      "type": "character varying"
+    },
+    {
+      "name": "description",
+      "type": "character varying"
+    },
+    {
+      "name": "modules",
+      "type": "character varying"
+    },
+    {
+      "name": "price",
+      "type": "character varying"
+    },
+    {
+      "name": "includes",
+      "type": "character varying"
+    },
+    {
+      "name": "delivery",
+      "type": "character varying"
+    },
+    {
+      "name": "ideal_for",
+      "type": "character varying"
+    },
+    {
+      "name": "category",
+      "type": "character varying"
+    },
+    {
+      "name": "order_index",
+      "type": "integer"
+    }
+  ],
+  "additionalservice": [
+    {
+      "name": "id",
+      "type": "integer"
+    },
+    {
+      "name": "name",
+      "type": "character varying"
+    },
+    {
+      "name": "description",
+      "type": "character varying"
+    },
+    {
+      "name": "price",
+      "type": "character varying"
+    },
+    {
+      "name": "icon",
+      "type": "character varying"
+    },
+    {
+      "name": "color",
+      "type": "character varying"
+    },
+    {
+      "name": "includes",
+      "type": "character varying"
+    },
+    {
+      "name": "recurring",
+      "type": "boolean"
+    },
+    {
+      "name": "payment_type",
+      "type": "character varying"
+    }
+  ],
+  "faq": [
+    {
+      "name": "id",
+      "type": "integer"
+    },
+    {
+      "name": "question",
+      "type": "character varying"
+    },
+    {
+      "name": "answer",
+      "type": "character varying"
+    },
+    {
+      "name": "category",
+      "type": "character varying"
+    },
+    {
+      "name": "active",
+      "type": "boolean"
+    },
+    {
+      "name": "order",
+      "type": "integer"
+    }
+  ],
+  "teammember": [
+    {
+      "name": "id",
+      "type": "integer"
+    },
+    {
+      "name": "name",
+      "type": "character varying"
+    },
+    {
+      "name": "role",
+      "type": "character varying"
+    },
+    {
+      "name": "description",
+      "type": "character varying"
+    },
+    {
+      "name": "skills",
+      "type": "character varying"
+    },
+    {
+      "name": "avatar_url",
+      "type": "character varying"
+    },
+    {
+      "name": "icon",
+      "type": "character varying"
+    },
+    {
+      "name": "gradient",
+      "type": "character varying"
+    },
+    {
+      "name": "order",
+      "type": "integer"
+    },
+    {
+      "name": "active",
+      "type": "boolean"
+    },
+    {
+      "name": "created_at",
+      "type": "character varying"
+    },
+    {
+      "name": "updated_at",
+      "type": "character varying"
+    },
+    {
+      "name": "media_type",
+      "type": "character varying"
+    }
+  ],
+  "review": [
+    {
+      "name": "id",
+      "type": "integer"
+    },
+    {
+      "name": "author_name",
+      "type": "character varying"
+    },
+    {
+      "name": "author_role",
+      "type": "character varying"
+    },
+    {
+      "name": "author_company",
+      "type": "character varying"
+    },
+    {
+      "name": "content",
+      "type": "character varying"
+    },
+    {
+      "name": "rating",
+      "type": "integer"
+    },
+    {
+      "name": "page_context",
+      "type": "character varying"
+    },
+    {
+      "name": "status",
+      "type": "character varying"
+    },
+    {
+      "name": "created_at",
+      "type": "character varying"
+    },
+    {
+      "name": "author_image",
+      "type": "character varying"
+    },
+    {
+      "name": "initials",
+      "type": "character varying"
+    }
+  ]
+}

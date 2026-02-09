@@ -17,3 +17,8 @@ def init_db():
     """Crear todas las tablas definidas en los modelos"""
     SQLModel.metadata.create_all(engine)
     print("✅ Tablas creadas en PostgreSQL")
+
+def get_session():
+    from sqlmodel import Session
+    with Session(engine) as session:
+        yield session

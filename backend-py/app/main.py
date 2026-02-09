@@ -42,6 +42,8 @@ app.include_router(timeline.router, prefix="/api/timeline", tags=["timeline"])
 app.include_router(certifications.router, prefix="/api/certifications", tags=["certifications"])
 app.include_router(contact.router, prefix="/api/contact", tags=["contact"])
 app.include_router(upload.router, prefix="/api/upload", tags=["upload"])
+from app.api import services_page
+app.include_router(services_page.router, prefix="/api", tags=["services-page"])
 
 # Asegurar que el directorio de uploads exista
 uploads_path = Path("uploads")
