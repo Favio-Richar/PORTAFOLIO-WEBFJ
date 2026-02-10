@@ -1,0 +1,462 @@
+@use "sass:color";
+
+// Variables Elite para reuso
+$elite-primary: #38bdf8;
+$elite-secondary: #818cf8;
+$elite-accent: #c084fc;
+$elite-bg: #020617; // Slate 950
+
+.about-elite-container {
+    background-color: $elite-bg;
+    color: white;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+// Prototipo Clases
+.gradient-text {
+    background: linear-gradient(135deg, $elite-primary 0%, $elite-secondary 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.card-hover {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 30px -10px rgba($elite-primary, 0.3);
+    }
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    animation: float-blob 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes float-blob {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    50% {
+        transform: translate(30px, -30px) scale(1.1);
+    }
+}
+
+.service-icon {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover .service-icon {
+    transform: scale(1.1) rotate(5deg);
+    color: color.adjust($elite-primary, $lightness: 10%);
+}
+
+// Grid Pattern overlay
+.grid-overlay {
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+    background-size: 40px 40px;
+    pointer-events: none;
+}
+
+// Timeline
+.timeline-dot {
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 100%;
+        width: 2px;
+        height: 60px;
+        background: linear-gradient(to bottom, $elite-primary, transparent);
+        transform: translateX(-50%);
+    }
+
+    &:last-child::before {
+        display: none;
+    }
+}
+
+// Custom animations translated from prototype
+@keyframes fadeInUpElite {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeInUp-elite {
+    animation: fadeInUpElite 0.8s ease-out forwards;
+}
+
+// Floating Chat Styles Redesign
+.floating-chat-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.chat-bubble-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $elite-primary 0%, $elite-secondary 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    box-shadow: 0 10px 25px rgba($elite-primary, 0.4);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    &:hover {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 15px 30px rgba($elite-primary, 0.6);
+    }
+}
+
+.chat-panel-elite {
+    width: 380px;
+    background: #1e293b; // Base slate 800-ish as per screenshot
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    transform-origin: bottom right;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    visibility: hidden;
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+
+    &.open {
+        visibility: visible;
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.chat-header {
+    padding: 24px;
+    background: linear-gradient(135deg, $elite-secondary 0%, #4c1d95 100%);
+    color: white;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    .header-content {
+        h4 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        p {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+    }
+}
+
+.chat-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.ai-message-container {
+    display: flex;
+    gap: 12px;
+
+    .ai-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: $elite-secondary;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .ai-bubble {
+        background: #334155;
+        padding: 16px;
+        border-radius: 12px;
+        color: white;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        position: relative;
+    }
+}
+
+.chat-quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+
+    .action-btn {
+        background: #334155;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 12px;
+        color: #e2e8f0;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+        text-align: center;
+
+        &:hover {
+            background: #475569;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+    }
+}
+
+.chat-footer {
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    background: #1e293b;
+
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+
+        input {
+            width: 100%;
+            background: #0f172a;
+            border: 2px solid $elite-secondary;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 0.9rem;
+
+            &:focus {
+                outline: none;
+                box-shadow: 0 0 0 2px rgba($elite-secondary, 0.3);
+            }
+        }
+
+        .send-icon-btn {
+            background: $elite-secondary;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+
+            &:hover {
+                transform: scale(1.05);
+                filter: brightness(1.1);
+            }
+        }
+    }
+
+    .footer-status {
+        text-align: center;
+        margin-top: 12px;
+        color: #94a3b8;
+        font-size: 0.75rem;
+    }
+}
+
+// New About Sections
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    text-align: center;
+
+    .value-item {
+        .value-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            background: rgba($elite-primary, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            border: 1px solid rgba($elite-primary, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        &:hover .value-icon {
+            transform: scale(1.1);
+            background: rgba($elite-primary, 0.2);
+            box-shadow: 0 0 30px rgba($elite-primary, 0.2);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+    }
+}
+
+.companies-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 40px;
+
+    @media (max-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .company-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 40px 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+
+        .company-name {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, white 0%, rgba(255, 255, 255, 0.3) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .company-type {
+            display: block;
+            margin-top: 8px;
+            color: #64748b;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba($elite-primary, 0.2);
+            transform: translateY(-5px);
+        }
+    }
+}
+
+.certifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .cert-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+
+        .cert-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: rgba($elite-secondary, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: $elite-secondary;
+            font-size: 20px;
+            border: 1px solid rgba($elite-secondary, 0.2);
+        }
+
+        .cert-info {
+            h4 {
+                font-weight: 600;
+                color: white;
+            }
+
+            p {
+                font-size: 0.875rem;
+                color: #64748b;
+            }
+        }
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(10px);
+        }
+    }
+}
+
+.skill-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    .skill-item {
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+
+            .skill-tags {
+                color: $elite-secondary;
+                font-weight: 500;
+            }
+        }
+
+        .bar-bg {
+            height: 8px;
+            background: #1e293b;
+            border-radius: 4px;
+            overflow: hidden;
+
+            .bar-fill {
+                height: 100%;
+                background: linear-gradient(90deg, $elite-primary, $elite-accent);
+                border-radius: 4px;
+            }
+        }
+    }
+}

@@ -1,505 +1,450 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
-import Image from "next/image";
-import { initialTimeline } from "@/lib/data/timeline";
-import { initialEducation } from "@/lib/data/education";
-import type { TimelineItem } from "@/lib/data/timeline";
-import type { Education } from "@/lib/data/education";
-
+import React from 'react';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
 import {
-  FaPython,
-  FaGraduationCap,
-  FaLaptopCode,
-  FaMobileAlt,
-  FaServer,
-  FaCheckCircle,
-  FaCubes,
   FaRocket,
-  FaChartLine,
+  FaCheck,
+  FaCode,
+  FaLightbulb,
+  FaEye,
+  FaChevronDown,
+  FaShieldAlt,
+  FaArrowRight,
+  FaLaptopCode,
   FaGlobe,
-  FaDatabase,
-  FaChartBar,
-  FaHistory,
-  FaBriefcase,
-  FaCertificate,
+  FaChartLine,
+  FaHandsHelping,
+  FaLock,
+  FaGem,
+  FaHandshake,
   FaStar,
-} from "react-icons/fa";
+  FaMedal,
+  FaEnvelope,
+  FaPhone,
+  FaTwitter,
+  FaLinkedin,
+  FaGithub,
+  FaBullseye,
+  FaMobileAlt,
+  FaTools
+} from 'react-icons/fa';
+import FloatingChat from '@/components/layout/FloatingChat';
+import '@/styles/about-elite.scss';
 
-import {
-  SiFastapi,
-  SiNextdotjs,
-  SiFlutter,
-  SiPostgresql,
-  SiTypescript,
-  SiDocker,
-  SiLinux,
-} from "react-icons/si";
+export default function SobreNosotrosPage() {
+  const fadeInUp: any = {
+    initial: { opacity: 0, y: 40 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.8, ease: "easeOut" }
+  };
 
-import CertModal from "./_CertModal";
-
-export default function SobreMi() {
-  const [profileImg, setProfileImg] = useState("https://ui-avatars.com/api/?name=Favio+Jimenez&background=06b6d4&color=fff&size=512");
-  const [profileVideo, setProfileVideo] = useState("");
-  const [timeline, setTimeline] = useState<TimelineItem[]>(initialTimeline);
-  const [education, setEducation] = useState<Education[]>(initialEducation);
-  const [viewingCert, setViewingCert] = useState<string | null>(null);
-
-  // Solid style for cards (requested by user: not transparent)
-  const solidCardStyle = "bg-[#0a0a0c] border border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)]";
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const profileRes = await fetch("http://localhost:8000/api/profile");
-        if (profileRes.ok) {
-          const profileData = await profileRes.json();
-          if (profileData.profile_image) setProfileImg(profileData.profile_image);
-          if (profileData.profile_video) setProfileVideo(profileData.profile_video);
-        }
-
-        const timelineRes = await fetch("http://localhost:8000/api/timeline");
-        if (timelineRes.ok) {
-          const timelineData = await timelineRes.json();
-          setTimeline(timelineData.map((t: any) => ({
-            ...t,
-            id: t.id.toString(),
-            desc: t.description,
-            category: t.category,
-            icon: t.icon
-          })));
-        }
-
-        const eduRes = await fetch("http://localhost:8000/api/education");
-        if (eduRes.ok) {
-          const eduData = await eduRes.json();
-          const mappedEdu = eduData.map((item: any) => ({
-            id: item.id.toString(),
-            degree: item.degree,
-            institution: item.institution,
-            location: item.location,
-            startYear: item.start_year,
-            endYear: item.end_year,
-            certificateUrl: item.certificate_url
-          }));
-          setEducation(mappedEdu);
-        }
-      } catch (error) {
-        console.error("Error cargando datos:", error);
-      }
-    };
-    loadData();
-  }, []);
-
-  const skills = [
-    { name: "Python", icon: <FaPython className="text-yellow-400 text-3xl" /> },
-    { name: "FastAPI", icon: <SiFastapi className="text-emerald-400 text-3xl" /> },
-    { name: "Next.js", icon: <SiNextdotjs className="text-white text-3xl" /> },
-    { name: "TypeScript", icon: <SiTypescript className="text-blue-400 text-3xl" /> },
-    { name: "Flutter", icon: <SiFlutter className="text-sky-400 text-3xl" /> },
-    { name: "PostgreSQL", icon: <SiPostgresql className="text-indigo-400 text-3xl" /> },
-    { name: "Docker", icon: <SiDocker className="text-blue-500 text-3xl" /> },
-    { name: "Linux / VPS", icon: <SiLinux className="text-orange-400 text-3xl" /> },
-    { name: "SQL Server", icon: <FaDatabase className="text-red-500 text-3xl" /> },
-    { name: "Power BI", icon: <FaChartBar className="text-yellow-500 text-3xl" /> },
-  ];
+  const scaleIn: any = {
+    initial: { opacity: 0, scale: 0.8 },
+    whileInView: { opacity: 1, scale: 1 },
+    viewport: { once: true },
+    transition: { duration: 0.6, ease: "easeOut" }
+  };
 
   return (
-    <div className="relative overflow-hidden pt-20 px-6 font-bold bg-[#020202] min-h-screen">
-
-      {/* ACTIVOS TECNOLÓGICOS FLOTANTES (FONDO 4D) - REMOVIDO POR PREFERENCIA DE LIMPIEZA */}
-      {/* <FloatingAssets /> */}
-
-      {/* DECORACIÓN CORPORATIVA AVANZADA */}
-      <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-indigo-500/5 blur-[250px] rounded-full pointer-events-none animate-pulse" />
-      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-violet-500/5 blur-[200px] rounded-full pointer-events-none" />
-
-      {/* SECCIÓN HERO: PERFIL PORTAL */}
-      <section className="max-w-7xl mx-auto py-32 relative z-10">
-        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-24 lg:gap-32">
-          <div className="lg:w-5/12 flex justify-center sticky top-32">
-            <ProfilePortal src={profileImg} />
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1, ease: "circOut" }}
-            className="lg:w-7/12 text-center lg:text-left pt-12"
-          >
-            <span className="inline-block text-indigo-400 text-sm font-black tracking-[0.6em] uppercase mb-6 bg-indigo-500/10 px-4 py-1 rounded-full border border-indigo-500/20">
-              INGENIERO DE SOFTWARE FULL STACK
+    <div className="about-elite-container w-full overflow-hidden">
+      {/* 1. Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center px-4 py-20">
+        <div className="blob w-96 h-96 bg-blue-600/20 top-0 left-0" style={{ animationDelay: '0s' }}></div>
+        <div className="blob w-80 h-80 bg-indigo-600/20 bottom-0 right-0" style={{ animationDelay: '2s' }}></div>
+        <div className="blob w-64 h-64 bg-purple-500/20 top-1/2 left-1/2" style={{ animationDelay: '4s' }}></div>
+        <div className="grid-overlay opacity-20"></div>
+        <div className="relative z-10 max-w-5xl mx-auto text-center">
+          <motion.div {...fadeInUp}>
+            <span id="company-badge" className="inline-block px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 text-sm font-medium mb-6 backdrop-blur-sm">
+              <FaRocket className="inline mr-2 animate-pulse" /> TechSolutions Elite
             </span>
-            <h2 className="title-fire text-5xl md:text-7xl font-black mb-10 uppercase leading-[0.9] tracking-tighter">
-              Pasión por la <br /> Excelencia
-            </h2>
-
-            <div className="max-w-2xl mx-auto lg:mx-0">
-              <p className="text-gray-300 text-2xl leading-relaxed mb-8 font-bold">
-                Soy <span className="text-white font-black underline decoration-indigo-500/50 underline-offset-8">Favio Jiménez</span>, un arquitecto de software comprometido con la creación de ecosistemas digitales que impulsan el futuro corporativo.
-              </p>
-            </div>
-
-            {profileVideo && (
-              <div className="mt-12">
-                <div className={`${solidCardStyle} p-10 hover:border-indigo-500/30 transition-all group`}>
-                  <h4 className="text-indigo-400 text-xs font-black uppercase tracking-widest mb-6 flex items-center gap-3">
-                    <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-                    Video de Presentación
-                  </h4>
-                  <div className="max-w-4xl mx-auto aspect-video rounded-3xl overflow-hidden bg-black shadow-inner border border-white/5">
-                    {profileVideo.includes('youtube') || profileVideo.includes('vimeo') || profileVideo.includes('iframe') ? (
-                      <iframe
-                        src={profileVideo}
-                        className="w-full h-full"
-                        title="Video Presentación"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    ) : (
-                      <video src={profileVideo} controls className="w-full h-full object-contain" />
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
           </motion.div>
-        </div>
-      </section>
-
-      {/* ÁREAS DE ESPECIALIZACIÓN (TARJETAS 4D SÓLIDAS) */}
-      <section className="max-w-7xl mx-auto py-32 border-t border-white/5 relative z-10">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
-          <div>
-            <span className="block text-indigo-400 text-sm font-black tracking-[0.3em] uppercase mb-4">CORE CAPABILITIES</span>
-            <h3 className="title-fire text-5xl md:text-7xl font-black uppercase leading-none tracking-tighter">
-              Inmunidad <br /> a la Mediocridad
-            </h3>
+          <motion.h1 id="hero-title" className="font-display text-5xl md:text-7xl font-bold text-white mb-6 leading-tight" {...fadeInUp} transition={{ delay: 0.1, duration: 0.8 }}>
+            Sobre <span className="gradient-text">Nosotros</span>
+          </motion.h1>
+          <motion.p id="hero-subtitle" className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto mb-10 leading-relaxed" {...fadeInUp} transition={{ delay: 0.2, duration: 0.8 }}>
+            Somos expertos en transformación digital. Creamos sistemas, páginas web y soluciones tecnológicas que impulsan el éxito de tu negocio con estándares de alta gama.
+          </motion.p>
+          <motion.div className="flex flex-wrap gap-4 justify-center" {...fadeInUp} transition={{ delay: 0.3, duration: 0.8 }}>
+            <Link href="#servicios" className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 hover:-translate-y-1">
+              Nuestros Servicios
+            </Link>
+            <Link href="#contacto" id="cta-button" className="px-8 py-4 bg-white/5 backdrop-blur border border-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300">
+              Contáctanos
+            </Link>
+          </motion.div>
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce">
+            <FaChevronDown className="w-6 h-6 text-blue-400 opacity-50" />
           </div>
-          <p className="text-gray-500 max-w-md font-bold text-lg leading-relaxed">
-            Dominio total del stack tecnológico para entregar soluciones que no solo funcionan, sino que lideran su categoría.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            { icon: <FaLaptopCode />, title: "ARQUITECTURA WEB", desc: "Interfaces de alto impacto y sistemas escalables con Next.js.", gradient: "from-blue-500/10 to-transparent" },
-            { icon: <FaMobileAlt />, title: "APP UNIVERSE", desc: "Apps nativas y multiplataforma con Flutter y UX impecable.", gradient: "from-purple-500/10 to-transparent" },
-            { icon: <FaServer />, title: "BACKEND ENG", desc: "APIs robustas y arquitecturas distribuidas de alto rendimiento.", gradient: "from-emerald-500/10 to-transparent" },
-            { icon: <FaCubes />, title: "DESARROLLO MODULAR", desc: "Sistemas básicos y avanzados bajo arquitectura de módulos escalables.", gradient: "from-cyan-500/10 to-transparent" },
-          ].map((c, i) => (
-            <SpecCard key={i} c={c} style={solidCardStyle} />
-          ))}
         </div>
       </section>
 
-      {/* TECH STACK VISUALIZER & RESULTS SÓLIDO */}
-      <section className="max-w-7xl mx-auto py-32 grid lg:grid-cols-2 gap-32 border-t border-white/5 relative z-10">
-        <div className="relative">
-          <h3 className="title-fire text-5xl md:text-7xl font-black uppercase tracking-tighter mb-16 flex items-center gap-6 leading-none">
-            Ecosistema de <br /> Arquitectura & SW <div className="h-[1px] flex-1 bg-white/5" />
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
-            {skills.map((s, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ y: -8, scale: 1.05 }}
-                className={`${solidCardStyle} !p-8 flex flex-col items-center gap-6 group hover:border-indigo-500/30 transition-all relative overflow-hidden`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span className="text-5xl transition-transform group-hover:rotate-12 duration-500 z-10">{s.icon}</span>
-                <span className="text-white/80 group-hover:text-white font-black text-[10px] uppercase tracking-[0.2em] text-center z-10">{s.name}</span>
+      {/* 2. Stats Section */}
+      <section className="relative py-20 border-y border-white/5 bg-slate-900/30">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { val: "8+", label: "Años de Experiencia" },
+              { val: "150+", label: "Proyectos Completados" },
+              { val: "98%", label: "Clientes Satisfechos" },
+              { val: "24/7", label: "Soporte Técnico" }
+            ].map((stat, i) => (
+              <motion.div key={i} className="text-center p-6 rounded-2xl bg-slate-800/20 backdrop-blur border border-white/5 card-hover" {...scaleIn} transition={{ delay: i * 0.1 }}>
+                <div className="text-4xl md:text-5xl font-bold gradient-text mb-2">{stat.val}</div>
+                <div className="text-slate-400 text-sm md:text-base font-medium">{stat.label}</div>
               </motion.div>
             ))}
           </div>
         </div>
+      </section>
 
-        <div className="space-y-24">
-          <div>
-            <h3 className="title-fire text-5xl md:text-7xl font-black uppercase tracking-tighter mb-16 flex items-center gap-6 leading-none">
-              Resultados <br /> Reales <div className="h-[1px] flex-1 bg-white/5" />
-            </h3>
-            <div className="space-y-6">
-              {[
-                { label: "Sistemas en Producción", val: "+20", desc: "Arquitecturas robustas operando 24/7.", icon: <FaRocket />, pct: "85%" },
-                { label: "Optimización Operativa", val: "60%", desc: "Reducción de costos y tiempos demostrable.", icon: <FaChartLine />, pct: "60%" },
-                { label: "Sectores Impactados", val: "08", desc: "Desde logística hasta finanzas y retail.", icon: <FaGlobe />, pct: "40%" },
-              ].map((m, i) => (
-                <div key={i} className={`${solidCardStyle} p-8 group hover:border-indigo-500/30 transition-all duration-500 relative overflow-hidden`}>
-                  <div className="flex items-center gap-8 relative z-10">
-                    <div className="text-5xl font-black text-white/5 group-hover:text-indigo-500 drop-shadow-[0_0_15px_rgba(99,102,241,0)] group-hover:drop-shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all duration-700 min-w-[140px] italic">
-                      {m.val}
+      {/* 3. About Content (¿Quiénes Somos?) */}
+      <section className="py-24 px-4 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <motion.div {...fadeInUp}>
+              <span className="text-blue-400 font-semibold text-sm tracking-widest uppercase mb-4 block">¿Quiénes Somos?</span>
+              <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
+                Ingeniería Informática al Servicio de tu <span className="gradient-text">Negocio</span>
+              </h2>
+              <p className="text-slate-300 text-lg leading-relaxed mb-6 font-medium">
+                Fundada por profesionales apasionados por la tecnología, nuestra empresa nació con el objetivo de brindar soluciones tecnológicas integrales y de alta calidad. Como Ingenieros Informáticos, lideramos un equipo comprometido con la excelencia y la innovación constante.
+              </p>
+              <p className="text-slate-400 leading-relaxed mb-8">
+                Nos especializamos en el desarrollo de sistemas a medida, creación de páginas web profesionales, soporte técnico avanzado y mantenimiento preventivo. Cada proyecto es una oportunidad para superar expectativas y construir relaciones duraderas con nuestros clientes.
+              </p>
+              <div className="space-y-4">
+                {[
+                  { icon: FaCheck, text: "Soluciones personalizadas para cada cliente" },
+                  { icon: FaLaptopCode, text: "Tecnologías modernas y escalables" },
+                  { icon: FaShieldAlt, text: "Compromiso con la calidad y los plazos" }
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-4 group">
+                    <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
+                      <item.icon className="w-5 h-5 text-blue-400" />
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-4 mb-2">
-                        <span className="text-indigo-500 text-xl">{m.icon}</span>
-                        <h5 className="text-white font-black uppercase text-sm tracking-widest">{m.label}</h5>
-                      </div>
-                      <p className="text-gray-500 text-xs font-bold leading-relaxed">{m.desc}</p>
-
-                      {/* Technical Level Indicator */}
-                      <div className="mt-6 h-1 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          whileInView={{ width: m.pct }}
-                          transition={{ duration: 1.5, delay: 0.5 + i * 0.2 }}
-                          className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
-                        />
-                      </div>
+                    <span className="text-slate-300 font-medium">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+            <motion.div className="relative" {...scaleIn}>
+              <div className="relative z-10 bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 border border-white/10 shadow-2xl">
+                <div className="bg-slate-950 rounded-2xl overflow-hidden border border-white/5 shadow-inner">
+                  <div className="flex items-center gap-2 px-4 py-3 bg-slate-900/80 border-b border-white/5">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span className="ml-4 text-slate-500 text-xs font-mono">desarrollo.js</span>
+                  </div>
+                  <div className="p-6 font-mono text-[13px] leading-relaxed">
+                    <div className="text-slate-600 italic">// Transformando ideas en código Elite</div>
+                    <div className="mt-2">
+                      <span className="text-purple-400">const</span>
+                      <span className="text-blue-400"> solucion</span>
+                      <span className="text-white"> = </span>
+                      <span className="text-yellow-400">{"{"}</span>
                     </div>
+                    <div className="ml-4">
+                      <span className="text-teal-400">innovacion</span>
+                      <span className="text-white">: </span>
+                      <span className="text-orange-300">true</span>
+                      <span className="text-white">,</span>
+                    </div>
+                    <div className="ml-4">
+                      <span className="text-teal-400">calidad</span>
+                      <span className="text-white">: </span>
+                      <span className="text-green-300">"Excelente"</span>
+                      <span className="text-white">,</span>
+                    </div>
+                    <div className="ml-4">
+                      <span className="text-teal-400">soporte</span>
+                      <span className="text-white">: </span>
+                      <span className="text-blue-300">"24/7"</span>
+                    </div>
+                    <div className="text-yellow-400">{"}"}</div>
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl border border-white/20">
+                  <FaCode className="w-10 h-10 text-white" />
+                </div>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-600/20 rounded-3xl transform rotate-3 -z-10 blur-sm"></div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* EDUCATION & FORMACIÓN SÓLIDO */}
-      <section className="max-w-7xl mx-auto py-32 border-t border-white/5 relative z-10">
-        <div className="text-center mb-20">
-          <span className="block text-indigo-400 text-[10px] font-black tracking-[0.4em] uppercase mb-4">ACADEMIC EXCELLENCE</span>
-          <h3 className="title-fire text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none">
-            Formación <br className="md:hidden" /> Académica
-          </h3>
-        </div>
-        <div className="grid md:grid-cols-2 gap-8">
-          {education.map((edu, idx) => (
-            <div
-              key={edu.id || idx}
-              onClick={() => edu.certificateUrl && setViewingCert(edu.certificateUrl)}
-              className={`${solidCardStyle} p-10 flex items-center gap-10 hover:border-indigo-500/20 transition-all group relative overflow-hidden ${edu.certificateUrl ? 'cursor-pointer hover:scale-[1.01]' : ''}`}
-            >
-              <div className="w-20 h-20 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-4xl text-indigo-500 border border-indigo-500/20 group-hover:bg-indigo-500 group-hover:text-black transition-all">
-                <FaGraduationCap />
+      {/* 4. Mission & Vision */}
+      <section className="py-24 px-4 bg-gradient-to-b from-slate-950 to-slate-900">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <motion.span className="text-blue-400 font-semibold text-sm tracking-widest uppercase mb-4 block" {...fadeInUp}>Nuestro Propósito</motion.span>
+            <motion.h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-4" {...fadeInUp} transition={{ delay: 0.1 }}>
+              Misión y <span className="gradient-text">Visión</span>
+            </motion.h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            <motion.div className="group relative p-8 rounded-3xl bg-slate-800/40 border border-white/5 card-hover overflow-hidden" {...fadeInUp} transition={{ delay: 0.2 }}>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center mb-6 service-icon border border-blue-500/20">
+                  <FaBullseye className="w-8 h-8 text-blue-400" />
+                </div>
+                <h3 className="font-display text-2xl font-bold text-white mb-4">Nuestra Misión</h3>
+                <p id="mission-text" className="text-slate-300 leading-relaxed">
+                  Proporcionar soluciones tecnológicas innovadoras y de alta calidad que impulsen el crecimiento y la eficiencia de nuestros clientes. Nos comprometemos a entregar proyectos que superen las expectativas, utilizando las mejores prácticas de la industria y manteniendo una comunicación transparente en todo momento.
+                </p>
               </div>
-              <div className="flex-1">
-                <h4 className="text-2xl text-white font-black uppercase tracking-tight mb-2">{edu.degree}</h4>
-                <p className="text-indigo-400 text-sm font-black tracking-[0.4em] uppercase">{edu.institution} · {edu.location}</p>
-                <p className="text-gray-500 text-xs mt-2 font-bold">{edu.startYear} - {edu.endYear}</p>
-                {edu.certificateUrl && (
-                  <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 rounded-full border border-indigo-500/20 group-hover:bg-indigo-500/20 transition-colors">
-                    <FaCheckCircle className="text-indigo-400" />
-                    <span className="text-indigo-400 text-[10px] font-black uppercase tracking-widest">Validado</span>
-                  </div>
-                )}
+            </motion.div>
+            <motion.div className="group relative p-8 rounded-3xl bg-slate-800/40 border border-white/5 card-hover overflow-hidden" {...fadeInUp} transition={{ delay: 0.3 }}>
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mb-6 service-icon border border-indigo-500/20">
+                  <FaEye className="w-8 h-8 text-indigo-400" />
+                </div>
+                <h3 className="font-display text-2xl font-bold text-white mb-4">Nuestra Visión</h3>
+                <p id="vision-text" className="text-slate-300 leading-relaxed">
+                  Ser reconocidos como líderes en el desarrollo de soluciones tecnológicas personalizadas, destacando por nuestra capacidad de innovación, excelencia técnica y compromiso con el éxito de cada cliente. Aspiramos a transformar digitalmente a empresas de todos los tamaños.
+                </p>
               </div>
-            </div>
-          ))}
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* TIMELINE (ACADEMIC ROUTE - REDISEÑO LIMPIO) */}
-      <section className="max-w-4xl mx-auto py-32 border-t border-white/5 relative z-10">
-        <div className="text-center mb-40">
-          <span className="block text-indigo-400 text-[10px] font-black tracking-[0.4em] uppercase mb-4">ACADEMIC_EXCELLENCE_v3.0</span>
-          <h3 className="title-fire text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none">
-            Ruta de <br className="hidden md:block" /> Excelencia <br /> Académica
-          </h3>
-        </div>
-
-        <div className="relative pl-12 md:pl-20">
-          {/* Línea Lateral Estilizada */}
-          <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-indigo-500/50 via-indigo-500/20 to-transparent" />
-
-          <div className="space-y-24">
-            {timeline.map((t, i) => (
-              <TimelineItem key={t.id || i} t={t} index={i} style={solidCardStyle} />
+      {/* 5. Services Section (Lo Que Hacemos) */}
+      <section id="servicios" className="py-24 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <motion.span className="text-blue-400 font-semibold text-sm tracking-widest uppercase mb-4 block" {...fadeInUp}>Lo Que Hacemos</motion.span>
+            <motion.h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6" {...fadeInUp} transition={{ delay: 0.1 }}>
+              Nuestros <span className="gradient-text">Servicios</span>
+            </motion.h2>
+            <motion.p className="text-slate-400 max-w-2xl mx-auto" {...fadeInUp} transition={{ delay: 0.2 }}>
+              Ofrecemos un portafolio completo de servicios tecnológicos para cubrir todas las necesidades de tu negocio.
+            </motion.p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              { icon: FaLaptopCode, title: "Desarrollo de Sistemas", desc: "Creamos sistemas de gestión, ERP, CRM y aplicaciones empresariales a medida según tus necesidades específicas.", color: "from-blue-500 to-blue-600" },
+              { icon: FaGlobe, title: "Diseño Web", desc: "Páginas web profesionales, responsivas y optimizadas para SEO que convierten visitantes en clientes.", color: "from-indigo-500 to-indigo-600" },
+              { icon: FaMobileAlt, title: "Apps Móviles", desc: "Desarrollo de aplicaciones móviles nativas e híbridas para iOS y Android con experiencia de usuario excepcional.", color: "from-purple-500 to-purple-600" },
+              { icon: FaHandsHelping, title: "Soporte Técnico", desc: "Asistencia técnica 24/7, resolución de problemas y optimización de sistemas existentes.", color: "from-emerald-500 to-emerald-600" },
+              { icon: FaTools, title: "Mantenimiento", desc: "Mantenimiento preventivo y correctivo de sistemas, servidores y equipos informáticos.", color: "from-amber-500 to-amber-600" },
+              { icon: FaLock, title: "Ciberseguridad", desc: "Protección de datos, auditorías de seguridad e implementación de protocolos para mantener tu información segura.", color: "from-rose-500 to-rose-600" }
+            ].map((s, i) => (
+              <motion.div key={i} className="group p-8 rounded-3xl bg-slate-800/40 border border-white/5 card-hover relative overflow-hidden" {...fadeInUp} transition={{ delay: i * 0.1 }}>
+                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${s.color} flex items-center justify-center mb-6 service-icon shadow-lg relative z-10`}>
+                  <s.icon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="font-display text-2xl font-bold text-white mb-4 relative z-10">{s.title}</h3>
+                <p className="text-slate-400 leading-relaxed relative z-10">{s.desc}</p>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FINAL CALL TO ACTION (ELITE STYLE SÓLIDO) */}
-      <section className="relative py-60 px-6 overflow-hidden border-t border-white/5">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent" />
-        <div className="max-w-5xl mx-auto text-center relative z-10">
-          <h3 className="title-fire text-5xl md:text-7xl font-black mb-12 uppercase leading-none tracking-tighter">
-            Iniciemos <br /> tu Siguiente <br /> Gran <span className="text-indigo-500">Salto</span>
-          </h3>
-          <p className="text-gray-400 text-lg md:text-xl font-bold mb-16 max-w-3xl mx-auto leading-relaxed italic">
-            No busques un programador convencional, busca un socio estratégico especializado en ingeniería de software.
-            Juntos transformaremos tus ideas en sistemas de alto rendimiento con un retorno de inversión garantizado por la excelencia académica y técnica.
-          </p>
-          <motion.a
-            href="/contacto"
-            whileHover={{
-              scale: 1.05,
-              boxShadow: "0 0 40px rgba(99,102,241,0.3)",
-              backgroundColor: "rgba(99,102,241,0.1)",
-              color: "#6366f1"
-            }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-flex items-center gap-6 px-16 py-8 rounded-full bg-white text-black border-2 border-transparent transition-all text-sm font-black tracking-[0.4em] uppercase shadow-[0_30px_60px_-15px_rgba(255,255,255,0.1)]"
-          >
-            SOLICITAR CONSULTORÍA ⚡
-          </motion.a>
+      {/* 6. Values Section (Lo Que Nos Define) */}
+      <section className="py-24 px-4 bg-slate-900/50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <motion.span className="text-blue-400 font-semibold text-sm tracking-widest uppercase mb-4 block" {...fadeInUp}>Lo Que Nos Define</motion.span>
+            <motion.h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6" {...fadeInUp} transition={{ delay: 0.1 }}>Nuestros <span className="gradient-text">Valores</span></motion.h2>
+          </div>
+          <div className="values-grid">
+            {[
+              { icon: FaLightbulb, title: "Innovación", desc: "Siempre buscando nuevas soluciones y tecnologías", emoji: "💡" },
+              { icon: FaRocket, title: "Compromiso", desc: "Dedicación total a cada proyecto y cliente", emoji: "🎯" },
+              { icon: FaGem, title: "Excelencia", desc: "Estándares de calidad en cada línea de código", emoji: "⭐" },
+              { icon: FaHandshake, title: "Confianza", desc: "Relaciones transparentes y duraderas", emoji: "🤝" }
+            ].map((v, i) => (
+              <motion.div key={i} className="value-item" {...fadeInUp} transition={{ delay: i * 0.1 }}>
+                <div className="value-icon">
+                  <span className="text-4xl">{v.emoji}</span>
+                </div>
+                <h3>{v.title}</h3>
+                <p>{v.desc}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-
-
-      {/* MODAL CERTIFICADO SÓLIDO */}
-      <CertModal
-        viewingCert={viewingCert}
-        onClose={() => setViewingCert(null)}
-      />
-    </div>
-  );
-}
-
-function TimelineItem({ t, index, style }: { t: any, index: number, style: string }) {
-  // Mapeo dinámico de iconos según categoría
-  const getIcon = (category: string) => {
-    switch (category) {
-      case 'Educación': return <FaGraduationCap />;
-      case 'Trabajo': return <FaBriefcase />;
-      case 'Logro': return <FaStar />;
-      case 'Certificación': return <FaCertificate />;
-      default: return <FaRocket />;
-    }
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -30 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.8, ease: "easeOut", delay: index * 0.1 }}
-      viewport={{ once: true }}
-      className="relative flex items-start gap-12 group"
-    >
-      {/* 3D Token Icon */}
-      <div className="absolute -left-[64px] md:-left-[100px] flex flex-col items-center">
-        <div className="w-16 h-16 rounded-[1.5rem] bg-[#0a0a0c] border border-indigo-500/30 flex items-center justify-center text-2xl text-indigo-400 shadow-[0_15px_35px_-10px_rgba(99,102,241,0.4)] group-hover:shadow-[0_20px_45px_-10px_rgba(99,102,241,0.6)] group-hover:scale-110 transition-all duration-500 transform-gpu preserve-3d">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent rounded-[1.5rem]" />
-          <div className="relative z-10 drop-shadow-[0_5px_10px_rgba(99,102,241,0.5)]">
-            {getIcon(t.category)}
+      {/* 7. Clients Section (Empresas) */}
+      <section className="py-24 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <motion.span className="text-blue-400 font-semibold text-sm tracking-widest uppercase mb-4 block" {...fadeInUp}>Confianza Ganada</motion.span>
+            <motion.h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6" {...fadeInUp} transition={{ delay: 0.1 }}>Empresas que nos <span className="gradient-text">Confían</span></motion.h2>
+          </div>
+          <div className="companies-grid">
+            {[
+              { name: "TECH", type: "StartUp" }, { name: "NEXUS", type: "Empresa" },
+              { name: "DIGITAL", type: "Agencia" }, { name: "INNOVATE", type: "Solutions" },
+              { name: "SMART", type: "Business" }, { name: "VISION", type: "Group" },
+              { name: "FUTURE", type: "Systems" }, { name: "APEX", type: "Tech" }
+            ].map((c, i) => (
+              <motion.div key={i} className="company-card" {...scaleIn} transition={{ delay: i * 0.05 }}>
+                <span className="company-name">{c.name}</span>
+                <span className="company-type font-mono">{c.type}</span>
+              </motion.div>
+            ))}
           </div>
         </div>
-        <div className="w-4 h-4 rounded-full bg-indigo-500/20 border border-indigo-500/20 mt-8 group-hover:bg-indigo-500/50 transition-colors" />
-      </div>
+      </section>
 
-      <div className="flex-1">
-        <div className={`${style} p-10 group hover:border-indigo-500/40 transition-all relative overflow-hidden bg-white/[0.01]`}>
-          <div className="flex items-center gap-4 mb-6">
-            <span className="px-5 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black tracking-widest uppercase">
-              {t.year}
-            </span>
-            {t.category && (
-              <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em]">{t.category}</span>
-            )}
-            <div className="h-[1px] flex-1 bg-white/5" />
+      {/* 8. Testimonials Section */}
+      <section className="py-24 px-4 bg-slate-900/50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <motion.span className="text-blue-400 font-semibold text-sm tracking-widest uppercase mb-4 block" {...fadeInUp}>Lo Que Dicen</motion.span>
+            <motion.h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6" {...fadeInUp} transition={{ delay: 0.1 }}>Testimonios de <span className="gradient-text">Clientes</span></motion.h2>
           </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { name: "Juan Martínez", role: "Director, Tech Solutions", text: "Excelente equipo de trabajo. Desarrollaron nuestro sistema ERP en tiempo récord. Recomendado al 100%, muy profesionales.", initials: "JM" },
+              { name: "María Campos", role: "CEO, Digital Marketing", text: "Nuestra página web mejoró significativamente después de su rediseño. Aumentamos conversiones en un 45%. ¡Increíble trabajo!", initials: "MC" },
+              { name: "Carlos Rodríguez", role: "Gerente, E-commerce Plus", text: "El soporte técnico disponible 24/7 nos ha salvado en varias ocasiones. Equipo muy responsable y atento siempre.", initials: "CR" },
+              { name: "Andrea Pérez", role: "Fundadora, StartUp Fintech", text: "Desarrollaron nuestra app móvil con exactitud. El resultado fue mucho mejor de lo esperado. ¡Muy satisfechos!", initials: "AP" },
+              { name: "Roberto Silva", role: "CTO, Banking Solutions", text: "Excelente asesoría en ciberseguridad. Nos ayudaron a fortalecer nuestros sistemas. Totalmente recomendados.", initials: "RS" },
+              { name: "Laura Pinto", role: "Directora IT, Retail Corp", text: "Mantenimiento perfecto de nuestros servidores. Cero tiempos de inactividad. El mejor equipo de soporte que tenemos.", initials: "LP" }
+            ].map((t, i) => (
+              <motion.div key={i} className="p-8 rounded-3xl bg-slate-800/60 border border-white/5 card-hover" {...fadeInUp} transition={{ delay: i * 0.1 }}>
+                <div className="flex gap-1 text-yellow-500 mb-4">
+                  {[...Array(5)].map((_, j) => <FaStar key={j} size={14} />)}
+                </div>
+                <p className="text-slate-300 mb-6 italic leading-relaxed">"{t.text}"</p>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-white shadow-lg">
+                    {t.initials}
+                  </div>
+                  <div>
+                    <h4 className="text-white font-bold">{t.name}</h4>
+                    <p className="text-slate-500 text-xs">{t.role}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-          <h4 className="text-3xl text-white font-black uppercase tracking-tight mb-4 group-hover:text-indigo-400 transition-colors">{t.title}</h4>
-          <p className="text-gray-400 font-bold leading-relaxed text-base lg:text-lg italic opacity-70 group-hover:opacity-100 transition-opacity">
-            {t.desc}
+      {/* 9. Certifications & Stack Section */}
+      <section className="py-24 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <motion.span className="text-blue-400 font-semibold text-sm tracking-widest uppercase mb-4 block" {...fadeInUp}>Expertise</motion.span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6" {...fadeInUp}>Certificaciones y <span className="gradient-text">Tecnologías</span></h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-16">
+            {/* Certifications */}
+            <div>
+              <h3 className="font-display text-2xl font-bold text-white mb-8">Certificaciones</h3>
+              <div className="certifications-list">
+                {[
+                  { title: "ISO 27001", org: "Seguridad de la Información" },
+                  { title: "AWS Solutions Architect", org: "Amazon Web Services" },
+                  { title: "Google Cloud Professional", org: "Certificación en Nube" },
+                  { title: "Microsoft Certified Developer", org: "Programación .NET" }
+                ].map((c, i) => (
+                  <motion.div key={i} className="cert-item" {...fadeInUp} transition={{ delay: i * 0.1 }}>
+                    <div className="cert-icon"><FaMedal /></div>
+                    <div className="cert-info">
+                      <h4>{c.title}</h4>
+                      <p>{c.org}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            {/* Tech Stack */}
+            <div>
+              <h3 className="font-display text-2xl font-bold text-white mb-8">Stack Tecnológico</h3>
+              <div className="skill-bars">
+                {[
+                  { label: "Frontend", tags: "React, Vue, Angular", p: 95 },
+                  { label: "Backend", tags: "Node.js, Python, Java", p: 90 },
+                  { label: "Bases de Datos", tags: "PostgreSQL, MongoDB, MySQL", p: 92 },
+                  { label: "DevOps & Cloud", tags: "Docker, AWS, Azure", p: 88 },
+                  { label: "Ciberseguridad", tags: "OWASP, Pentesting", p: 85 }
+                ].map((s, i) => (
+                  <div key={i} className="skill-item">
+                    <div className="skill-header">
+                      <span>{s.label}</span>
+                      <span className="skill-tags">{s.tags}</span>
+                    </div>
+                    <div className="bar-bg">
+                      <motion.div
+                        className="bar-fill"
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${s.p}%` }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1.5, delay: 0.5, ease: "circOut" }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 10. Final CTA Section (Contacto) */}
+      <section id="contacto" className="relative py-24 px-4 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10"></div>
+        <div className="blob w-64 h-64 bg-blue-500/20 -top-20 -left-20"></div>
+        <div className="blob w-64 h-64 bg-indigo-500/20 -bottom-20 -right-20"></div>
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
+          <motion.h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6" {...fadeInUp}>¿Listo para <span className="gradient-text">Comenzar</span>?</motion.h2>
+          <motion.p className="text-slate-300 text-xl mb-10 max-w-2xl mx-auto leading-relaxed" {...fadeInUp} transition={{ delay: 0.1 }}>
+            Transformemos juntos tu visión en realidad. Contáctanos hoy y descubre cómo podemos ayudarte a alcanzar tus objetivos tecnológicos.
+          </motion.p>
+          <motion.div className="flex flex-wrap gap-6 justify-center" {...fadeInUp} transition={{ delay: 0.2 }}>
+            <Link href="mailto:contacto@techsolutions.com" className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-blue-500/40 transition-all duration-300 hover:-translate-y-1">
+              <FaEnvelope /> Enviar Email
+            </Link>
+            <Link href="tel:+1234567890" className="group flex items-center gap-3 px-8 py-4 bg-white/5 backdrop-blur border border-white/10 text-white font-semibold rounded-xl hover:bg-white/10 transition-all duration-300">
+              <FaPhone /> Llamar Ahora
+            </Link>
+          </motion.div>
+          {/* Social Links from HTML */}
+          <motion.div className="flex justify-center gap-4 mt-12" {...fadeInUp} transition={{ delay: 0.3 }}>
+            {[
+              { icon: FaTwitter, href: "#" },
+              { icon: FaLinkedin, href: "#" },
+              { icon: FaGithub, href: "#" }
+            ].map((social, i) => (
+              <Link key={i} href={social.href} className="w-12 h-12 rounded-full bg-slate-800/50 border border-slate-700/50 flex items-center justify-center text-slate-400 hover:text-blue-400 hover:border-blue-500/50 transition-all duration-300">
+                <social.icon size={20} />
+              </Link>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 11. Footer Section */}
+      <footer className="py-12 px-4 border-t border-white/5 bg-slate-950/80 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
+              <FaCode className="text-white" />
+            </div>
+            <span id="footer-company" className="font-display font-bold text-xl text-white tracking-tight">TechSolutions Elite</span>
+          </div>
+          <p className="text-slate-500 text-sm font-medium text-center md:text-right">
+            © 2024 Todos los derechos reservados. Desarrollado con 💜 por un Ingeniero Informático.
           </p>
         </div>
-      </div>
-    </motion.div>
-  );
-}
+      </footer>
 
-function ProfilePortal({ src }: { src: string }) {
-  const portalRef = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useTransform(useSpring(y, { stiffness: 100, damping: 20 }), [-0.5, 0.5], ["15deg", "-15deg"]);
-  const rotateY = useTransform(useSpring(x, { stiffness: 100, damping: 20 }), [-0.5, 0.5], ["-15deg", "15deg"]);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!portalRef.current) return;
-    const rect = portalRef.current.getBoundingClientRect();
-    x.set((e.clientX - rect.left) / rect.width - 0.5);
-    y.set((e.clientY - rect.top) / rect.height - 0.5);
-  };
-
-  return (
-    <motion.div
-      ref={portalRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => { x.set(0); y.set(0); }}
-      style={{ rotateX, rotateY, perspective: 1000, transformStyle: "preserve-3d" }}
-      className="relative w-[320px] h-[420px] md:w-[420px] md:h-[540px] group"
-    >
-      <div className="absolute inset-0 border-2 border-indigo-500/20 rounded-[4.5rem] group-hover:border-indigo-500/50 transition-all duration-700 pointer-events-none" />
-      <div className="absolute -inset-6 border border-indigo-500/10 rounded-[6rem] animate-pulse pointer-events-none" />
-      <div className="absolute inset-4 bg-black rounded-[4rem] group-hover:bg-[#0a0a0c] transition-all pointer-events-none border border-white/5" />
-
-      <div
-        style={{ transform: "translateZ(100px)" }}
-        className="absolute inset-10 rounded-[3.5rem] overflow-hidden border border-white/20 shadow-4xl transition-transform duration-700 bg-black"
-      >
-        <Image
-          src={src}
-          fill
-          alt="Profile"
-          className="object-cover grayscale hover:grayscale-0 transition-all duration-1000 scale-110 group-hover:scale-100"
-          sizes="(max-width: 768px) 100vw, 420px"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/20 to-transparent h-[15%] w-full animate-scan pointer-events-none opacity-40 z-20" />
-      </div>
-      {/* Badge eliminado por solicitud del usuario para evitar solapamiento */}
-    </motion.div>
-  );
-}
-
-function SpecCard({ c, style }: any) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rotateX = useTransform(useSpring(y), [-0.5, 0.5], ["12deg", "-12deg"]);
-  const rotateY = useTransform(useSpring(x), [-0.5, 0.5], ["-12deg", "12deg"]);
-
-  const handleMove = (e: React.MouseEvent) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    x.set((e.clientX - rect.left) / rect.width - 0.5);
-    y.set((e.clientY - rect.top) / rect.height - 0.5);
-  };
-
-  return (
-    <motion.div
-      ref={cardRef}
-      onMouseMove={handleMove}
-      onMouseLeave={() => { x.set(0); y.set(0); }}
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className={`${style} !p-12 hover:border-indigo-500/30 transition-all relative overflow-hidden group shadow-4xl`}
-    >
-      <div className={`absolute inset-0 bg-gradient-to-br ${c.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
-      <div style={{ transform: "translateZ(80px)" }} className="text-7xl mb-12 text-white/10 group-hover:text-indigo-500 transition-all duration-700 block">
-        {c.icon}
-      </div>
-      <div style={{ transform: "translateZ(120px)" }}>
-        <h4 className="text-3xl text-white font-black mb-6 uppercase tracking-tighter leading-none group-hover:text-indigo-400 transition-colors">{c.title}</h4>
-        <p className="text-gray-400 font-bold leading-relaxed text-base group-hover:text-gray-300 transition-colors">{c.desc}</p>
-      </div>
-    </motion.div>
-  );
-}
-
-function FloatingAssets() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-  if (!mounted) return null;
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20 z-0">
-      {[...Array(15)].map((_, i) => (
-        <motion.div
-          key={i}
-          initial={{ x: Math.random() * 2000 - 1000, y: Math.random() * 2000 - 1000, rotate: 0, scale: Math.random() * 0.5 + 0.5 }}
-          animate={{ x: Math.random() * 2000 - 1000, y: Math.random() * 2000 - 1000, rotate: 360, scale: [0.5, 0.8, 0.5] }}
-          transition={{ duration: Math.random() * 30 + 30, repeat: Infinity, ease: "linear" }}
-          className="absolute text-indigo-500/10 font-mono text-[8vw] select-none uppercase font-black tracking-tighter"
-        >
-          {["01", "FJV", "ELITE", "TECH", "CORE"][i % 5]}
-        </motion.div>
-      ))}
+      {/* 12. Floating Chat Widget (Componente Separado) */}
+      <FloatingChat />
     </div>
   );
 }

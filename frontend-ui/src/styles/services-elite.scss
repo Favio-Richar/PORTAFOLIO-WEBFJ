@@ -1,3 +1,4 @@
+@use "sass:color";
 // Services Elite Premium Design System (Block-Based)
 // Focus: Order, Professional Scaling, and High-Fidelity UI/UX
 // Theme: Midnight Elite (No white backgrounds)
@@ -97,7 +98,7 @@ $container-max: 1280px;
             background: rgba($elite-primary, 0.1);
             border: 1px solid rgba($elite-primary, 0.2);
             border-radius: 100px;
-            color: lighten($elite-primary, 10%);
+            color: color.adjust($elite-primary, $lightness: 10%);
             font-size: 0.85rem;
             font-weight: 800;
             margin-bottom: 2.5rem;
@@ -131,7 +132,7 @@ $container-max: 1280px;
     // --- BLOCK: PLANS ---
     .plans-block {
         @include section-padding;
-        background: lighten($elite-dark-deep, 2%);
+        background: color.adjust($elite-dark-deep, $lightness: 2%);
         position: relative;
 
         &::before {

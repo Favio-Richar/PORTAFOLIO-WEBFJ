@@ -1,0 +1,152 @@
+/* =========================================
+   ELITE 3D LOGO STYLES
+   ========================================= */
+
+.logo-elite-container {
+    perspective: 1000px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-3d-wrapper {
+    transform-style: preserve-3d;
+    animation: logoFloat 6s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) rotateX(5deg) rotateY(-5deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotateX(-5deg) rotateY(5deg);
+    }
+}
+
+.main-text-elite {
+    font-family: var(--font-orbitron), sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    /* Clean Neon Glow instead of flat 3D shadows */
+    text-shadow:
+        0 0 10px rgba(56, 189, 248, 0.8),
+        0 0 20px rgba(99, 102, 241, 0.4),
+        0 0 30px rgba(139, 92, 246, 0.2);
+}
+
+.secondary-text-elite {
+    font-family: var(--font-rajdhani), sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: #38bdf8;
+}
+
+.glow-effect-elite {
+    filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.7)) drop-shadow(0 0 24px rgba(99, 102, 241, 0.5)) drop-shadow(0 0 36px rgba(139, 92, 246, 0.3));
+}
+
+.gradient-text-elite {
+    /* More saturated and bright colors */
+    background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 25%, #c084fc 50%, #3a7bd5 75%, #00d2ff 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShiftElite 4s ease infinite;
+}
+
+@keyframes gradientShiftElite {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+/* 3D Cube */
+.cube-elite {
+    width: 40px;
+    height: 40px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: cubeRotateElite 10s linear infinite;
+}
+
+@keyframes cubeRotateElite {
+    0% {
+        transform: rotateX(0deg) rotateY(0deg);
+    }
+
+    100% {
+        transform: rotateX(360deg) rotateY(360deg);
+    }
+}
+
+.cube-face-elite {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(56, 189, 248, 0.8);
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(139, 92, 246, 0.2));
+    backdrop-filter: blur(8px);
+    box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.4);
+}
+
+.face-front {
+    transform: translateZ(20px);
+}
+
+.face-back {
+    transform: rotateY(180deg) translateZ(20px);
+}
+
+.face-right {
+    transform: rotateY(90deg) translateZ(20px);
+}
+
+.face-left {
+    transform: rotateY(-90deg) translateZ(20px);
+}
+
+.face-top {
+    transform: rotateX(90deg) translateZ(20px);
+}
+
+.face-bottom {
+    transform: rotateX(-90deg) translateZ(20px);
+}
+
+/* Particles */
+.particle-elite {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #38bdf8, #818cf8);
+    box-shadow: 0 0 10px #38bdf8;
+    animation: particleFloatElite 3s ease-in-out infinite;
+}
+
+@keyframes particleFloatElite {
+
+    0%,
+    100% {
+        opacity: 0;
+        transform: translateY(0) scale(0);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateY(-20px) scale(1);
+    }
+}

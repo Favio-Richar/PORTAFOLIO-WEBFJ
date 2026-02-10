@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
 import { FaChevronDown, FaCode, FaPaintBrush, FaBullhorn, FaRocket, FaMobileAlt, FaServer, FaUserShield } from "react-icons/fa";
+import EliteLogo3D from "./EliteLogo3D";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -64,18 +65,11 @@ export default function Navbar() {
         {/* SOLID TOP BORDER HIGHLIGHT */}
         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600"></div>
 
-        <div className="mx-auto max-w-[1400px] px-6 h-24 flex items-center justify-between relative">
+        <div className="mx-auto max-w-[1400px] px-4 h-24 flex items-center justify-between relative gap-4">
 
           {/* LOGO AREA */}
-          <Link href="/" className="flex items-center gap-4 group">
-            <div className="relative w-12 h-12 bg-white flex items-center justify-center rounded-lg overflow-hidden border border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_30px_rgba(245,158,11,0.2)] transition-all duration-500">
-              <img src="/img/logo.nextlevelsoftwarepro.jpg" alt="Logo" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-amber-500/0 group-hover:bg-amber-500/10 transition-colors" />
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-white font-black tracking-tighter text-lg leading-none group-hover:text-indigo-400 transition-colors drop-shadow-sm">NEXT LEVEL</h1>
-              <span className="text-slate-400 font-bold tracking-[0.3em] text-[10px] leading-none group-hover:text-white transition-colors uppercase">Software Pro</span>
-            </div>
+          <Link href="/" className="flex-shrink-0 flex items-center group overflow-visible">
+            <EliteLogo3D />
           </Link>
 
           {/* DESKTOP NAVIGATION */}
@@ -83,16 +77,16 @@ export default function Navbar() {
             {navLinks.map((link) => (
               <div
                 key={link.label}
-                className="relative h-full flex items-center px-5 group/nav"
+                className="relative h-full flex items-center px-4 group/nav"
                 onMouseEnter={() => setHoveredNav(link.label)}
                 onMouseLeave={() => setHoveredNav(null)}
               >
                 <Link
                   href={link.href}
-                  className="text-slate-300 font-bold text-xs uppercase tracking-[0.25em] transition-all duration-300 group-hover/nav:text-white group-hover/nav:drop-shadow-[0_0_5px_rgba(255,255,255,0.5)] flex items-center gap-2 py-8"
+                  className="text-blue-500 font-bold text-xs uppercase tracking-[0.25em] transition-all duration-300 group-hover/nav:text-white group-hover/nav:drop-shadow-[0_0_5px_rgba(56,189,248,0.5)] flex items-center gap-2 py-8"
                 >
                   {link.label}
-                  {link.hasDropdown && <FaChevronDown className={`text-[8px] transition-transform duration-300 ${hoveredNav === link.label ? "rotate-180 text-indigo-500" : "text-slate-500"}`} />}
+                  {link.hasDropdown && <FaChevronDown className={`text-[8px] transition-transform duration-300 ${hoveredNav === link.label ? "rotate-180 text-blue-400" : "text-blue-500/50"}`} />}
                 </Link>
 
                 {/* SOLID HIGHLIGHT BAR */}

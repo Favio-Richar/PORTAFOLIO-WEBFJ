@@ -1,51 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next Level Software Pro - Frontend (Elite Edition)
 
-## Getting Started
+Este proyecto es la interfaz de usuario moderna y de alto rendimiento para el portafolio profesional "Next Level Software Pro". Construido con tecnología de vanguardia para ofrecer una experiencia visual impactante y una funcionalidad robusta.
 
-First, run the development server:
+**Estado Actual:** 🚀 v2.0 (Elite System) - 72% Completado
 
+## 🛠️ Stack Tecnológico
+
+*   **Framework:** [Next.js 15](https://nextjs.org) (App Router)
+*   **Lenguaje:** TypeScript
+*   **Estilos:** [Tailwind CSS 4](https://tailwindcss.com) + Sass (SCSS)
+*   **Animaciones:**
+    *   [Framer Motion 12](https://www.framer.com/motion/) (Transiciones y UI interactiva)
+    *   [GSAP](https://gsap.com) (Animaciones complejas)
+*   **3D Elements:** [Three.js](https://threejs.org) con `@react-three/fiber` y `@react-three/drei`
+*   **Iconos:** React Icons (FontAwesome, Material, etc.)
+*   **Mapas:** Leaflet (React Leaflet)
+
+## ✨ Características Principales
+
+### 🎨 Diseño "Midnight Elite"
+Una estética oscura, elegante y futurista que combina:
+*   **Glassmorphism Avanzado:** Paneles translúcidos con desenfoque y bordes sutiles.
+*   **Gradientes Vibrantes:** Uso de Indigo, Violeta y Cyan para resaltar elementos clave.
+*   **Tipografía Premium:** Combinación de `Orbitron` (Futurista) y `Rajdhani` (Técnica) con `Playfair Display` para elegancia.
+
+### 🧩 Módulos Implementados
+
+1.  **Home Page (Nueva)**
+    *   Hero Section con animaciones de entrada.
+    *   Showcase de Servicios y Proyectos.
+    *   Testimonios y Metodología.
+    *   **Navbar Global**: Con logo 3D integrado y navegación responsive.
+
+2.  **Sobre Mí**
+    *   Historia profesional y timeline.
+    *   Grid de habilidades técnicas.
+    *   Chat Flotante Interactivo (Simulación IA).
+
+3.  **Contacto**
+    *   Diseño con efecto "Lluvia de Iconos".
+    *   Integración directa con WhatsApp y Email.
+
+4.  **Admin Panel (Básico)**
+    *   Sidebar moderna.
+    *   Gestión de contenido (en desarrollo).
+
+## 🚀 Instalación y Ejecución
+
+1.  **Instalar dependencias:**
+    ```bash
+    npm install
+    ```
+
+2.  **Iniciar servidor de desarrollo:**
+    ```bash
+    npm run dev
+    ```
+    Visita [http://localhost:3000](http://localhost:3000).
+
+3.  **Construir para producción:**
+    ```bash
+    npm run build
+    npm start
+    ```
+
+## 🧠 Flujo de Trabajo (Guía del Desarrollador)
+
+Para mantener la calidad y consistencia del código:
+
+**Nuevas Dependencias:**
+Si necesitas instalar paquetes adicionales, recuerda:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install nombre_paquete
+# Tipos si es necesario
+npm install --save-dev @types/nombre_paquete
 ```
 
-npm install
-npm install resend
-npm install remark-gfm rehype-highlight rehype-raw highlight.js react-markdown
-npm list tailwindcss
-
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-🧠 A PARTIR DE AHORA (GUÁRDALO)
-
-Cada vez que avances:
-npm install gsap
-npm install --save-dev @types/webxr
-
+**Git Workflow:**
+Al finalizar una tarea importante:
+```bash
 git add .
-git commit -m "Descripción clara del avance"
+git commit -m "Descripción clara del avance (ej: feat: navbar 3d animation)"
 git push
+```
+
+---
+© 2024-2026 Next Level Software Pro. Todos los derechos reservados.
