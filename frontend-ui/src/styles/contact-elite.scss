@@ -1,0 +1,243 @@
+// Contact Elite 2.0 Premium Styles
+// Optimized for High-Fidelity Professional Appearance
+@import "services-elite.scss"; // Reuse base elite mixins
+
+.contact-elite-wrapper {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.15), transparent 80%),
+        $elite-dark-deep;
+
+    // --- FLOATING SHAPES ---
+    .floating-shapes {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 0;
+        pointer-events: none;
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            filter: blur(60px);
+            animation: float-elite 20s infinite ease-in-out;
+        }
+
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background: $elite-primary;
+            top: -100px;
+            right: -100px;
+        }
+
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            background: $elite-secondary;
+            bottom: 10%;
+            left: -100px;
+            animation-delay: -5.3s;
+        }
+
+        .shape-3 {
+            width: 250px;
+            height: 250px;
+            background: #06b6d4;
+            top: 40%;
+            right: 5%;
+            animation-delay: -10.7s;
+        }
+    }
+
+    // --- QUICK CARDS ---
+    .quick-contact-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+        margin-bottom: 80px;
+    }
+
+    .contact-card-pro {
+        @include glass-effect;
+        background: rgba(255, 255, 255, 0.02);
+        padding: 40px 30px;
+        border-radius: 32px;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        display: block;
+
+        &:hover {
+            transform: translateY(-12px);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba($elite-primary, 0.3);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5);
+
+            .card-icon-container .pulse-ring {
+                animation: pulse-ring-pro 2s infinite;
+            }
+        }
+
+        .card-icon-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .pulse-ring {
+                position: absolute;
+                inset: 0;
+                border-radius: 50%;
+                background: currentColor;
+                opacity: 0;
+            }
+
+            .icon-box {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2rem;
+                color: white;
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            }
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        p {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .card-link {
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+    }
+
+    // --- SOCIAL BUTTONS ---
+    .social-elite-section {
+        @include glass-effect;
+        padding: 40px;
+        border-radius: 40px;
+        margin-top: 40px;
+
+        .social-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .social-btn-pro {
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+
+            &:hover {
+                transform: scale(1.15) rotate(5deg);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            }
+
+            &.fb {
+                background: #1877f2;
+            }
+
+            &.ig {
+                background: linear-gradient(135deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d);
+            }
+
+            &.li {
+                background: #0077b5;
+            }
+
+            &.tw {
+                background: #000000;
+            }
+        }
+    }
+}
+
+// --- ANIMATIONS ---
+@keyframes float-elite {
+
+    0%,
+    100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    33% {
+        transform: translate(30px, -40px) rotate(5deg);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) rotate(-5deg);
+    }
+}
+
+@keyframes pulse-ring-pro {
+    0% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1.6);
+        opacity: 0;
+    }
+}
+
+@keyframes gradient-shift-elite {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.submit-btn-elite {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+    background-size: 200% 200%;
+    animation: gradient-shift-elite 4s linear infinite;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
+    }
+}

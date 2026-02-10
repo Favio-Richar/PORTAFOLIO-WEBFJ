@@ -148,19 +148,19 @@ function TestimonialCard({ t }: { t: any }) {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className="glass-card-pro p-10 relative overflow-hidden group cursor-grab active:cursor-grabbing border border-white/10 hover:border-cyan-500/30 transition-colors duration-500"
+      className="glass-card-pro p-10 relative overflow-hidden group cursor-grab active:cursor-grabbing border border-white/10 hover:border-indigo-500/30 transition-colors duration-500"
     >
       {/* Decorative Blur */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 blur-[80px] rounded-full pointer-events-none" />
+      <div className="absolute top-0 left-0 w-3 h-3 bg-indigo-500 rounded-full blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity" />
 
       <div style={{ transform: "translateZ(50px)" }} className="relative z-10">
         <div className="flex justify-between items-start mb-8">
-          <FaQuoteLeft className="text-cyan-500/40 text-5xl" />
+          <FaQuoteLeft className="text-indigo-500/20 text-5xl" />
           <div className="flex flex-col items-end">
             <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest mb-1">{t.date}</span>
             <div className="flex gap-1">
               {Array(t.stars).fill(0).map((_, idx) => (
-                <FaStar key={idx} className="text-yellow-400 text-sm text-glow-gold" />
+                <FaStar key={idx} className="text-indigo-400 text-sm text-glow-gold" />
               ))}
             </div>
           </div>
@@ -185,9 +185,9 @@ function TestimonialCard({ t }: { t: any }) {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h4 className="title-fire text-white font-black text-xl leading-none">{t.name}</h4>
-              <FaCheckCircle className="text-cyan-400 text-sm" title="Cliente Verificado" />
+              <FaCheckCircle className="text-indigo-500 text-sm" title="Cliente Verificado" />
             </div>
-            <p className="text-cyan-400/80 text-xs font-bold tracking-wider uppercase mb-1">{t.role}</p>
+            <p className="text-indigo-500/80 text-xs font-bold tracking-wider uppercase mb-1">{t.role}</p>
             <p className="text-white/20 text-[10px] font-bold uppercase">{t.location}</p>
           </div>
         </div>

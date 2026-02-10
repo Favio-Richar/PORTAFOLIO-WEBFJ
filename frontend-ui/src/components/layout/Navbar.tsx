@@ -1,245 +1,262 @@
 "use client";
-
+import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "@/lib/gsap";
+import { FaChevronDown, FaCode, FaPaintBrush, FaBullhorn, FaRocket, FaMobileAlt, FaServer, FaUserShield } from "react-icons/fa";
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
-  const logoRef = useRef<HTMLAnchorElement>(null);
-  const linksRef = useRef<HTMLDivElement>(null);
 
-  useGSAP(() => {
-    if (logoRef.current) {
-      const scanline = logoRef.current.querySelector(".logo-scanline");
-      const glow = logoRef.current.querySelector(".logo-glow");
-
-      gsap.to(scanline, {
-        x: "300%",
-        duration: 1.5,
-        repeat: -1,
-        repeatDelay: 2,
-        ease: "power4.inOut",
-      });
-
-      gsap.to(logoRef.current, {
-        y: -4,
-        duration: 2,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut"
-      });
-
-      gsap.to(logoRef.current, {
-        filter: "drop-shadow(0 0 15px var(--primary)) brightness(1.1)",
-        duration: 1,
-        repeat: -1,
-        yoyo: true,
-        ease: "power2.inOut"
-      });
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
     }
-  }, []);
+  }, [mobileMenuOpen]);
 
-  const links = [
+  // Hide Navbar on Auth and Admin pages (Admin has its own Sidebar)
+  if (pathname?.startsWith("/auth") || pathname?.startsWith("/admin")) {
+    return null;
+  }
+
+  const navLinks = [
     { href: "/", label: "Inicio" },
     { href: "/sobre-mi", label: "Sobre mí" },
-    { href: "/proyectos", label: "Proyectos" },
-    { href: "/servicios", label: "Servicios" },
+    {
+      href: "/proyectos",
+      label: "Proyectos",
+      hasDropdown: true,
+      dropdownData: [
+        { title: "Desarrollo Web", desc: "Plataformas corporativas y SaaS.", icon: <FaCode /> },
+        { title: "Apps Móviles", desc: "iOS y Android nativo.", icon: <FaMobileAlt /> },
+        { title: "E-Commerce", desc: "Tiendas online de alto rendimiento.", icon: <FaRocket /> },
+      ]
+    },
+    {
+      href: "/servicios",
+      label: "Servicios",
+      hasDropdown: true,
+      dropdownData: [
+        { title: "Consultoría TI", desc: "Auditoría y arquitectura de software.", icon: <FaServer /> },
+        { title: "Diseño UX/UI", desc: "Interfaces modernas y funcionales.", icon: <FaPaintBrush /> },
+        { title: "Marketing Digital", desc: "SEO, SEM y campañas de impacto.", icon: <FaBullhorn /> },
+      ]
+    },
     { href: "/blog", label: "Blog" },
     { href: "/clientes", label: "Clientes" },
     { href: "/contacto", label: "Contacto" },
   ];
 
   return (
-    <nav
-      ref={navRef}
-      className="sticky top-0 z-[100] w-full bg-black/80 backdrop-blur-2xl border-b border-cyan-500/20 shadow-[0_0_30px_rgba(6,182,212,0.1)]"
-    >
-      {/* SCANLINE EFFECT */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-20"></div>
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent animate-scan"></div>
-      </div>
+    <>
+      <nav
+        ref={navRef}
+        className="sticky top-0 z-[100] w-full bg-[#050505] border-b border-white/10 shadow-xl"
+      >
+        {/* SOLID TOP BORDER HIGHLIGHT */}
+        <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600"></div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent opacity-50"></div>
+        <div className="mx-auto max-w-[1400px] px-6 h-24 flex items-center justify-between relative">
 
-      <div className="mx-auto max-w-7xl px-6 py-3 flex items-center justify-between relative font-black">
+          {/* LOGO AREA */}
+          <Link href="/" className="flex items-center gap-4 group">
+            <div className="relative w-12 h-12 bg-white flex items-center justify-center rounded-lg overflow-hidden border border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.1)] group-hover:shadow-[0_0_30px_rgba(245,158,11,0.2)] transition-all duration-500">
+              <img src="/img/logo.nextlevelsoftwarepro.jpg" alt="Logo" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-amber-500/0 group-hover:bg-amber-500/10 transition-colors" />
+            </div>
+            <div className="flex flex-col">
+              <h1 className="text-white font-black tracking-tighter text-lg leading-none group-hover:text-indigo-400 transition-colors drop-shadow-sm">NEXT LEVEL</h1>
+              <span className="text-slate-400 font-bold tracking-[0.3em] text-[10px] leading-none group-hover:text-white transition-colors uppercase">Software Pro</span>
+            </div>
+          </Link>
 
-        {/* LOGO ELITE */}
-        <Link
-          ref={logoRef}
-          href="/"
-          className="relative z-10 flex items-center group overflow-hidden rounded-2xl border border-white/10 bg-black/40 p-1.5 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
-        >
-          <img
-            src="/img/logo.nextlevelsoftwarepro.jpg"
-            alt="Favio Jiménez Logo"
-            className="h-11 w-auto object-contain transition-all duration-700 group-hover:brightness-125"
-          />
-          <div className="logo-scanline absolute inset-0 w-[150%] h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full pointer-events-none skew-x-12 opacity-30"></div>
-          <div className="absolute inset-0 bg-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        </Link>
-
-        {/* BOTÓN MÓVIL */}
-        <button
-          aria-label="Abrir menú"
-          className="md:hidden w-12 h-12 flex items-center justify-center rounded-full glass-light border border-white/10 text-white hover:text-cyan-400 transition-all z-10"
-          onClick={() => setOpen(!open)}
-        >
-          {!open ? "☰" : "✕"}
-        </button>
-
-        {/* LINKS DESKTOP */}
-        <div
-          ref={linksRef}
-          className="hidden md:flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] relative z-10 perspective-1000"
-        >
-          {links.map((item) => (
-            <NavItem key={item.href} href={item.href} label={item.label} />
-          ))}
-
-          <AdminButton />
-        </div>
-      </div>
-
-      {/* MENÚ MÓVIL */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-cyan-500/20 bg-black/95 backdrop-blur-3xl overflow-hidden"
-          >
-            <div className="flex flex-col px-8 py-10 gap-4 font-black text-xs tracking-[0.3em] uppercase">
-              {links.map((item) => (
+          {/* DESKTOP NAVIGATION */}
+          <div className="hidden lg:flex items-center h-full">
+            {navLinks.map((link) => (
+              <div
+                key={link.label}
+                className="relative h-full flex items-center px-5 group/nav"
+                onMouseEnter={() => setHoveredNav(link.label)}
+                onMouseLeave={() => setHoveredNav(null)}
+              >
                 <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className="text-gray-400 hover:text-cyan-400 transition-all duration-300 px-6 py-4 rounded-3xl hover:bg-white/5 flex items-center justify-between group"
+                  href={link.href}
+                  className="text-slate-300 font-bold text-xs uppercase tracking-[0.25em] transition-all duration-300 group-hover/nav:text-white group-hover/nav:drop-shadow-[0_0_5px_rgba(255,255,255,0.5)] flex items-center gap-2 py-8"
                 >
-                  <span>{item.label}</span>
-                  <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 opacity-0 group-hover:opacity-100 shadow-[0_0_10px_#06b6d4]"></div>
+                  {link.label}
+                  {link.hasDropdown && <FaChevronDown className={`text-[8px] transition-transform duration-300 ${hoveredNav === link.label ? "rotate-180 text-indigo-500" : "text-slate-500"}`} />}
                 </Link>
-              ))}
-              <div className="mt-8">
-                <AdminButton isMobile onClick={() => setOpen(false)} />
+
+                {/* SOLID HIGHLIGHT BAR */}
+                <div className={`absolute bottom-0 left-0 w-full h-[3px] bg-indigo-500 transition-transform duration-300 origin-center ${hoveredNav === link.label ? "scale-x-100" : "scale-x-0"}`} />
+
+
+                {/* MEGA MENU DROPDOWN (SOLID OPAQUE) */}
+                <AnimatePresence>
+                  {link.hasDropdown && hoveredNav === link.label && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 5 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute top-24 left-1/2 -translate-x-1/2 w-[600px] bg-[#0a0a0a] border border-white/10 shadow-2xl overflow-hidden p-0 grid grid-cols-1"
+                    >
+                      {/* CYBER DECO LINE */}
+                      <div className="h-1 w-full bg-gradient-to-r from-indigo-600 to-violet-600" />
+
+                      <div className="p-8 grid grid-cols-3 gap-6">
+                        {link.dropdownData?.map((item, idx) => (
+                          <Link key={idx} href={link.href} className="group/item flex flex-col gap-3 p-4 rounded-md hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
+                            <div className="w-10 h-10 bg-[#111] border border-white/10 flex items-center justify-center text-indigo-400 text-lg rounded group-hover/item:scale-110 group-hover/item:border-indigo-500/50 transition-all">
+                              {item.icon}
+                            </div>
+                            <div>
+                              <h4 className="text-white font-bold text-sm tracking-wide group-hover/item:text-indigo-400 transition-colors uppercase">{item.title}</h4>
+
+                              <p className="text-slate-400 text-[10px] leading-relaxed mt-1 group-hover/item:text-slate-200 transition-colors">{item.desc}</p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+
+                      {/* BOTTOM CTA */}
+                      <div className="bg-[#0f0f0f] p-4 text-center border-t border-white/5">
+                        <Link href={link.href} className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 hover:text-white transition-colors flex items-center justify-center gap-2 group/all">
+                          Ver todo en {link.label} <span className="group-hover/all:translate-x-1 transition-transform">→</span>
+                        </Link>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
+            ))}
+          </div>
+
+          {/* CTA BUTTONS & MOBILE TOGGLE */}
+          <div className="flex items-center gap-4">
+            {/* ADMIN / MEMBER ACCESS BUTTON */}
+            <Link
+              href="/admin"
+              className="hidden lg:flex items-center justify-center w-10 h-10 rounded-full border border-white/20 bg-[#111] text-slate-300 hover:text-white hover:border-indigo-500 hover:bg-indigo-500/10 transition-all duration-300 group relative"
+              title="Acceso Miembros / Admin"
+            >
+
+              <FaUserShield className="text-sm" />
+              <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[9px] font-bold bg-white text-black px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                ADMIN
+              </span>
+            </Link>
+
+            <Link
+              href="/contacto"
+              className="hidden lg:flex relative overflow-hidden group bg-transparent border border-white/40 text-white px-8 py-2.5 font-black text-[11px] uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all duration-500 items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_25px_rgba(99,102,241,0.3)]"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/10 to-violet-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <span className="relative z-10 flex items-center gap-3">
+                Iniciar Proyecto <FaRocket className="text-xs text-indigo-400 group-hover:text-black transition-colors" />
+              </span>
+            </Link>
+
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 group border border-white/10 bg-[#111] active:scale-95 transition-all"
+            >
+              <span className={`w-5 h-[2px] bg-white transition-all duration-300 ${mobileMenuOpen ? "rotate-45 translate-y-2 bg-indigo-500" : ""}`} />
+              <span className={`w-5 h-[2px] bg-white transition-all duration-300 ${mobileMenuOpen ? "opacity-0" : ""}`} />
+              <span className={`w-5 h-[2px] bg-white transition-all duration-300 ${mobileMenuOpen ? "-rotate-45 -translate-y-2 bg-indigo-500" : ""}`} />
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* MOBILE MENU FULLSCREEN SOLID OVERLAY */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "tween", duration: 0.4, ease: "circOut" }}
+            className="fixed inset-0 z-[200] bg-[#050505] flex flex-col"
+          >
+            {/* MOBILE HEADER */}
+            <div className="h-24 flex items-center justify-between px-6 border-b border-white/10 bg-[#050505]">
+              <div className="flex flex-col">
+                <span className="text-white font-black tracking-tighter text-lg leading-none">MENU</span>
+                <span className="text-indigo-500 font-bold tracking-[0.3em] text-[10px]">NAVEGACIÓN</span>
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-12 h-12 flex items-center justify-center border border-white/10 bg-[#111] text-white hover:text-indigo-400 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* MOBILE LINKS */}
+            <div className="flex-1 overflow-y-auto py-10 px-8 flex flex-col gap-2">
+              {navLinks.map((link, idx) => (
+                <div key={idx} className="border-b border-white/5 pb-2">
+                  <Link
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-2xl font-black text-slate-200 hover:text-white hover:pl-4 transition-all uppercase tracking-tighter py-4 block group"
+                  >
+                    {link.label}
+                    <span className="text-indigo-500 opacity-0 group-hover:opacity-100 ml-2 text-xl transition-opacity">●</span>
+                  </Link>
+                  {link.hasDropdown && (
+                    <div className="grid grid-cols-1 gap-2 pl-4 mb-4">
+                      {link.dropdownData?.map((sub, sIdx) => (
+                        <Link
+                          key={sIdx}
+                          href={link.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="text-slate-400 text-xs font-bold uppercase tracking-widest hover:text-indigo-400 py-1 flex items-center gap-2"
+                        >
+                          <span className="w-1 h-1 bg-white/20 rounded-full" /> {sub.title}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* MOBILE ADMIN LINK */}
+              <div className="border-b border-white/5 pb-2 mt-4">
+                <Link
+                  href="/admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-lg font-bold text-indigo-400 hover:text-indigo-300 hover:pl-4 transition-all uppercase tracking-widest py-4 flex items-center gap-2"
+                >
+                  <FaUserShield /> Acceso Admin
+                </Link>
+              </div>
+
+            </div>
+
+            {/* MOBILE FOOTER CTA */}
+            <div className="p-8 border-t border-white/10 bg-[#0a0a0a]">
+              <Link
+                href="/contacto"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full block bg-white text-black text-center py-5 font-black uppercase tracking-[0.25em] hover:bg-indigo-500 hover:text-white transition-colors"
+              >
+                Iniciar Proyecto Ahora
+              </Link>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
-  );
-}
-
-function NavItem({ href, label }: { href: string; label: string }) {
-  const itemRef = useRef<HTMLAnchorElement>(null);
-
-  useGSAP(() => {
-    if (!itemRef.current) return;
-    const el = itemRef.current;
-
-    const onMouseMove = (e: MouseEvent) => {
-      const { left, top, width, height } = el.getBoundingClientRect();
-      const x = (e.clientX - left) / width - 0.5;
-      const y = (e.clientY - top) / height - 0.5;
-
-      gsap.to(el, {
-        rotateX: -y * 15,
-        rotateY: x * 15,
-        scale: 1.05,
-        duration: 0.2,
-        ease: "power2.out"
-      });
-    };
-
-    const onMouseLeave = () => {
-      gsap.to(el, {
-        rotateX: 0,
-        rotateY: 0,
-        scale: 1,
-        duration: 0.5,
-        ease: "elastic.out(1, 0.3)"
-      });
-    };
-
-    el.addEventListener("mousemove", onMouseMove);
-    el.addEventListener("mouseleave", onMouseLeave);
-    return () => {
-      el.removeEventListener("mousemove", onMouseMove);
-      el.removeEventListener("mouseleave", onMouseLeave);
-    };
-  }, []);
-
-  return (
-    <Link
-      ref={itemRef}
-      href={href}
-      className="nav-fireball group relative px-5 py-2.5 transition-all duration-300 rounded-full flex items-center justify-center overflow-visible"
-    >
-      <div className="nav-fireball-bg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      <span className="relative z-10 text-gray-400 group-hover:text-white transition-colors duration-300">
-        {label}
-      </span>
-      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-cyan-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></span>
-    </Link>
-  );
-}
-
-function AdminButton({ isMobile, onClick }: { isMobile?: boolean; onClick?: () => void }) {
-  const btnRef = useRef<HTMLAnchorElement>(null);
-
-  useGSAP(() => {
-    if (!btnRef.current || isMobile) return;
-    const el = btnRef.current;
-
-    const onMouseMove = (e: MouseEvent) => {
-      const { left, top, width, height } = el.getBoundingClientRect();
-      const x = (e.clientX - left) / width - 0.5;
-      const y = (e.clientY - top) / height - 0.5;
-
-      gsap.to(el, {
-        rotateX: -y * 25,
-        rotateY: x * 25,
-        z: 20,
-        scale: 1.1,
-        duration: 0.2,
-      });
-    };
-
-    const onMouseLeave = () => {
-      gsap.to(el, {
-        rotateX: 0,
-        rotateY: 0,
-        z: 0,
-        scale: 1,
-        duration: 0.5,
-        ease: "power2.out"
-      });
-    };
-
-    el.addEventListener("mousemove", onMouseMove);
-    el.addEventListener("mouseleave", onMouseLeave);
-    return () => {
-      el.removeEventListener("mousemove", onMouseMove);
-      el.removeEventListener("mouseleave", onMouseLeave);
-    };
-  }, [isMobile]);
-
-  return (
-    <Link
-      ref={btnRef}
-      href="/admin"
-      onClick={onClick}
-      className={`relative flex items-center justify-center ${isMobile ? "w-full py-5" : "ml-6 px-10 py-3 text-[11px]"} rounded-full border border-cyan-500/40 text-cyan-400 btn-alive btn-shimmer btn-border-glow hover:bg-cyan-500 hover:text-black transition-all duration-500 shadow-[0_0_30px_rgba(6,182,212,0.2)] font-black tracking-widest overflow-visible nav-fireball`}
-    >
-      <div className="nav-fireball-bg" />
-      <span className="relative z-10">{isMobile ? "ADMIN PANEL" : "ADMIN AREA"}</span>
-    </Link>
+    </>
   );
 }

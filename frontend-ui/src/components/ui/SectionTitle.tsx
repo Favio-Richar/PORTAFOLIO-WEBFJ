@@ -97,7 +97,7 @@ export default function SectionTitle({ title, subtitle, badge, align = "center" 
     return (
         <div ref={containerRef} className={`flex flex-col mb-12 ${alignmentClass} w-full overflow-visible`}>
             {badge && (
-                <span className="block text-cyan-400 text-lg font-bold tracking-[0.4em] uppercase mb-4 badge-reveal drop-shadow-sm">
+                <span className="block text-indigo-400 text-lg font-bold tracking-[0.4em] uppercase mb-4 badge-reveal drop-shadow-sm">
                     {badge}
                 </span>
             )}

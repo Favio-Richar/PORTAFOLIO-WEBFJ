@@ -122,7 +122,7 @@ export default function TimelineAdmin({ timeline: initialTimeline, onSave }: Pro
                         key={item.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="glass-card-pro p-8 border border-white/5 rounded-[3rem] group hover:border-emerald-500/30 transition-all flex flex-col h-full overflow-hidden"
+                        className="admin-card group hover:border-emerald-500/30 transition-all flex flex-col h-full overflow-hidden"
                     >
                         <div className="flex justify-between items-center mb-6">
                             <span className="px-5 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-inner">
@@ -194,7 +194,7 @@ function TimelineModal({ item, onClose, onSave }: { item: TimelineItem, onClose:
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="max-w-2xl w-full bg-[#0a0a0c] border border-white/10 rounded-[3rem] shadow-4xl overflow-hidden flex flex-col"
+                className="max-w-2xl w-full bg-slate-900 border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
             >
                 <div className="flex justify-between items-center p-10 border-b border-white/5">
                     <h2 className="text-3xl font-black text-white uppercase tracking-tighter flex items-center gap-4">
@@ -234,8 +234,8 @@ function TimelineModal({ item, onClose, onSave }: { item: TimelineItem, onClose:
                                     key={cat.name}
                                     onClick={() => setData({ ...data, category: cat.name, icon: cat.icon })}
                                     className={`px-4 py-3 rounded-2xl border transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 ${data.category === cat.name
-                                            ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
-                                            : 'bg-white/5 border-white/5 text-white/30 hover:border-white/20'
+                                        ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
+                                        : 'bg-white/5 border-white/5 text-white/30 hover:border-white/20'
                                         }`}
                                 >
                                     <FaRocket className="text-[8px]" /> {cat.name}

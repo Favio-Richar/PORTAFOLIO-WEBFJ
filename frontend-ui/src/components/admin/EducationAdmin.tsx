@@ -153,7 +153,7 @@ export default function EducationAdmin({ education: initialEducation, onSave }: 
                         key={edu.id}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="glass-card-pro p-8 border border-white/5 rounded-[3.5rem] group hover:border-indigo-500/30 transition-all flex flex-col"
+                        className="admin-card group hover:border-indigo-500/30 transition-all flex flex-col"
                     >
                         <div className="flex justify-between items-start mb-6">
                             <div className="flex items-center gap-4">
@@ -300,7 +300,7 @@ function EducationModal({ item, onClose, onSave }: { item: Education, onClose: (
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="max-w-4xl w-full bg-[#0a0a0c] border border-white/10 rounded-[4rem] shadow-4xl overflow-hidden flex flex-col max-h-[90vh]"
+                className="max-w-4xl w-full bg-slate-900 border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
             >
                 <div className="flex justify-between items-center p-10 border-b border-white/5 bg-indigo-500/5">
                     <h2 className="text-3xl font-black text-white uppercase tracking-tighter flex items-center gap-4">

@@ -1,9 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FaImage, FaBriefcase, FaCertificate, FaPhone, FaProjectDiagram, FaTools, FaBlog, FaUsers, FaClock, FaGraduationCap } from "react-icons/fa";
+import "@/styles/admin-dashboard.scss"; // Midnight Elite Theme
 
-// Componentes modulares
+// Layout Components
+import AdminSidebar from "@/components/admin/layout/AdminSidebar";
+import AdminHeader from "@/components/admin/layout/AdminHeader";
+import DashboardHome from "@/components/admin/dashboard/DashboardHome";
+
+// Content Components
 import ProfileAdmin from "@/components/admin/ProfileAdmin";
 import ExperienceAdmin from "@/components/admin/ExperienceAdmin";
 import CertificationsAdmin from "@/components/admin/CertificationsAdmin";
@@ -11,8 +16,9 @@ import ContactAdmin from "@/components/admin/ContactAdmin";
 import TimelineAdmin from "@/components/admin/TimelineAdmin";
 import EducationAdmin from "@/components/admin/EducationAdmin";
 import ProjectsAdmin, { Project } from "@/components/admin/ProjectsAdmin";
+import AdsAdmin from "@/components/admin/AdsAdmin";
 
-// Data imports
+// Data types (keep imports for type safety)
 import { defaultProfile, ProfileData } from "@/lib/data/profile";
 import { initialExperiences, Experience } from "@/lib/data/experience";
 import { initialCertifications, Certification } from "@/lib/data/certifications";
@@ -21,6 +27,11 @@ import { initialTimeline, TimelineItem } from "@/lib/data/timeline";
 import { initialEducation, Education } from "@/lib/data/education";
 
 export default function AdminPanel() {
+  // --- STATE ---
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [activeSection, setActiveSection] = useState("dashboard");
+
+  // Data State
   const [profile, setProfile] = useState<ProfileData>(defaultProfile);
   const [experiences, setExperiences] = useState<Experience[]>(initialExperiences);
   const [certifications, setCertifications] = useState<Certification[]>(initialCertifications);
@@ -29,13 +40,11 @@ export default function AdminPanel() {
   const [education, setEducation] = useState<Education[]>(initialEducation);
   const [projects, setProjects] = useState<Project[]>([]);
 
-  const [activeSection, setActiveSection] = useState("profile");
-
+  // --- DATA FETCHING ---
   useEffect(() => {
-    // Cargar datos desde la API
     const loadData = async () => {
       try {
-        // Cargar perfil
+        // Profile
         const profileRes = await fetch("http://localhost:8000/api/profile");
         if (profileRes.ok) {
           const profileData = await profileRes.json();
@@ -47,7 +56,7 @@ export default function AdminPanel() {
           });
         }
 
-        // Cargar experiencias
+        // Experiences
         const expRes = await fetch("http://localhost:8000/api/experiences");
         if (expRes.ok) {
           const expData = await expRes.json();
@@ -59,7 +68,7 @@ export default function AdminPanel() {
           })));
         }
 
-        // Cargar certificaciones
+        // Certifications
         const certRes = await fetch("http://localhost:8000/api/certifications");
         if (certRes.ok) {
           const certData = await certRes.json();
@@ -70,11 +79,11 @@ export default function AdminPanel() {
           })));
         }
 
-        // Cargar contacto
+        // Contact
         const contactRes = await fetch("http://localhost:8000/api/contact");
         if (contactRes.ok) setContact(await contactRes.json());
 
-        // Cargar timeline
+        // Timeline
         const timelineRes = await fetch("http://localhost:8000/api/timeline");
         if (timelineRes.ok) {
           const timeData = await timelineRes.json();
@@ -87,7 +96,7 @@ export default function AdminPanel() {
           })));
         }
 
-        // Cargar educación
+        // Education
         const eduRes = await fetch("http://localhost:8000/api/education");
         if (eduRes.ok) {
           const eduData = await eduRes.json();
@@ -104,7 +113,7 @@ export default function AdminPanel() {
           })));
         }
 
-        // Cargar Proyectos
+        // Projects
         const projRes = await fetch("http://localhost:8000/api/proyectos");
         if (projRes.ok) {
           const projData = await projRes.json();
@@ -124,6 +133,7 @@ export default function AdminPanel() {
     loadData();
   }, []);
 
+  // --- SAVE HANDLERS ---
   const saveProfile = (data: ProfileData) => setProfile(data);
   const saveExperiences = (data: Experience[]) => setExperiences(data);
   const saveCertifications = (data: Certification[]) => setCertifications(data);
@@ -132,56 +142,42 @@ export default function AdminPanel() {
   const saveEducation = (data: Education[]) => setEducation(data);
   const saveProjects = (data: Project[]) => setProjects(data);
 
-  const sections = [
-    { id: "profile", name: "Perfil/Hero", icon: <FaImage />, component: <ProfileAdmin profile={profile} onSave={saveProfile} /> },
-    { id: "experience", name: "Experiencia", icon: <FaBriefcase />, component: <ExperienceAdmin experiences={experiences} onSave={saveExperiences} /> },
-    { id: "timeline", name: "Timeline", icon: <FaClock />, component: <TimelineAdmin timeline={timeline} onSave={saveTimeline} /> },
-    { id: "education", name: "Formación", icon: <FaGraduationCap />, component: <EducationAdmin education={education} onSave={saveEducation} /> },
-    { id: "certifications", name: "Certificaciones", icon: <FaCertificate />, component: <CertificationsAdmin certifications={certifications} onSave={saveCertifications} /> },
-    { id: "projects", name: "Proyectos", icon: <FaProjectDiagram />, component: <ProjectsAdmin projects={projects} onSave={saveProjects} /> },
-    { id: "contact", name: "Contacto", icon: <FaPhone />, component: <ContactAdmin contact={contact} onSave={saveContact} /> },
-    { id: "services", name: "Servicios", icon: <FaTools />, component: <PlaceholderSection name="Servicios" /> },
-    { id: "blog", name: "Blog", icon: <FaBlog />, component: <PlaceholderSection name="Blog" /> },
-    { id: "clients", name: "Clientes", icon: <FaUsers />, component: <PlaceholderSection name="Clientes" /> },
-  ];
-
-  const activeComponent = sections.find(s => s.id === activeSection)?.component;
+  // --- RENDER CONTENT ---
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'dashboard': return <DashboardHome />;
+      case 'profile': return (
+        <ProfileAdmin
+          profile={profile}
+          experiences={experiences}
+          education={education}
+          certifications={certifications}
+          timeline={timeline}
+          onSaveProfile={saveProfile}
+          onSaveExperience={saveExperiences}
+          onSaveEducation={saveEducation}
+          onSaveCertifications={saveCertifications}
+          onSaveTimeline={saveTimeline}
+        />
+      );
+      case 'projects': return <ProjectsAdmin projects={projects} onSave={saveProjects} />;
+      case 'contact': return <ContactAdmin contact={contact} onSave={saveContact} />;
+      case 'ads': return <AdsAdmin />;
+      // case 'timeline': now inside profile
+      default: return <PlaceholderSection name={activeSection} />;
+    }
+  };
 
   return (
-    <div className="relative overflow-hidden pt-20 px-6 font-bold bg-transparent pb-40 min-h-screen">
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-cyan-500/5 blur-[200px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/5 blur-[200px] rounded-full pointer-events-none" />
+    <div className="admin-dashboard-wrapper">
+      <AdminSidebar activeSection={activeSection} setActiveSection={setActiveSection} isCollapsed={isSidebarCollapsed} />
 
-      {/* HEADER */}
-      <section className="text-center py-24 relative z-10">
-        <h2 className="text-7xl md:text-8xl font-black uppercase bg-gradient-to-r from-white via-cyan-400 to-white bg-clip-text text-transparent mb-4 tracking-tighter">
-          ADMIN PANEL
-        </h2>
-        <p className="text-gray-400 text-xl font-medium">Gestión Completa del Portfolio</p>
-      </section>
+      <div className={`admin-main transition-all duration-300`} style={{ marginLeft: isSidebarCollapsed ? '0' : '280px' }}>
+        <AdminHeader toggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)} activeSection={activeSection} />
 
-      {/* NAVEGACIÓN */}
-      <div className="max-w-7xl mx-auto mb-16 relative z-10">
-        <div className="flex flex-wrap gap-4 justify-center">
-          {sections.map(s => (
-            <button
-              key={s.id}
-              onClick={() => setActiveSection(s.id)}
-              className={`px-8 py-4 rounded-full flex items-center gap-3 text-sm font-black uppercase tracking-wider transition-all shadow-xl ${activeSection === s.id
-                ? 'btn-primary btn-alive btn-shimmer btn-border-glow'
-                : 'glass-light border border-white/10 text-white/50 hover:text-white hover:border-cyan-500/30'
-                }`}
-            >
-              <span className="text-lg">{s.icon}</span>
-              {s.name}
-            </button>
-          ))}
+        <div className="admin-content">
+          {renderContent()}
         </div>
-      </div>
-
-      {/* CONTENIDO DINÁMICO */}
-      <div className="max-w-7xl mx-auto relative z-10">
-        {activeComponent}
       </div>
     </div>
   );
@@ -189,11 +185,11 @@ export default function AdminPanel() {
 
 function PlaceholderSection({ name }: { name: string }) {
   return (
-    <div className="text-center py-20">
-      <div className="glass-card-pro p-16 border border-white/10 rounded-[4rem] inline-block">
+    <div className="text-center py-20 fade-in-up">
+      <div className="bg-slate-800/50 p-16 border border-white/10 rounded-[2rem] inline-block">
         <h3 className="text-4xl font-black text-white uppercase mb-4">{name}</h3>
         <p className="text-gray-400 text-lg">
-          Sección en desarrollo. Componente modular listo para implementar.
+          Módulo en construcción. Próximamente disponible.
         </p>
       </div>
     </div>

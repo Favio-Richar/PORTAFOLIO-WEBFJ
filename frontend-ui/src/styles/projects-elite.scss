@@ -1,0 +1,257 @@
+// Proyectos Elite 2.0 - Midnight Revision
+$elite-dark: #020617; // Deepest Midnight
+$elite-surface: #0f172a; // Surface color
+$elite-glass: rgba(255, 255, 255, 0.03);
+$elite-indigo: #6366f1;
+$elite-blue: #3b82f6;
+$elite-emerald: #10b981;
+$elite-amber: #f59e0b;
+$elite-white: #ffffff;
+
+.projects-elite-wrapper {
+    background: $elite-dark;
+    color: $elite-white;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+
+    // --- UTILITIES ---
+    .glass-box {
+        background: $elite-glass;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba($elite-blue, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+    }
+
+    .glow-text {
+        text-shadow: 0 0 20px rgba($elite-blue, 0.5);
+    }
+
+    // --- HERO SECTION ---
+    .hero-bg {
+        background: radial-gradient(circle at 20% 30%, rgba($elite-blue, 0.15) 0%, transparent 60%),
+            radial-gradient(circle at 80% 70%, rgba($elite-emerald, 0.1) 0%, transparent 60%),
+            linear-gradient(135deg, #020617 0%, #0f172a 100%);
+        position: relative;
+        overflow: hidden;
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.02;
+            pointer-events: none;
+        }
+    }
+
+    // --- BADGES ---
+    .badge-elite {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 24px;
+        background: rgba($elite-blue, 0.1);
+        border: 1px solid rgba($elite-blue, 0.2);
+        border-radius: 50px;
+        color: $elite-blue;
+        font-size: 14px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .bestseller-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, $elite-amber, #ef4444);
+        color: white;
+        padding: 8px 18px;
+        border-radius: 50px;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        box-shadow: 0 0 20px rgba($elite-amber, 0.4);
+        z-index: 10;
+    }
+
+    // --- PROJECT CARDS ---
+    .project-card-midnight {
+        @extend .glass-box;
+        overflow: hidden;
+        position: relative;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+
+        .card-visual {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            background: linear-gradient(135deg, rgba($elite-blue, 0.2), rgba($elite-indigo, 0.2));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.6s ease;
+        }
+
+        &:hover .card-visual {
+            transform: scale(1.05);
+        }
+
+        .tag-elite {
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+        }
+    }
+
+    // --- CLIENT TYPE CARDS ---
+    .client-type-card-midnight {
+        @extend .glass-box;
+        padding: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+
+        .icon-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, $elite-blue, $elite-indigo);
+            box-shadow: 0 0 30px rgba($elite-blue, 0.3);
+        }
+    }
+
+    // --- COMPARISON TABLE ---
+    .comparison-wrapper-midnight {
+        @extend .glass-box;
+        overflow: hidden;
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+
+            th {
+                background: rgba(255, 255, 255, 0.03);
+                padding: 24px;
+                text-align: left;
+                font-weight: 800;
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+
+            td {
+                padding: 20px 24px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+                font-size: 15px;
+                color: rgba(255, 255, 255, 0.7);
+            }
+
+            tr:last-child td {
+                border-bottom: none;
+            }
+
+            tr:hover td {
+                background: rgba(255, 255, 255, 0.02);
+                color: white;
+            }
+        }
+    }
+
+    // --- FAQ MODAL-STYLE ---
+    .faq-item-midnight {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba($elite-blue, 0.2);
+        }
+
+        &.active {
+            background: rgba($elite-blue, 0.05);
+            border-color: rgba($elite-blue, 0.4);
+        }
+    }
+
+    // --- REVIEWS ---
+    .review-card-midnight {
+        @extend .glass-box;
+        padding: 40px;
+        position: relative;
+
+        &::before {
+            content: '“';
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 80px;
+            color: rgba(255, 255, 255, 0.05);
+            font-family: serif;
+        }
+    }
+
+    // --- INPUTS ---
+    .input-elite {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 16px 20px;
+        color: white;
+        width: 100%;
+        transition: all 0.3s ease;
+
+        &:focus {
+            outline: none;
+            border-color: $elite-blue;
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 0 4px rgba($elite-blue, 0.1);
+        }
+    }
+
+    // --- FLOATING BTN ---
+    .floating-contact-btn {
+        position: fixed;
+        bottom: 40px;
+        right: 40px;
+        z-index: 1000;
+        background: linear-gradient(135deg, $elite-blue, $elite-indigo);
+        color: white;
+        padding: 16px 32px;
+        border-radius: 50px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 10px 30px rgba($elite-blue, 0.4);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        &:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 15px 40px rgba($elite-blue, 0.6);
+        }
+    }
+}

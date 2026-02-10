@@ -10,214 +10,144 @@ import rehypeRaw from "rehype-raw";
 import "highlight.js/styles/atom-one-dark.css";
 import Link from "next/link";
 import Image from "next/image";
-import { FaArrowLeft, FaClock, FaCalendarAlt, FaArrowRight } from "react-icons/fa";
-
-const posts = [
-  {
-    id: "docker-guia",
-    title: "Guía Completa de Docker — Producción",
-    description: "Aprenda Docker desde sus fundamentos: instalación, contenedores, imágenes y despliegue profesional en entornos de alta disponibilidad.",
-    image: "/img/guiaDocker.jpg",
-    category: "DevOps",
-    date: "2025",
-    readTime: 12,
-    content: `
-# Guía Completa de Docker Corporativo
-
-Docker permite empaquetar aplicaciones en contenedores para garantizar entornos reproducibles y altamente portables.
-
----
-
-## Estrategia de Contenedores
-
-- Aislamiento total de dependencias.
-- Despliegues acelerados y consistentes.
-- Portabilidad absoluta entre entornos.
-- Optimización de microservicios distribuidos.
-
-## Implementación Técnica
-
-\`\`\`bash
-# Actualización y despliegue
-sudo apt update
-sudo apt install docker.io -y
-sudo systemctl enable docker
-sudo systemctl start docker
-\`\`\`
-
----
-
-## Arquitectura de Imágenes
-
-Construir imágenes eficientes requiere un diseño de Dockerfile optimizado.
-
-\`\`\`dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package.json .
-RUN npm install --production
-COPY . .
-CMD ["npm", "start"]
-\`\`\`
-
----
-
-## Conclusión Estratégica
-
-Docker representa el estándar industrial para la modernización de aplicaciones y la estabilidad estructural en la nube.
-    `,
-    related: [
-      { id: "typescript-basico", title: "Guía Profesional de TypeScript", description: "Sistemas de tipos avanzados para backend." }
-    ]
-  },
-  {
-    id: "typescript-basico",
-    title: "Guía Profesional de TypeScript",
-    description: "Domine el sistema de tipos, interfaces y utilidades modernas para proyectos escalables y libres de errores en tiempo de ejecución.",
-    image: "/img/typescriptguia.jpg",
-    category: "Backend",
-    date: "2025",
-    readTime: 10,
-    content: `
-# Ingeniería de Tipado con TypeScript
-
-TypeScript añade seguridad estática y herramientas de desarrollo avanzadas al ecosistema JavaScript.
-
----
-
-## Beneficios Estructurales
-
-- Detección temprana de errores críticos.
-- Autocompletado inteligente y documentación viva.
-- Refactorización segura en sistemas de gran escala.
-
-## Implementación de Interfaces
-
-\`\`\`ts
-interface ServiceResponse<T> {
-  id: string;
-  payload: T;
-  timestamp: Date;
-  status: 'active' | 'archived';
-}
-\`\`\`
-
----
-
-## Tipado de Funciones Críticas
-
-La definición precisa de contratos en funciones garantiza la integridad del flujo de datos.
-
-\`\`\`ts
-function processLegacyData(data: Buffer): ServiceResponse<string> {
-  // Lógica de procesamiento de alta fidelidad
-  return {
-    id: 'TX-1002',
-    payload: 'DATA_VERIFIED',
-    timestamp: new Date(),
-    status: 'active'
-  };
-}
-\`\`\`
-
----
-
-## Conclusión de Ingeniería
-
-Adoptar TypeScript es una decisión estratégica para equipos que priorizan la calidad de software y la mantenibilidad a largo plazo.
-    `,
-    related: [
-      { id: "docker-guia", title: "Guía Completa de Docker — Producción", description: "Infraestructura y despliegue moderno." }
-    ]
-  }
-];
+import { FaArrowLeft, FaClock, FaCalendarAlt, FaShareAlt } from "react-icons/fa";
+import "@/styles/blog-elite.scss";
 
 function PostContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const [post, setPost] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!id) return;
-    setPost(posts.find((p) => p.id === id) || null);
+    setLoading(true);
+    fetch(`http://localhost:8000/api/blog/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setPost(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching post:", err);
+        setLoading(false);
+      });
   }, [id]);
 
-  if (!post) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-white p-6">
-        <h2 className="title-fire text-5xl font-black uppercase mb-4">Misión Fallida</h2>
-        <p className="text-gray-500 font-bold tracking-[0.4em] uppercase mb-12">Protocolo no encontrado en el archivo</p>
-        <Link href="/blog" className="px-10 py-4 rounded-full glass-light border border-white/10 text-cyan-400 font-black tracking-widest uppercase hover:bg-cyan-500/10 transition-all">VOLVER AL BLOG</Link>
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-indigo-400 font-black tracking-[0.5em] uppercase">
+        <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin mb-8" />
+        Sincronizando Archivo...
       </div>
     );
   }
 
+  if (!post) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white p-6">
+        <h2 className="text-6xl font-black uppercase mb-8 blog-title-gradient">Misión Fallida</h2>
+        <p className="text-slate-500 font-bold tracking-[0.4em] uppercase mb-12">Protocolo no encontrado en el archivo</p>
+        <Link href="/blog" className="px-10 py-5 rounded-3xl bg-white/5 border border-white/10 text-indigo-400 font-black tracking-widest uppercase hover:bg-white/10 transition-all">VOLVER AL BLOG</Link>
+      </div>
+    );
+  }
+
+  // Fallback image
+  const imageUrl = "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=2426";
+
   return (
-    <div className="relative overflow-hidden pt-20 px-6 font-bold">
+    <div className="blog-page-wrapper pt-32 pb-40">
+      <div className="max-w-5xl mx-auto px-6 relative z-10">
 
-      {/* DECORACIÓN FONDO */}
-      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-cyan-500/5 blur-[200px] rounded-full pointer-events-none" />
-
-      <section className="max-w-4xl mx-auto py-20 relative z-10">
-
-        {/* VOLVER */}
-        <Link href="/blog" className="inline-flex items-center gap-4 text-white/30 hover:text-cyan-400 mb-16 font-black tracking-[0.4em] uppercase transition-all group text-xs">
-          <FaArrowLeft className="group-hover:-translate-x-2 transition-transform" /> REGRESAR AL REPOSITORIO
+        {/* BACK NAV */}
+        <Link href="/blog" className="inline-flex items-center gap-4 text-slate-500 hover:text-white mb-16 font-black tracking-[0.4em] uppercase transition-all group text-xs">
+          <FaArrowLeft className="group-hover:-translate-x-2 transition-transform text-indigo-500" /> Regresar al Repositorio
         </Link>
 
-        {/* HERO POST CON TILT SIMULADO */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="relative h-[550px] mb-20 rounded-[4.5rem] overflow-hidden border border-white/10 shadow-3xl group">
-          <Image src={post.image} alt={post.title} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-          <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end">
-            <span className="px-8 py-2.5 bg-cyan-500 text-black text-[10px] font-black uppercase tracking-[0.3em] rounded-full shadow-2xl">{post.category.toUpperCase()}</span>
-            <div className="flex items-center gap-6 text-white/40 font-black tracking-[0.2em] text-[10px] uppercase">
-              <span className="flex items-center gap-2 px-4 py-2 bg-black/40 rounded-full border border-white/5"><FaClock className="text-cyan-500" /> {post.readTime} MIN LECTURA</span>
-              <span className="flex items-center gap-2 px-4 py-2 bg-black/40 rounded-full border border-white/5"><FaCalendarAlt className="text-cyan-500" /> {post.date}</span>
+        {/* POST HERO */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative h-[600px] mb-20 rounded-[4rem] overflow-hidden border border-white/5 shadow-[0_40px_100px_rgba(0,0,0,0.6)] group"
+        >
+          <Image
+            src={imageUrl}
+            alt={post.title}
+            fill
+            className="object-cover transition-transform duration-[20s] group-hover:scale-125"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+
+          <div className="absolute bottom-12 left-12 right-12">
+            <div className="flex flex-wrap items-center gap-6 mb-8">
+              <span className="px-6 py-2 bg-indigo-500 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-xl shadow-glow">
+                Technical Insight
+              </span>
+              <div className="flex items-center gap-4 text-white/50 text-[10px] font-black uppercase tracking-widest">
+                <FaClock className="text-indigo-400" /> 8 Min Read
+              </div>
             </div>
+            <h1 className="text-5xl md:text-8xl font-black text-white leading-[0.9] tracking-tighter mb-4">
+              {post.title}
+            </h1>
           </div>
         </motion.div>
 
-        {/* TÍTULO POST */}
-        <h1 className="title-fire text-5xl md:text-6xl font-black mb-16 uppercase leading-[1.1] tracking-tighter">{post.title}</h1>
-
-        {/* CONTENIDO ARTICLE GLASS-PRO */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card-pro p-10 md:p-20 rounded-[4.5rem] border border-white/5 shadow-3xl mb-32 relative">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
-
-          <article className="prose prose-invert max-w-none prose-headings:font-black prose-headings:uppercase prose-headings:tracking-widest prose-headings:mb-10 prose-headings:mt-16 prose-p:text-gray-300 prose-p:text-xl prose-p:leading-relaxed prose-p:font-medium prose-pre:bg-black/60 prose-pre:p-10 prose-pre:rounded-[3rem] prose-pre:border prose-pre:border-white/5 prose-a:text-cyan-400 prose-strong:text-white prose-hr:border-white/5 prose-img:rounded-[3rem] prose-img:shadow-2xl">
-            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight, rehypeRaw]}>
-              {post.content}
-            </ReactMarkdown>
-          </article>
-        </motion.div>
-
-        {/* RELATED CONTENT */}
-        {post.related.length > 0 && (
-          <div className="pb-32">
-            <h2 className="title-fire text-3xl font-black mb-12 uppercase tracking-widest">Contenido Adicional</h2>
-            <div className="grid md:grid-cols-2 gap-10">
-              {post.related.map((rel: any, i: number) => (
-                <Link key={i} href={`/post?id=${rel.id}`} className="p-10 glass-light border border-white/5 rounded-[3.5rem] hover:border-cyan-500/30 group transition-all shadow-xl block">
-                  <span className="text-cyan-400 text-[10px] font-black tracking-[0.4em] uppercase mb-3 block">ACCESS-ID: {rel.id}</span>
-                  <h3 className="text-2xl text-white font-black mb-6 uppercase group-hover:text-cyan-300 transition-colors leading-tight tracking-tight">{rel.title}</h3>
-                  <div className="flex items-center gap-3 text-white/30 text-[10px] font-black tracking-[0.4em] uppercase group-hover:text-white transition-all">
-                    SINCRO-TÉCNICA <FaArrowRight className="group-hover:translate-x-3 transition-transform text-cyan-500" />
-                  </div>
-                </Link>
-              ))}
+        {/* CONTENT RAINBOW BORDER CONTAINER */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-indigo-500/20 blur-[150px] -z-10 rounded-full" />
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="glass-article-card !bg-slate-950/60 !p-12 md:!p-32 rounded-[4rem] mb-32 border border-white/10"
+          >
+            <div className="post-content-container">
+              <article className="prose prose-invert max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight, rehypeRaw]}>
+                  {post.content}
+                </ReactMarkdown>
+              </article>
             </div>
-          </div>
-        )}
 
-      </section>
+            <div className="mt-24 pt-12 border-t border-white/5 flex justify-between items-center">
+              <div className="flex gap-4">
+                <button className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all">
+                  <FaShareAlt />
+                </button>
+              </div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                © 2026 ELITE ARCHIVE
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* CALL TO ACTION */}
+        <div className="bg-gradient-to-br from-indigo-600 to-purple-800 rounded-[3.5rem] p-16 md:p-24 text-center border border-white/20 shadow-glow relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[100px] pointer-events-none" />
+          <h2 className="text-4xl md:text-6xl font-black text-white mb-8 tracking-tighter">¿Tienes un Desafío Técnico?</h2>
+          <p className="text-indigo-100/70 text-lg md:text-xl mb-12 max-w-2xl mx-auto font-medium">
+            Transformamos problemas complejos en soluciones de software de alto rendimiento. Hablemos sobre tu próximo gran salto digital.
+          </p>
+          <Link href="/contacto" className="inline-block bg-white text-indigo-600 px-12 py-6 rounded-2xl font-black text-xl hover:scale-105 transition-all shadow-2xl">
+            AGENDAR CONSULTORÍA ELITE
+          </Link>
+        </div>
+
+      </div>
     </div>
   );
 }
 
 export default function PostPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex flex-col items-center justify-center text-cyan-400 font-black animate-pulse tracking-[0.5em] uppercase">SINCRONIZANDO TRANSMISIÓN...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-indigo-400 font-black tracking-[0.5em] uppercase">
+        SINCRONIZANDO TRANSMISIÓN...
+      </div>
+    }>
       <PostContent />
     </Suspense>
   );

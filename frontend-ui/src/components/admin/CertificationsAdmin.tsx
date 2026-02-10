@@ -139,7 +139,7 @@ export default function CertificationsAdmin({ certifications: initialCerts, onSa
                         key={cert.id}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="glass-card-pro p-8 border border-white/5 rounded-[3.5rem] group hover:border-cyan-500/30 transition-all flex flex-col relative overflow-hidden"
+                        className="admin-card group hover:border-cyan-500/30 transition-all flex flex-col relative overflow-hidden"
                     >
                         <div className="flex justify-between items-start mb-6">
                             <h4 className="text-xl font-black text-white leading-tight group-hover:text-cyan-400 transition-colors line-clamp-2 uppercase">{cert.title}</h4>
@@ -263,7 +263,7 @@ function CertificationModal({ item, onClose, onSave }: { item: Certification, on
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="max-w-4xl w-full bg-[#0a0a0c] border border-white/10 rounded-[4rem] shadow-4xl overflow-hidden flex flex-col max-h-[90vh]"
+                className="max-w-4xl w-full bg-slate-900 border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
             >
                 <div className="flex justify-between items-center p-10 border-b border-white/5 bg-cyan-500/5">
                     <h2 className="text-3xl font-black text-white uppercase tracking-tighter flex items-center gap-4">

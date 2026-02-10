@@ -2,110 +2,99 @@
 
 import { useState, useEffect } from "react";
 import {
-    FaImage,
-    FaVideo,
-    FaSave,
-    FaPlusCircle,
-    FaSpinner,
-    FaUserCircle,
-    FaInfoCircle,
-    FaCheckCircle,
-    FaArrowRight,
-    FaTrash
+    FaUserCircle, FaBriefcase, FaGraduationCap, FaCertificate, FaClock,
+    FaImage, FaVideo, FaSave, FaPlusCircle, FaSpinner, FaInfoCircle, FaCheckCircle, FaArrowRight, FaTrash
 } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+
+// Sub-components
+import ExperienceAdmin from "./ExperienceAdmin";
+import EducationAdmin from "./EducationAdmin";
+import CertificationsAdmin from "./CertificationsAdmin";
+import TimelineAdmin from "./TimelineAdmin";
+
+// Types
 import type { ProfileData } from "@/lib/data/profile";
+import type { Experience } from "@/lib/data/experience";
+import type { Education } from "@/lib/data/education";
+import type { Certification } from "@/lib/data/certifications";
+import type { TimelineItem } from "@/lib/data/timeline";
 
 interface Props {
     profile: ProfileData;
-    onSave: (data: ProfileData) => void;
+    experiences: Experience[];
+    education: Education[];
+    certifications: Certification[];
+    timeline: TimelineItem[];
+    onSaveProfile: (data: ProfileData) => void;
+    onSaveExperience: (data: Experience[]) => void;
+    onSaveEducation: (data: Education[]) => void;
+    onSaveCertifications: (data: Certification[]) => void;
+    onSaveTimeline: (data: TimelineItem[]) => void;
 }
 
-export default function ProfileAdmin({ profile: initialProfile, onSave }: Props) {
+type TabType = 'identity' | 'experience' | 'education' | 'certifications' | 'timeline';
+
+export default function ProfileAdmin({
+    profile: initialProfile,
+    experiences,
+    education,
+    certifications,
+    timeline,
+    onSaveProfile,
+    onSaveExperience,
+    onSaveEducation,
+    onSaveCertifications,
+    onSaveTimeline
+}: Props) {
+
+    const [activeTab, setActiveTab] = useState<TabType>('identity');
+
+    // --- IDENTITY STATE & LOGIC ---
     const [profile, setProfile] = useState(initialProfile);
-
-    // Sincronizar estado interno cuando cambian los props del padre (ej: después de una carga/guardado)
-    useEffect(() => {
-        setProfile(initialProfile);
-    }, [initialProfile]);
-
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [videoFile, setVideoFile] = useState<File | null>(null);
     const [uploadingImage, setUploadingImage] = useState(false);
     const [uploadingVideo, setUploadingVideo] = useState(false);
     const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
 
+    useEffect(() => { setProfile(initialProfile); }, [initialProfile]);
+
     const deletePhysicalFile = async (url: string) => {
         if (!url || !url.includes("localhost:8000/uploads/")) return;
         try {
-            await fetch(`http://localhost:8000/api/upload/delete?url=${encodeURIComponent(url)}`, {
-                method: "DELETE",
-            });
-        } catch (error) {
-            console.error("Error deleting physical file:", error);
-        }
+            await fetch(`http://localhost:8000/api/upload/delete?url=${encodeURIComponent(url)}`, { method: "DELETE" });
+        } catch (error) { console.error("Error deleting physical file:", error); }
     };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
         const file = e.target.files?.[0];
         if (!file) return;
-        setImageFile(file);
-        setUploadingImage(true);
+
+        const setter = type === 'image' ? setUploadingImage : setUploadingVideo;
+        setter(true);
 
         const formData = new FormData();
         formData.append("file", file);
 
         try {
-            const res = await fetch("http://localhost:8000/api/upload", {
-                method: "POST",
-                body: formData,
-            });
+            const res = await fetch("http://localhost:8000/api/upload", { method: "POST", body: formData });
             if (!res.ok) throw new Error("Upload failed");
             const result = await res.json();
 
-            // Reemplazo: si existe imagen previa, borrarla del servidor
-            if (profile.profileImage) {
-                await deletePhysicalFile(profile.profileImage);
+            if (type === 'image') {
+                if (profile.profileImage) await deletePhysicalFile(profile.profileImage);
+                setProfile(prev => ({ ...prev, profileImage: result.url }));
+            } else {
+                if (profile.profileVideo) await deletePhysicalFile(profile.profileVideo);
+                setProfile(prev => ({ ...prev, profileVideo: result.url }));
             }
-
-            setProfile(prev => ({ ...prev, profileImage: result.url }));
         } catch (error) {
             console.error("Upload error:", error);
         } finally {
-            setUploadingImage(false);
+            setter(false);
         }
     };
 
-    const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        setVideoFile(file);
-        setUploadingVideo(true);
-
-        const formData = new FormData();
-        formData.append("file", file);
-
-        try {
-            const res = await fetch("http://localhost:8000/api/upload", {
-                method: "POST",
-                body: formData,
-            });
-            if (!res.ok) throw new Error("Upload failed");
-            const result = await res.json();
-
-            // Reemplazo: si existe video previo, borrarlo del servidor
-            if (profile.profileVideo) {
-                await deletePhysicalFile(profile.profileVideo);
-            }
-
-            setProfile(prev => ({ ...prev, profileVideo: result.url }));
-        } catch (error) {
-            console.error("Upload error:", error);
-        } finally {
-            setUploadingVideo(false);
-        }
-    };
-
-    const handleSave = async () => {
+    const handleSaveIdentity = async () => {
         setSaveStatus("saving");
         try {
             const response = await fetch("http://localhost:8000/api/profile", {
@@ -121,229 +110,189 @@ export default function ProfileAdmin({ profile: initialProfile, onSave }: Props)
 
             if (response.ok) {
                 setSaveStatus("success");
-                onSave(profile);
+                onSaveProfile(profile);
                 setTimeout(() => setSaveStatus("idle"), 3000);
             } else {
                 setSaveStatus("error");
                 setTimeout(() => setSaveStatus("idle"), 3000);
             }
         } catch (error) {
-            console.error("Error:", error);
+            console.error(error);
             setSaveStatus("error");
             setTimeout(() => setSaveStatus("idle"), 3000);
         }
     };
 
-    const handleDeleteImage = async () => {
-        if (profile.profileImage) {
-            await deletePhysicalFile(profile.profileImage);
-            setProfile(prev => ({ ...prev, profileImage: "" }));
-        }
-    };
-
-    const handleDeleteVideo = async () => {
-        if (profile.profileVideo) {
-            await deletePhysicalFile(profile.profileVideo);
-            setProfile(prev => ({ ...prev, profileVideo: "" }));
-        }
-    };
+    // --- TABS CONFIG ---
+    const tabs = [
+        { id: 'identity', label: 'Identidad & Video', icon: <FaUserCircle /> },
+        { id: 'experience', label: 'Experiencia', icon: <FaBriefcase /> },
+        { id: 'education', label: 'Formación', icon: <FaGraduationCap /> },
+        { id: 'certifications', label: 'Certificaciones', icon: <FaCertificate /> },
+        { id: 'timeline', label: 'Timeline', icon: <FaClock /> },
+    ];
 
     return (
-        <div className="space-y-12 animate-in fade-in duration-700">
-            {/* Header de Sección */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-white/5 pb-10">
-                <div>
-                    <h3 className="text-4xl font-black text-white uppercase tracking-tighter flex items-center gap-4">
-                        <FaUserCircle className="text-cyan-500" />
-                        Perfil del Ingeniero
-                    </h3>
-                    <p className="text-gray-500 font-bold mt-2 text-sm uppercase tracking-widest">Configuración de identidad digital y presentación</p>
-                </div>
+        <div className="space-y-8 animate-in fade-in duration-700">
 
-                <button
-                    onClick={handleSave}
-                    disabled={saveStatus === "saving"}
-                    className={`px-12 py-5 rounded-full flex items-center gap-4 text-xs font-black uppercase transition-all duration-500 ${saveStatus === "success"
-                        ? "bg-emerald-500 text-white shadow-[0_0_30px_rgba(16,185,129,0.3)]"
-                        : saveStatus === "error"
-                            ? "bg-red-500 text-white"
-                            : "btn-primary btn-alive btn-shimmer"
-                        }`}
-                >
-                    {saveStatus === "saving" ? <FaSpinner className="animate-spin" /> : saveStatus === "success" ? <FaCheckCircle /> : <FaSave />}
-                    {saveStatus === "saving" ? "Guardando..." : saveStatus === "success" ? "Guardado Correctamente" : saveStatus === "error" ? "Error al Guardar" : "Guardar Perfil v1.0"}
-                </button>
+            {/* TABS HEADER */}
+            <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-900/50 border border-white/5 rounded-2xl w-full lg:w-fit backdrop-blur-sm">
+                {tabs.map(tab => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id as TabType)}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === tab.id
+                            ? 'bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/20'
+                            : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            }`}
+                    >
+                        <span className="text-lg">{tab.icon}</span>
+                        {tab.label}
+                    </button>
+                ))}
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-12">
-                {/* Columna Izquierda: Datos Básicos */}
-                <div className="lg:col-span-2 space-y-10">
-                    <section className="glass-card-pro p-12 border border-white/10 rounded-[3rem] relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-                            <FaInfoCircle className="text-8xl" />
-                        </div>
+            {/* CONTENT AREA */}
+            <div className="min-h-[600px] admin-panel-container">
+                <AnimatePresence mode="wait">
 
-                        <h4 className="text-cyan-400 text-xs font-black uppercase tracking-[0.3em] mb-10 flex items-center gap-3">
-                            <FaArrowRight className="text-[8px]" /> Información de Identidad
-                        </h4>
-
-                        <div className="grid md:grid-cols-2 gap-10">
-                            <div className="space-y-4">
-                                <label className="block text-white/50 text-[10px] font-black uppercase tracking-widest ml-1">Nombre Completo</label>
-                                <input
-                                    value={profile.fullName}
-                                    onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white font-bold outline-none focus:border-cyan-500 focus:bg-white/10 transition-all shadow-inner"
-                                    placeholder="Ej: Favio Jiménez"
-                                />
+                    {/* --- IDENTITY TAB --- */}
+                    {activeTab === 'identity' && (
+                        <motion.div
+                            key="identity"
+                            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                            className="space-y-8"
+                        >
+                            <div className="flex justify-between items-center border-b border-white/5 pb-8">
+                                <div>
+                                    <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Identidad Digital</h3>
+                                    <p className="text-slate-500 text-sm font-bold mt-1">Información principal, avatar y video de presentación.</p>
+                                </div>
+                                <button
+                                    onClick={handleSaveIdentity}
+                                    disabled={saveStatus === "saving"}
+                                    className={`px-8 py-4 rounded-xl flex items-center gap-3 text-xs font-black uppercase transition-all ${saveStatus === "success" ? "bg-emerald-500 text-white" : "btn-primary btn-alive"}`}
+                                >
+                                    {saveStatus === "saving" ? <FaSpinner className="animate-spin" /> : <FaSave />}
+                                    {saveStatus === "saving" ? "Guardando..." : "Guardar Cambios"}
+                                </button>
                             </div>
-                            <div className="space-y-4">
-                                <label className="block text-white/50 text-[10px] font-black uppercase tracking-widest ml-1">Título Profesional</label>
-                                <input
-                                    value={profile.title}
-                                    onChange={(e) => setProfile({ ...profile, title: e.target.value })}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 text-white font-bold outline-none focus:border-cyan-500 focus:bg-white/10 transition-all shadow-inner"
-                                    placeholder="Ej: Senior Software Architect"
-                                />
-                            </div>
-                        </div>
-                    </section>
 
-                    {/* Vídeo Sección */}
-                    <section className="glass-card-pro p-12 border border-white/10 rounded-[3rem] space-y-8">
-                        <h4 className="text-cyan-400 text-xs font-black uppercase tracking-[0.3em] flex items-center gap-3">
-                            <FaVideo className="text-lg" /> Presentación en Video
-                        </h4>
-
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <div className="space-y-6">
-                                <div className="space-y-3">
-                                    <label className="block text-white/70 text-xs font-bold font-mono tracking-tighter uppercase">Upload (Streaming 4D)</label>
-                                    <label className={`cursor-pointer block ${uploadingVideo ? 'pointer-events-none opacity-50' : ''}`}>
-                                        <div className="px-6 py-10 rounded-3xl glass-light border-2 border-dashed border-cyan-500/20 hover:border-cyan-500/50 hover:bg-cyan-500/5 transition-all flex flex-col items-center justify-center gap-4 group">
-                                            {uploadingVideo ? (
-                                                <FaSpinner className="text-4xl text-cyan-500 animate-spin" />
-                                            ) : (
-                                                <FaPlusCircle className="text-4xl text-cyan-500/50 group-hover:text-cyan-500 group-hover:scale-110 transition-all" />
-                                            )}
-                                            <div className="text-center">
-                                                <p className="text-white font-black text-xs uppercase tracking-widest">
-                                                    {uploadingVideo ? "Procesando Stream..." : "Actualizar Video"}
-                                                </p>
-                                                <p className="text-white/30 text-[10px] mt-1 uppercase font-bold">MP4, WEBM (Max: 500MB)</p>
+                            <div className="grid lg:grid-cols-3 gap-8">
+                                {/* INFO & VIDEO */}
+                                <div className="lg:col-span-2 space-y-8">
+                                    {/* BASIC INFO */}
+                                    <div className="admin-card">
+                                        <h4 className="text-cyan-400 text-[10px] font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                                            <FaInfoCircle /> Datos Básicos
+                                        </h4>
+                                        <div className="grid md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-slate-400 text-[10px] font-black uppercase ml-1">Nombre Completo</label>
+                                                <input
+                                                    value={profile.fullName}
+                                                    onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
+                                                    className="w-full bg-slate-950 border border-white/10 rounded-xl px-5 py-4 text-white font-bold outline-none focus:border-cyan-500 focus:bg-white/5 transition-all"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-slate-400 text-[10px] font-black uppercase ml-1">Título Profesional</label>
+                                                <input
+                                                    value={profile.title}
+                                                    onChange={(e) => setProfile({ ...profile, title: e.target.value })}
+                                                    className="w-full bg-slate-950 border border-white/10 rounded-xl px-5 py-4 text-white font-bold outline-none focus:border-cyan-500 focus:bg-white/5 transition-all"
+                                                />
                                             </div>
                                         </div>
-                                        <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
-                                    </label>
-
-                                    {profile.profileVideo && (
-                                        <button
-                                            onClick={handleDeleteVideo}
-                                            className="w-full mt-2 py-3 rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-500 text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 border border-red-500/20"
-                                        >
-                                            <FaTrash /> Eliminar Video Actual
-                                        </button>
-                                    )}
-                                </div>
-
-                                <div className="space-y-3">
-                                    <label className="block text-white/70 text-xs font-bold font-mono tracking-tighter uppercase">External URI</label>
-                                    <input
-                                        value={profile.profileVideo}
-                                        onChange={(e) => setProfile({ ...profile, profileVideo: e.target.value })}
-                                        className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-cyan-500 font-mono text-xs outline-none focus:border-cyan-500 transition-all overflow-hidden text-ellipsis"
-                                        placeholder="https://youtube.com/..."
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest ml-1">Previsualización</label>
-                                <div className="aspect-video bg-black rounded-[2rem] border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center relative group">
-                                    {profile.profileVideo ? (
-                                        profile.profileVideo.includes('youtube') || profile.profileVideo.includes('vimeo') ? (
-                                            <div className="text-white/20 text-center p-8">
-                                                <FaVideo className="text-4xl mx-auto mb-4" />
-                                                <p className="text-[10px] uppercase font-bold">Video Externo Configurado</p>
-                                                <p className="text-[8px] opacity-50 break-all mt-2">{profile.profileVideo}</p>
-                                            </div>
-                                        ) : (
-                                            <video
-                                                key={profile.profileVideo}
-                                                src={profile.profileVideo}
-                                                className="w-full h-full object-cover"
-                                                controls
-                                            />
-                                        )
-                                    ) : (
-                                        <div className="text-white/5 flex flex-col items-center">
-                                            <FaVideo className="text-6xl" />
-                                            <span className="text-[10px] mt-4 font-black uppercase tracking-tighter">Sin Video</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-
-                {/* Columna Derecha: Imagen de Perfil */}
-                <div className="space-y-8">
-                    <section className="glass-card-pro p-10 border border-white/10 rounded-[3rem] sticky top-8">
-                        <h4 className="text-cyan-400 text-xs font-black uppercase tracking-[0.3em] mb-8 flex items-center gap-3">
-                            <FaImage className="text-lg" /> Identidad Visual
-                        </h4>
-
-                        <div className="space-y-8">
-                            <div className="relative group mx-auto w-full aspect-square max-w-[280px]">
-                                <div className="absolute inset-0 bg-cyan-500/20 rounded-[3.5rem] blur-2xl opacity-0 group-hover:opacity-40 transition-opacity duration-700" />
-                                <div className="relative z-10 w-full h-full bg-black border border-white/10 rounded-[3.5rem] overflow-hidden group-hover:border-cyan-500/50 transition-all duration-700 shadow-4xl">
-                                    {profile.profileImage ? (
-                                        <img src={profile.profileImage} alt="Profile" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 scale-110 group-hover:scale-100" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-white/5">
-                                            <FaImage className="text-6xl text-white/5" />
-                                        </div>
-                                    )}
-                                    {uploadingImage && (
-                                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-20">
-                                            <FaSpinner className="text-4xl text-cyan-500 animate-spin" />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="space-y-6">
-                                <label className={`cursor-pointer block ${uploadingImage ? 'pointer-events-none' : ''}`}>
-                                    <div className="px-6 py-5 rounded-2xl bg-white/5 border border-white/10 hover:border-cyan-500/50 hover:bg-white/10 transition-all flex items-center justify-center gap-3 group">
-                                        <FaPlusCircle className="text-xl text-cyan-500/50 group-hover:text-cyan-500 transition-colors" />
-                                        <span className="text-white font-black text-[10px] uppercase tracking-widest">Cambiar Imagen</span>
                                     </div>
-                                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                                </label>
 
-                                {profile.profileImage && (
-                                    <button
-                                        onClick={handleDeleteImage}
-                                        className="w-full py-4 rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-500 text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 border border-red-500/20"
-                                    >
-                                        <FaTrash /> Eliminar Foto Actual
-                                    </button>
-                                )}
+                                    {/* VIDEO */}
+                                    <div className="admin-card">
+                                        <h4 className="text-cyan-400 text-[10px] font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                                            <FaVideo /> Video de Presentación
+                                        </h4>
+                                        <div className="grid md:grid-cols-2 gap-8">
+                                            <div className="space-y-6">
+                                                <label className={`cursor-pointer block ${uploadingVideo ? 'opacity-50 pointer-events-none' : ''}`}>
+                                                    <div className="px-6 py-8 rounded-2xl bg-slate-950 border border-dashed border-white/10 hover:border-cyan-500/50 transition-all flex flex-col items-center justify-center gap-3 group">
+                                                        {uploadingVideo ? <FaSpinner className="text-2xl text-cyan-500 animate-spin" /> : <FaPlusCircle className="text-2xl text-slate-600 group-hover:text-cyan-500" />}
+                                                        <span className="text-xs font-bold text-slate-400 group-hover:text-white">Subir MP4/WEBM</span>
+                                                    </div>
+                                                    <input type="file" accept="video/*" onChange={(e) => handleUpload(e, 'video')} className="hidden" />
+                                                </label>
+                                                <div className="space-y-2">
+                                                    <label className="text-slate-400 text-[10px] font-black uppercase ml-1">URL Externa</label>
+                                                    <input
+                                                        value={profile.profileVideo}
+                                                        onChange={(e) => setProfile({ ...profile, profileVideo: e.target.value })}
+                                                        className="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-cyan-400 text-xs font-mono outline-none focus:border-cyan-500"
+                                                        placeholder="https://..."
+                                                    />
+                                                </div>
+                                            </div>
 
-                                <div className="space-y-3">
-                                    <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest ml-1">Direct Image URI</label>
-                                    <input
-                                        value={profile.profileImage}
-                                        onChange={(e) => setProfile({ ...profile, profileImage: e.target.value })}
-                                        className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-3 text-cyan-500/70 font-mono text-[10px] outline-none focus:border-cyan-500 transition-all overflow-hidden text-ellipsis"
-                                        placeholder="https://..."
-                                    />
+                                            <div className="aspect-video bg-black rounded-xl border border-white/10 overflow-hidden flex items-center justify-center">
+                                                {profile.profileVideo ? (
+                                                    profile.profileVideo.includes('http') && !profile.profileVideo.includes('localhost') ?
+                                                        <div className="text-center p-4"><FaVideo className="text-4xl text-slate-700 mx-auto mb-2" /><p className="text-[10px] text-slate-500">Video Externo</p></div>
+                                                        : <video src={profile.profileVideo} className="w-full h-full object-cover" controls />
+                                                ) : (
+                                                    <div className="text-slate-700 flex flex-col items-center"><FaVideo className="text-3xl mb-2" /><span className="text-[10px] font-bold">SIN VIDEO</span></div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* PROFILE IMAGE */}
+                                <div className="admin-card h-fit sticky top-4">
+                                    <h4 className="text-cyan-400 text-[10px] font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                                        <FaImage /> Avatar
+                                    </h4>
+                                    <div className="relative aspect-square w-full max-w-[200px] mx-auto rounded-[2rem] overflow-hidden border-2 border-white/10 bg-black group mb-6">
+                                        {profile.profileImage ? (
+                                            <img src={profile.profileImage} className="w-full h-full object-cover" alt="Avatar" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-slate-800"><FaUserCircle className="text-6xl" /></div>
+                                        )}
+                                        {uploadingImage && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><FaSpinner className="text-3xl text-cyan-500 animate-spin" /></div>}
+                                    </div>
+                                    <label className={`cursor-pointer w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center gap-2 transition-all ${uploadingImage ? 'pointer-events-none opacity-50' : ''}`}>
+                                        <FaPlusCircle className="text-cyan-500" />
+                                        <span className="text-[10px] font-black text-white uppercase">Cambiar Imagen</span>
+                                        <input type="file" accept="image/*" onChange={(e) => handleUpload(e, 'image')} className="hidden" />
+                                    </label>
                                 </div>
                             </div>
-                        </div>
-                    </section>
-                </div>
+                        </motion.div>
+                    )}
+
+                    {/* --- OTHER TABS --- */}
+                    {activeTab === 'experience' && (
+                        <motion.div key="experience" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                            <ExperienceAdmin experiences={experiences} onSave={onSaveExperience} />
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'education' && (
+                        <motion.div key="education" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                            <EducationAdmin education={education} onSave={onSaveEducation} />
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'certifications' && (
+                        <motion.div key="certifications" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                            <CertificationsAdmin certifications={certifications} onSave={onSaveCertifications} />
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'timeline' && (
+                        <motion.div key="timeline" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                            <TimelineAdmin timeline={timeline} onSave={onSaveTimeline} />
+                        </motion.div>
+                    )}
+
+                </AnimatePresence>
             </div>
         </div>
     );

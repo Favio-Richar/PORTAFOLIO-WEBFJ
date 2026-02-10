@@ -107,7 +107,7 @@ export default function ProyectosHome() {
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0, y: 50 }}
-              className="relative max-w-6xl w-full h-full max-h-[90vh] glass-card-pro border border-white/20 shadow-[0_0_150px_rgba(6,182,212,0.2)] flex flex-col overflow-hidden"
+              className="relative max-w-6xl w-full h-full max-h-[90vh] glass-card-pro border border-white/20 shadow-[0_0_150px_rgba(99,102,241,0.15)] flex flex-col overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -175,7 +175,7 @@ export default function ProyectosHome() {
                       )}
                     </div>
                     {selectedProject.client_name && (
-                      <span className="inline-flex items-center gap-2 px-6 py-2 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-black rounded-full text-[10px] uppercase tracking-widest w-fit shadow-[0_0_20px_rgba(6,182,212,0.1)]">
+                      <span className="inline-flex items-center gap-2 px-6 py-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-black rounded-full text-[10px] uppercase tracking-widest w-fit shadow-[0_0_20px_rgba(99,102,241,0.1)]">
                         <FaUserTie className="text-[12px]" /> {selectedProject.client_name}
                       </span>
                     )}
@@ -185,12 +185,12 @@ export default function ProyectosHome() {
                   </div>
                   <div className="flex gap-4">
                     <Link href={selectedProject.internalUrl} passHref>
-                      <button className="px-10 py-5 bg-cyan-500 text-black font-black uppercase tracking-widest text-[10px] rounded-full hover:bg-cyan-400 transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] italic">
+                      <button className="px-10 py-5 bg-indigo-500 text-white font-black uppercase tracking-widest text-[10px] rounded-full hover:bg-indigo-400 transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] italic">
                         Detalles Pro
                       </button>
                     </Link>
                     {selectedProject.demoStatus === "ready" ? (
-                      <a href={selectedProject.demoUrl} target="_blank" className="px-10 py-5 glass-light border border-cyan-500/50 text-cyan-400 font-black uppercase tracking-widest text-[10px] rounded-full hover:bg-cyan-500 hover:text-black transition-all italic shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+                      <a href={selectedProject.demoUrl} target="_blank" className="px-10 py-5 glass-light border border-indigo-500/50 text-indigo-400 font-black uppercase tracking-widest text-[10px] rounded-full hover:bg-indigo-500 hover:text-white transition-all italic shadow-[0_0_15px_rgba(99,102,241,0.1)]">
                         Live Demo
                       </a>
                     ) : (
@@ -252,7 +252,7 @@ function ProjectCard({ p, onExpand }: { p: any, onExpand: () => void }) {
         rotateY,
         transformStyle: "preserve-3d",
       }}
-      className="project-card group relative p-8 rounded-[4rem] glass-card-pro border border-white/5 transition-all duration-500 hover:border-cyan-500/30 shadow-2xl overflow-hidden cursor-pointer"
+      className="project-card group relative p-8 rounded-[4rem] glass-card-pro border border-white/5 transition-all duration-500 hover:border-indigo-500/30 shadow-2xl overflow-hidden cursor-pointer"
       onClick={onExpand}
     >
       <div style={{ transform: "translateZ(100px)" }} className="relative z-10 flex flex-col h-full items-center text-center">
@@ -291,21 +291,21 @@ function ProjectCard({ p, onExpand }: { p: any, onExpand: () => void }) {
           </Swiper>
 
           {/* Expand Icon Overlay */}
-          <div className="absolute inset-0 z-30 flex items-center justify-center opacity-0 group-hover/media:opacity-100 transition-all duration-500 bg-cyan-500/10 backdrop-blur-sm">
+          <div className="absolute inset-0 z-30 flex items-center justify-center opacity-0 group-hover/media:opacity-100 transition-all duration-500 bg-indigo-500/5 backdrop-blur-sm">
             <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md border border-white/40 flex items-center justify-center text-white text-2xl shadow-2xl transform translate-y-10 group-hover/media:translate-y-0 transition-all duration-500">
               <FaExpandAlt />
             </div>
           </div>
 
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 px-6 py-2 rounded-full glass-light border border-white/20 text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2 whitespace-nowrap">
-            <FaPlayCircle className="text-cyan-400" /> PRESENTACIÓN MULTIMEDIA
+            <FaPlayCircle className="text-indigo-400" /> PRESENTACIÓN MULTIMEDIA
           </div>
         </div>
 
         {/* CONTENT CENTERED */}
         <div className="px-2 flex flex-col items-center w-full">
           <div className="flex items-center justify-center gap-4 mb-4">
-            <h3 className="title-fire text-2xl md:text-3xl font-bold text-white group-hover:text-cyan-400 transition-colors tracking-tight uppercase leading-none">
+            <h3 className="title-fire text-2xl md:text-3xl font-bold text-white group-hover:text-indigo-400 transition-colors tracking-tight uppercase leading-none">
               {p.title}
             </h3>
             {p.deployment_date && (
@@ -325,7 +325,7 @@ function ProjectCard({ p, onExpand }: { p: any, onExpand: () => void }) {
 
           <div className="flex flex-wrap justify-center gap-3 mb-6">
             {p.client_name && (
-              <span className="flex items-center gap-1.5 px-3 py-1 bg-cyan-500/5 border border-cyan-500/20 rounded-full text-cyan-400 text-[8px] font-black uppercase tracking-widest">
+              <span className="flex items-center gap-1.5 px-3 py-1 bg-indigo-500/5 border border-indigo-500/20 rounded-full text-indigo-400 text-[8px] font-black uppercase tracking-widest">
                 <FaUserTie className="text-[9px]" /> {p.client_name}
               </span>
             )}
@@ -339,7 +339,7 @@ function ProjectCard({ p, onExpand }: { p: any, onExpand: () => void }) {
             {p.tech.map((tech: string, idx: number) => (
               <span
                 key={idx}
-                className="text-[9px] px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/50 font-black uppercase tracking-[0.2em] group-hover:border-cyan-500/40 group-hover:text-cyan-400 transition-all"
+                className="text-[9px] px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/50 font-black uppercase tracking-[0.2em] group-hover:border-indigo-500/40 group-hover:text-indigo-400 transition-all"
               >
                 {tech}
               </span>
@@ -367,7 +367,7 @@ function ProjectCard({ p, onExpand }: { p: any, onExpand: () => void }) {
       </div>
 
       {/* Extreme Glare */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-[#06b6d418] via-transparent to-[#ffffff08] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-[#6366f112] via-transparent to-[#ffffff08] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
     </motion.div>
   );
 }
@@ -379,7 +379,7 @@ function DemoLink({ status, url }: { status: string, url: string }) {
         href={url}
         target="_blank"
         whileHover={{ scale: 1.1, rotate: 10 }}
-        className="w-16 h-16 rounded-full glass-light border border-cyan-500/50 flex items-center justify-center text-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.4)] transition-all"
+        className="w-16 h-16 rounded-full glass-light border border-indigo-500/50 flex items-center justify-center text-indigo-400 shadow-[0_0_30px_rgba(99,102,241,0.3)] transition-all"
         title="Ver Demo en Vivo"
       >
         <FaExternalLinkAlt size={20} />
@@ -398,7 +398,7 @@ function DemoLink({ status, url }: { status: string, url: string }) {
 
       <AnimatePresence>
         <motion.div
-          className="absolute bottom-full mb-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl glass-card-pro border border-orange-500/40 text-[8px] font-black text-orange-400 uppercase tracking-[0.25em] whitespace-nowrap opacity-0 group-hover/demo:opacity-100 transition-all shadow-2xl z-[100]"
+          className="absolute bottom-full mb-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl glass-card-pro border border-indigo-500/40 text-[8px] font-black text-indigo-400 uppercase tracking-[0.25em] whitespace-nowrap opacity-0 group-hover/demo:opacity-100 transition-all shadow-2xl z-[100]"
         >
           DESARROLLO ACTIVO 🚧
         </motion.div>

@@ -1,0 +1,335 @@
+// Clientes Elite 2.0 - High Fidelity Professional Styles
+@import "services-elite.scss";
+
+$elite-indigo: #6366f1;
+$elite-purple: #a855f7;
+$elite-dark: #0f0f1e;
+$elite-surface: #1a1a2e;
+$elite-white: #ffffff;
+
+.clients-elite-wrapper {
+    background: $elite-dark;
+    color: $elite-white;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+
+    // --- REUSABLE UTILITIES ---
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .shine-effect {
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        &:hover::before {
+            left: 100%;
+        }
+    }
+
+    .card-3d {
+        transform-style: preserve-3d;
+        transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+
+        &:hover {
+            transform: translateY(-12px) rotateX(4deg) rotateY(-4deg);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+        }
+    }
+
+    // --- HERO SECTION ---
+    .hero-gradient {
+        background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15), transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15), transparent 50%),
+            $elite-dark;
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            top: -300px;
+            right: -300px;
+            animation: pulse-ring 6s ease-in-out infinite;
+        }
+
+        &::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+            bottom: -250px;
+            left: -250px;
+            animation: pulse-ring 8s ease-in-out infinite reverse;
+        }
+    }
+
+    // --- METRIC CARDS ---
+    .metric-card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+
+        &::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
+            animation: rotate-elite 30s linear infinite;
+            pointer-events: none;
+        }
+
+        &:hover {
+            border-color: rgba($elite-indigo, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+    }
+
+    // --- MARQUEE ---
+    .logo-marquee {
+        white-space: nowrap;
+        overflow: hidden;
+
+        .logo-track {
+            display: inline-block;
+            animation: marquee-elite 40s linear infinite;
+        }
+
+        &:hover .logo-track {
+            animation-play-state: paused;
+        }
+    }
+
+    // --- CASE STUDY CARDS ---
+    .case-study-card {
+        @extend .card-3d;
+        @extend .glass-effect;
+        border-radius: 32px;
+        overflow: hidden;
+
+        .client-logo-viz {
+            font-size: 3rem;
+            filter: drop-shadow(0 0 15px rgba($elite-indigo, 0.4));
+        }
+
+        &:hover img {
+            transform: scale(1.1);
+        }
+    }
+
+    // --- COMPARISON ---
+    .comparison-item {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 20px;
+        padding: 24px;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(12px);
+            border-color: rgba($elite-indigo, 0.2);
+        }
+    }
+
+    // --- GALLERY ---
+    .gallery-item {
+        border-radius: 24px;
+        overflow: hidden;
+        position: relative;
+        aspect-ratio: 1;
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        &:hover {
+            transform: scale(1.02);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+
+            img {
+                transform: scale(1.1);
+            }
+
+            .gallery-overlay {
+                opacity: 1;
+            }
+        }
+    }
+
+    // --- TIMELINE ---
+    .timeline {
+        position: relative;
+        padding-left: 48px;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, $elite-indigo, $elite-purple);
+            opacity: 0.3;
+        }
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 48px;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: -54px;
+            top: 8px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: $elite-indigo;
+            box-shadow: 0 0 15px $elite-indigo;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+    }
+
+    // --- BUTTONS ---
+    .btn-elite {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        &:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        &:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+    }
+
+    // --- ANIMATIONS ---
+    @keyframes pulse-ring {
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 0.4;
+        }
+
+        50% {
+            transform: scale(1.1);
+            opacity: 0.7;
+        }
+    }
+
+    @keyframes rotate-elite {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes marquee-elite {
+        from {
+            transform: translateX(0);
+        }
+
+        to {
+            transform: translateX(-50%);
+        }
+    }
+
+    @keyframes floating-elite {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    .floating-anim {
+        animation: floating-elite 6s ease-in-out infinite;
+    }
+
+    .shimmer-fill {
+        position: relative;
+        overflow: hidden;
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer-elite 2s infinite;
+        }
+    }
+
+    @keyframes shimmer-elite {
+        0% {
+            transform: translateX(-100%);
+        }
+
+        100% {
+            transform: translateX(100%);
+        }
+    }
+}

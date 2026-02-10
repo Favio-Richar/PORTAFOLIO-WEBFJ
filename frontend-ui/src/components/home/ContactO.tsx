@@ -85,7 +85,7 @@ export default function ContactoHome() {
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-            className="relative group rounded-[4rem] glass-light p-10 md:p-16 border border-white/10 shadow-[0_0_100px_rgba(6,182,212,0.15)]"
+            className="relative group rounded-[4rem] glass-light p-10 md:p-16 border border-white/10 shadow-[0_0_100px_rgba(99,102,241,0.15)]"
           >
             <div style={{ transform: "translateZ(100px)" }} className="relative z-20 space-y-16">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -126,8 +126,8 @@ export default function ContactoHome() {
                   icon={<FaPhone />}
                   label="Llamar"
                   sub="Urgente"
-                  vibrantColor="#06b6d4"
-                  className="bg-cyan-500/10 hover:bg-cyan-500/30 text-cyan-400 border-cyan-500/30"
+                  vibrantColor="#6366f1"
+                  className="bg-indigo-500/10 hover:bg-indigo-500/30 text-indigo-400 border-indigo-500/30"
                 />
 
               </div>
@@ -151,9 +151,9 @@ export default function ContactoHome() {
         <div className="mt-20 flex flex-col items-center gap-4">
           <p className="text-white/20 text-sm uppercase tracking-[0.3em] font-bold">Disponible Globalmente — Chile 🇨🇱</p>
           <div className="flex gap-2">
-            <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
-            <span className="w-2 h-2 rounded-full bg-cyan-500/60 animate-pulse delay-75" />
-            <span className="w-2 h-2 rounded-full bg-cyan-500/30 animate-pulse delay-150" />
+            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-indigo-500/60 animate-pulse delay-75" />
+            <span className="w-2 h-2 rounded-full bg-indigo-500/30 animate-pulse delay-150" />
           </div>
         </div>
       </div>

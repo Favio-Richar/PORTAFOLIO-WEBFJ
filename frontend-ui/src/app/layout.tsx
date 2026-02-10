@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 
 
 import "./globals.css"; // 👈 SOLO UN SISTEMA DE ESTILOS
+import "../styles/services-elite.scss";
+import "../styles/blog-elite.scss";
+import "../styles/contact-elite.scss";
+import "../styles/clients-elite.scss";
+import "../styles/projects-elite.scss";
 
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -18,6 +23,11 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
 });
 
@@ -44,6 +54,7 @@ export default function RootLayout({
         className={`
           ${geistSans.variable}
           ${geistMono.variable}
+          ${playfair.variable}
           min-h-screen
           antialiased
           relative

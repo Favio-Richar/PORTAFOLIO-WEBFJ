@@ -3,8 +3,9 @@ from sqlmodel import SQLModel, create_engine
 
 # IMPORTANTE: Importar todos los modelos para que SQLModel los registre
 from app.models import (
-    Blog, Proyecto, Cliente, Cotizacion, Service,
-    Profile, Experience, Education, Timeline, Certification, Contact
+    User, Ad, Profile, Experience, Proyecto,
+    Contact, Timeline, Certification, Education, Blog,
+    ProfessionalPlan, AdditionalService, Faq, TeamMember, Review
 )
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/portafolio-web")
@@ -16,7 +17,7 @@ engine = create_engine(DATABASE_URL, echo=True)  # echo=True para ver SQL
 def init_db():
     """Crear todas las tablas definidas en los modelos"""
     SQLModel.metadata.create_all(engine)
-    print("✅ Tablas creadas en PostgreSQL")
+    print("[DB] Base de datos inicializada correctamente")
 
 def get_session():
     from sqlmodel import Session

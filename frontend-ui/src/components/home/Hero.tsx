@@ -19,7 +19,7 @@ import { gsap } from "@/lib/gsap";
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [profileVideo, setProfileVideo] = useState("");
-  const [profileImage, setProfileImage] = useState("https://ui-avatars.com/api/?name=Favio+Jimenez&background=06b6d4&color=fff&size=512");
+  const [profileImage, setProfileImage] = useState("https://ui-avatars.com/api/?name=Favio+Jimenez&background=6366f1&color=fff&size=512");
   const [profileName, setProfileName] = useState("Favio Jiménez");
   const [profileTitle, setProfileTitle] = useState("Ingeniero de Software Full Stack");
   const [showVideoModal, setShowVideoModal] = useState(false);
@@ -123,7 +123,7 @@ export default function Hero() {
               <Link href="/contacto" className="btn-primary btn-alive btn-shimmer px-10 py-4 text-lg">
                 Solicitar asesoría
               </Link>
-              <Link href="/proyectos" className="btn-secondary px-10 py-4 text-lg border-white/10 hover:border-cyan-500/50 bg-white/5 backdrop-blur-sm">
+              <Link href="/proyectos" className="btn-secondary px-10 py-4 text-lg border-white/10 hover:border-indigo-500/50 bg-white/5 backdrop-blur-sm">
                 Ver proyectos reales
               </Link>
             </div>
@@ -141,7 +141,7 @@ export default function Hero() {
               style={{ rotateX, rotateY }}
               className="relative group rounded-3xl overflow-hidden glass-light border border-white/10 h-[350px] md:h-[450px]"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-violet-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none" />
               <Image
                 src={profileImage}
                 fill
@@ -149,8 +149,8 @@ export default function Hero() {
                 className="object-cover transform group-hover:scale-110 transition-transform duration-700"
               />
               <div className="absolute bottom-6 left-6 z-20">
-                <h3 className="text-2xl font-bold text-white text-glow-blue">Fundador</h3>
-                <p className="text-cyan-400 font-medium">NextLevelSoftwarePro</p>
+                <h3 className="text-2xl font-bold text-white text-glow-indigo">Fundador</h3>
+                <p className="text-indigo-400 font-medium">NextLevelSoftwarePro</p>
               </div>
             </motion.div>
 
@@ -161,15 +161,15 @@ export default function Hero() {
               className="relative group rounded-3xl overflow-hidden glass-light border border-white/10 h-[350px] md:h-[450px] flex items-center justify-center bg-transparent cursor-pointer"
             >
               <div className="flex flex-col items-center space-y-4 z-20">
-                <div className="w-20 h-20 rounded-full bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(6,182,212,0.3)]">
-                  <div className="w-0 h-0 border-t-[12px] border-t-transparent border-l-[20px] border-l-cyan-400 border-b-[12px] border-b-transparent translate-x-1" />
+                <div className="w-20 h-20 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+                  <div className="w-0 h-0 border-t-[12px] border-t-transparent border-l-[20px] border-l-indigo-500 border-b-[12px] border-b-transparent translate-x-1" />
                 </div>
                 <p className="text-white font-bold tracking-widest uppercase text-sm drop-shadow-lg">Ver Presentación</p>
               </div>
 
               {/* Simulation of nested depth */}
               <div className="absolute inset-4 border border-white/5 rounded-2xl pointer-events-none" />
-              <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/40 to-transparent opacity-60" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-indigo-900/20 to-transparent opacity-60" />
             </motion.div>
           </div>
 
@@ -185,7 +185,7 @@ export default function Hero() {
             ].map((tech, i) => (
               <div
                 key={tech.name}
-                className="tech-item flex items-center gap-3 px-6 py-3 rounded-2xl glass-light border border-white/10 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.2)] transition-all duration-300 cursor-default group"
+                className="tech-item flex items-center gap-3 px-6 py-3 rounded-2xl glass-light border border-white/10 hover:border-indigo-500/50 hover:shadow-[0_0_20px_rgba(99,102,241,0.15)] transition-all duration-300 cursor-default group"
               >
                 <span className="text-2xl group-hover:scale-120 transition-transform duration-300">
                   {tech.icon}

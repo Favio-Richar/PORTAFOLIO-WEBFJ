@@ -39,7 +39,7 @@ export default function CertModal({ viewingCert, onClose }: CertModalProps) {
                                 ) : isVideo ? (
                                     <FaVideo className="text-purple-500 text-xl" />
                                 ) : (
-                                    <FaImage className="text-cyan-500 text-xl" />
+                                    <FaImage className="text-indigo-500 text-xl" />
                                 )}
                                 <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">
                                     Certificado de Validación
@@ -98,7 +98,7 @@ export default function CertModal({ viewingCert, onClose }: CertModalProps) {
                             href={viewingCert}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="md:hidden absolute bottom-4 right-4 p-4 bg-cyan-500 text-black rounded-full shadow-xl"
+                            className="md:hidden absolute bottom-4 right-4 p-4 bg-indigo-500 text-black rounded-full shadow-xl"
                         >
                             <FaExternalLinkAlt />
                         </a>

@@ -1,397 +1,611 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
-import { FaGithub, FaExternalLinkAlt, FaPlayCircle, FaSpinner, FaTimes, FaLink, FaCodeBranch, FaBuilding, FaUserTie } from "react-icons/fa";
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  FaRocket, FaStar, FaCheck, FaTimes, FaPlus, FaMinus, FaLightbulb,
+  FaShieldAlt, FaChartBar, FaUserTie, FaWhatsapp, FaEnvelope, FaPhone,
+  FaGlobe, FaShoppingCart, FaMobileAlt, FaDatabase, FaUsers, FaTools,
+  FaServer, FaLock, FaBolt, FaCloudUploadAlt, FaCode
+} from "react-icons/fa";
 
-// Swiper
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, EffectFade, Navigation } from "swiper/modules";
+// --- DATA ---
+const ALL_PROJECTS = [
+  { id: 1, title: "Landing Page Profesional", category: "web", price: "$800", icon: <FaGlobe />, desc: "Página única optimizada para conversión" },
+  { id: 2, title: "Sitio Web Corporativo", category: "web", price: "$1,500", icon: <FaGlobe />, desc: "5-10 páginas con diseño profesional" },
+  { id: 3, title: "Tienda Online E-Commerce", category: "ecommerce", price: "$3,500", icon: <FaShoppingCart />, desc: "Plataforma completa de ventas online" },
+  { id: 4, title: "Marketplace Multi-Vendor", category: "ecommerce", price: "$7,500", icon: <FaShoppingCart />, desc: "Mercado con múltiples vendedores" },
+  { id: 5, title: "Sistema CRM", category: "sistemas", price: "$4,800", icon: <FaDatabase />, desc: "Gestión completa de clientes" },
+  { id: 6, title: "Sistema ERP", category: "sistemas", price: "$12,000", icon: <FaChartBar />, desc: "Planificación de recursos empresariales" },
+  { id: 7, title: "App Móvil iOS/Android", category: "apps", price: "$8,500", icon: <FaMobileAlt />, desc: "Aplicación nativa multiplataforma" },
+  { id: 8, title: "Portal de Reservas", category: "sistemas", price: "$2,800", icon: <FaUsers />, desc: "Sistema de citas y agendamiento" },
+  { id: 9, title: "Blog Corporativo", category: "web", price: "$1,200", icon: <FaTools />, desc: "Plataforma de contenido SEO" },
+  { id: 10, title: "Catálogo Digital", category: "web", price: "$900", icon: <FaGlobe />, desc: "Muestra productos/servicios online" },
+  { id: 11, title: "Intranet Empresarial", category: "sistemas", price: "$6,500", icon: <FaShieldAlt />, desc: "Portal interno para empleados" },
+  { id: 12, title: "App Web Progresiva (PWA)", category: "apps", price: "$5,200", icon: <FaMobileAlt />, desc: "Web app con funciones nativas" }
+];
 
-// Swiper styles
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/effect-fade";
-import "swiper/css/navigation";
+const SUGGESTED_PROJECTS = [
+  { id: 1, title: "Chatbot IA con GPT-4", interest: 78, price: "$5,500", icon: "🤖", color: "#6366f1", tags: ["IA Avanzada", "Multiidioma", "Integración Web"] },
+  { id: 2, title: "Plataforma de Cursos Online", interest: 92, price: "$6,800", icon: "🎓", color: "#14b8a6", tags: ["Video HD", "Certificados", "Membresías"] },
+  { id: 3, title: "App de Delivery / Logística", interest: 65, price: "$9,200", icon: "📍", color: "#f59e0b", tags: ["GPS Real-time", "Rutas IA", "Multi-ciudad"] },
+  { id: 4, title: "Sistema de Facturación Electrónica", interest: 88, price: "$4,200", icon: "💳", color: "#ec4899", tags: ["Timbrado SAT", "XML/PDF", "Reportes"] },
+  { id: 5, title: "Telemedicina / Consultas Online", interest: 71, price: "$7,500", icon: "🏥", color: "#8b5cf6", tags: ["Video HD", "HIPAA", "Recetas"] },
+  { id: 6, title: "Red Social / Comunidad Online", interest: 54, price: "$8,900", icon: "🎮", color: "#06b6d4", tags: ["Feeds", "Mensajería", "Grupos"] }
+];
 
-export default function ProyectosPage() {
-  const [proyectos, setProyectos] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedProject, setSelectedProject] = useState<any>(null);
+const FAQ_CATEGORIES = [
+  {
+    title: "💰 Precios y Pagos",
+    color: "blue",
+    items: [
+      { q: "¿Ofrecen planes de pago o financiamiento?", a: "Sí, ofrecemos planes de pago flexibles en 2-4 cuotas sin intereses para proyectos >$2,000 USD. 50% inicio / 50% final." },
+      { q: "¿Qué incluye exactamente el precio?", a: "Diseño, desarrollo, hosting 1 año, SSL, 3 rondas de revisión, capacitación y 30 días de soporte post-lanzamiento." },
+      { q: "¿Hay costos adicionales ocultos?", a: "No. Solo dominios ($15-50/año) o licencias premium específicas. Todo se detalla en la cotización." }
+    ]
+  },
+  {
+    title: "⏱️ Tiempos y Entrega",
+    color: "emerald",
+    items: [
+      { q: "¿Cuánto tiempo tarda un proyecto?", a: "Landing: 1-2 semanas. Web Corp: 3-4 semanas. E-Commerce: 4-6 semanas. Sistemas: 6-12 semanas. Apps: 8-16 semanas." },
+      { q: "¿Qué pasa si necesito cambios?", a: "Incluimos 3 rondas de revisión. Cambios menores son gratis; cambios estructurales fuera del alcance se cotizan aparte." },
+      { q: "¿Entregan por etapas?", a: "Sí: Diseño > Prototipo > Desarrollo > Testing > Lanzamiento. Revisas cada etapa." }
+    ]
+  },
+  {
+    title: "🛠️ Soporte y Mantenimiento",
+    color: "violet",
+    items: [
+      { q: "¿Incluyen soporte post-lanzamiento?", a: "Sí, 30 días gratuitos para bugs. Luego ofrecemos planes de mantenimiento desde $150/mes." },
+      { q: "¿Ofrecen contratos a largo plazo?", a: "Sí, planes mensuales con actualizaciones, seguridad, backups y soporte prioritario." },
+      { q: "¿Puedo escalar el proyecto después?", a: "Totalmente. Desarrollamos pensando en escalabilidad. Puedes añadir módulos cuando quieras." }
+    ]
+  },
+  {
+    title: "🔐 Seguridad y Hosting",
+    color: "amber",
+    items: [
+      { q: "¿Dónde se aloja mi sistema?", a: "Usamos Microsoft Azure Enterprise. 99.9% uptime, CDN global y seguridad ISO 27001." },
+      { q: "¿Qué tan seguro es?", a: "SSL/TLS, WAF, protección DDoS, encriptación y MFA incluidos por defecto." },
+      { q: "¿Hacen backups?", a: "Sí, backups diarios automáticos con retención de 30 días." }
+    ]
+  },
+  {
+    title: "📱 Tecnología",
+    color: "pink",
+    items: [
+      { q: "¿Qué tecnologías usan?", a: "React, Next.js, Node.js, Python, SQL/NoSQL. Apps: React Native o Nativo. Lo mejor para cada caso." },
+      { q: "¿Es responsive?", a: "100%. Diseño Mobile-First garantizado para funcionar perfecto en celulares y tablets." },
+      { q: "¿Integran otras herramientas?", a: "Sí: Stripe, PayPal, Salesforce, HubSpot, Mailchimp, Google Analytics, ERPs, etc." }
+    ]
+  }
+];
 
-  useEffect(() => {
-    const fetchProyectos = async () => {
-      try {
-        const res = await fetch("http://localhost:8000/api/proyectos");
-        if (res.ok) {
-          const data = await res.json();
-          const mapped = data.map((p: any) => ({
-            id: p.id,
-            titulo: p.title,
-            categoria: p.category,
-            estado: p.status,
-            version: p.version,
-            descripcion: p.description,
-            img: p.image_url,
-            media: typeof p.media === 'string' ? JSON.parse(p.media) : (p.media || []),
-            demo: p.demo_url,
-            repo: p.repo_url,
-            stack: typeof p.stack === 'string' ? JSON.parse(p.stack) : (p.stack || []),
-            deployment_date: p.deployment_date,
-            client_name: p.client_name
-          }));
-          setProyectos(mapped);
+const REVIEWS = [
+  { name: "María González", role: "Dueña de Boutique Fashion", text: "Excelente servicio. Entregaron mi tienda online en tiempo récord y funcionando perfectamente. Las ventas aumentaron un 300% en el primer mes.", rating: 5, initial: "M", color: "blue" },
+  { name: "Carlos Ramírez", role: "Director Comercial, TechSolutions", text: "El sistema CRM que desarrollaron transformó nuestra operación comercial. Ahora podemos dar seguimiento a 500+ clientes sin perder detalle.", rating: 5, initial: "C", color: "emerald" },
+  { name: "Ana Martínez", role: "CEO, Consulting Group", text: "Profesionales de primer nivel. El sitio web que crearon posicionó nuestra marca digitalmente. Ahora recibimos 200+ consultas mensuales.", rating: 5, initial: "A", color: "violet" },
+  { name: "Jorge Silva", role: "Fundador, FitLife App", text: "La app móvil que desarrollaron superó nuestras expectativas. Interface intuitiva, rápida y sin errores. Soporte técnico A+.", rating: 5, initial: "J", color: "amber" },
+  { name: "Laura Fernández", role: "CTO, InnovateTech", text: "Migración completa a la nube sin downtime. La seguridad Microsoft Azure nos da tranquilidad total. Equipo técnico muy capacitado.", rating: 5, initial: "L", color: "pink" },
+  { name: "Roberto Díaz", role: "Gerente, Dental Clinic Pro", text: "Portal de reservas espectacular. Nuestros clientes pueden agendar citas 24/7 y nosotros optimizamos recursos. Resultados impresionantes.", rating: 5, initial: "R", color: "cyan" }
+];
 
-          // Deep Linking: Auto-open project from hash
-          const hash = window.location.hash.replace('#', '');
-          if (hash) {
-            const found = mapped.find((p: any) => p.titulo.toLowerCase().replace(/\s+/g, '-') === hash);
-            if (found) setSelectedProject(found);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching projects:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProyectos();
-  }, []);
+export default function ProyectosElitePage() {
+  const [filter, setFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState<string | null>(null); // For FAQ
+  const [rating, setRating] = useState(0);
+  const [reviewSent, setReviewSent] = useState(false);
+  const [votedProjects, setVotedProjects] = useState<number[]>([]);
 
-  const copyDirectLink = (titulo: string) => {
-    const slug = titulo.toLowerCase().replace(/\s+/g, '-');
-    const url = `${window.location.origin}${window.location.pathname}#${slug}`;
-    navigator.clipboard.writeText(url);
-    alert("Enlace directo copiado al portapapeles 🔗");
+  const filteredProjects = useMemo(() =>
+    filter === "all" ? ALL_PROJECTS : ALL_PROJECTS.filter(p => p.category === filter),
+    [filter]
+  );
+
+  const toggleFaq = (idx: string) => {
+    setActiveTab(activeTab === idx ? null : idx);
+  };
+
+  const handleVote = (id: number) => {
+    if (!votedProjects.includes(id)) {
+      setVotedProjects([...votedProjects, id]);
+      alert("¡Gracias por tu voto! Hemos registrado tu interés.");
+    }
   };
 
   return (
-    <div className="relative overflow-hidden pt-20 px-6 font-bold">
+    <div className="projects-elite-wrapper pt-20">
 
-      {/* DECORACIÓN FONDO */}
-      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-cyan-500/5 blur-[200px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-blue-500/5 blur-[180px] rounded-full pointer-events-none" />
+      {/* 1. HERO SECTION */}
+      <section className="hero-bg py-32 px-6 text-center relative z-10">
+        <div className="max-w-6xl mx-auto relative z-20">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+            <span className="badge-elite mb-8"> <FaRocket /> PROYECTOS PROFESIONALES </span>
+            <h1 className="text-6xl md:text-8xl font-black mb-8 tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 drop-shadow-2xl">
+              Nuestros Proyectos
+            </h1>
+            <p className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto mb-16 leading-relaxed">
+              Soluciones digitales profesionales para empresas, PYMES y emprendedores que buscan crecer con tecnología de vanguardia.
+            </p>
 
-      {/* HEADER PROYECTOS */}
-      <section className="relative text-center py-24">
-        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10">
-          <h2 className="section-title">
-            <span className="block text-cyan-400 text-sm font-black tracking-[0.6em] uppercase mb-4">PORTFOLIO DE INGENIERÍA</span>
-            <span className="title-fire text-glow-blue bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(6,182,212,0.5)] text-7xl md:text-8xl font-black uppercase tracking-tighter">Proyectos</span>
-          </h2>
-          <p className="text-gray-400 mt-8 max-w-3xl mx-auto text-xl font-medium leading-relaxed">
-            Exhibición de <span className="text-white font-black underline decoration-cyan-500/50">Sistemas de Alto Impacto</span> diseñados con arquitectura profesional, escalabilidad y una experiencia de usuario excepcional.
-          </p>
-        </motion.div>
-      </section>
-
-      {/* GRID DE PROYECTOS */}
-      <section className="max-w-7xl mx-auto py-20 relative z-10">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <FaSpinner className="text-5xl text-cyan-500 animate-spin" />
-            <span className="text-white/20 font-black uppercase tracking-[0.5em] text-xs">Sincronizando Sistemas...</span>
-          </div>
-        ) : (
-          <div className="grid gap-20">
-            {proyectos.map((p, index) => (
-              <ProjectCard key={index} p={p} onExpand={() => setSelectedProject(p)} />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* THEATER MODE MODAL */}
-      <AnimatePresence>
-        {selectedProject && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-10 bg-black/98 backdrop-blur-3xl"
-            onClick={() => setSelectedProject(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 50 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 50 }}
-              className="relative max-w-6xl w-full h-full max-h-[90vh] glass-card-pro border border-white/20 shadow-[0_0_150px_rgba(6,182,212,0.2)] flex flex-col overflow-hidden rounded-[3rem]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setSelectedProject(null)}
-                className="absolute top-6 right-6 w-12 h-12 rounded-full glass-light border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all z-50"
-              >
-                <FaTimes />
-              </button>
-
-              {/* MODAL SWIPER (PRESENTATION) */}
-              <div className="flex-1 w-full bg-black/20 relative group/presenter overflow-hidden">
-                <Swiper
-                  modules={[Autoplay, Pagination, Navigation]}
-                  pagination={{ clickable: true }}
-                  navigation
-                  autoplay={{ delay: 6000 }}
-                  className="w-full h-full"
-                >
-                  {(selectedProject.media.length > 0 ? selectedProject.media : [{ type: 'image', url: selectedProject.img }]).map((m: any, idx: number) => (
-                    <SwiperSlide key={idx} className="relative w-full h-full">
-                      <div className="w-full h-full flex items-center justify-center p-4 md:p-8">
-                        {m.type === "image" ? (
-                          <div className="relative w-full h-full">
-                            <Image
-                              src={m.url}
-                              alt={`${selectedProject.titulo} detail ${idx}`}
-                              fill
-                              className="object-contain drop-shadow-2xl"
-                            />
-                          </div>
-                        ) : (
-                          <video
-                            src={m.url}
-                            controls
-                            autoPlay
-                            className="max-w-full max-h-full rounded-2xl shadow-2xl border border-white/10"
-                          />
-                        )}
-                      </div>
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-              </div>
-
-              {/* MODAL TEXT INFO */}
-              <div className="p-8 md:p-12 bg-black/40 border-t border-white/10">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div className="flex items-center gap-6 mb-4">
-                    <h3 className="text-3xl md:text-5xl font-black text-white italic tracking-tight uppercase">
-                      {selectedProject.titulo}
-                    </h3>
-                    {selectedProject.deployment_date && (
-                      <div className="relative group/cal-modal cursor-default perspective-1000 scale-75 md:scale-100 origin-left">
-                        <div className="w-12 h-14 bg-white rounded-xl overflow-hidden shadow-xl flex flex-col items-center border border-white/20">
-                          <div className="w-full h-4 bg-red-600 flex items-center justify-center text-[6px] font-black text-white uppercase tracking-tighter">
-                            {new Date(selectedProject.deployment_date).toLocaleDateString('es-ES', { month: 'short' }).replace('.', '')}
-                          </div>
-                          <div className="flex-1 flex flex-col items-center justify-center p-0.5 leading-none">
-                            <span className="text-black text-lg font-black">{new Date(selectedProject.deployment_date).getDate()}</span>
-                            <span className="text-black/30 text-[5px] font-bold">{new Date(selectedProject.deployment_date).getFullYear()}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-white/60 text-lg md:text-xl font-medium max-w-3xl leading-relaxed italic">
-                    {selectedProject.client_name && (
-                      <span className="inline-flex items-center gap-2 px-4 py-1 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 not-italic font-black rounded-full text-[10px] uppercase tracking-widest mr-4 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-                        <FaUserTie className="text-[12px]" /> {selectedProject.client_name}
-                      </span>
-                    )}
-                    {selectedProject.descripcion}
-                  </p>
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+              {[
+                { val: "150+", label: "Proyectos Completados" },
+                { val: "98%", label: "Clientes Satisfechos" },
+                { val: "24/7", label: "Soporte Técnico" },
+                { val: "5+", label: "Años de Experiencia" }
+              ].map((stat, i) => (
+                <div key={i} className="glass-box p-8">
+                  <div className="text-4xl font-black text-white mb-2 glow-text">{stat.val}</div>
+                  <div className="text-xs text-slate-400 font-bold uppercase tracking-widest">{stat.label}</div>
                 </div>
-                <div className="flex flex-wrap gap-4">
-                  <button
-                    onClick={() => copyDirectLink(selectedProject.titulo)}
-                    className="px-8 py-4 glass-light border border-white/20 text-white font-black uppercase tracking-widest text-[9px] rounded-full hover:bg-white/10 transition-all italic flex items-center gap-2"
-                  >
-                    <FaLink className="text-cyan-400" /> COPIAR ENLACE
-                  </button>
-                  <a href={selectedProject.demo} target="_blank" className="px-8 py-4 btn-primary btn-alive text-black font-black uppercase tracking-widest text-[9px] rounded-full flex items-center gap-2 italic shadow-lg shadow-cyan-500/20">
-                    LIVE DEMO <FaExternalLinkAlt />
-                  </a>
-                  <a href={selectedProject.repo} target="_blank" className="px-8 py-4 glass-light border border-white/20 text-white/50 hover:text-white font-black uppercase tracking-widest text-[9px] rounded-full transition-all italic flex items-center gap-2">
-                    <FaGithub /> REPOSITORIO
-                  </a>
-                </div>
-              </div>
-            </motion.div>
+              ))}
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      </section>
 
-      {/* CTA FINAL */}
-      <motion.section initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-center py-32 px-6">
-        <div className="max-w-4xl mx-auto">
-          <h3 className="title-fire text-glow-blue bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(6,182,212,0.5)] text-4xl md:text-6xl font-black leading-tight uppercase">¿Buscas arquitectura de clase mundial?</h3>
-          <p className="text-gray-400 mt-8 text-xl font-medium">Transformemos tus requerimientos complejos en una solución técnica impecable y robusta.</p>
-          <div className="mt-12">
-            <a href="/contacto" className="inline-flex items-center gap-4 px-16 py-7 rounded-full btn-primary btn-alive btn-shimmer btn-border-glow text-base font-black tracking-[0.3em] uppercase transition-all shadow-3xl">
-              INICIAR ENLACE TÉCNICO ⚡
-            </a>
+      {/* 2. 🔥 BESTSELLERS SECTION */}
+      <section className="py-32 px-6 bg-slate-900/50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl font-black mb-6 text-white">🔥 Proyectos Más Solicitados</h2>
+            <p className="text-xl text-slate-400">Los proyectos más populares y exitosos que ofrecemos para tu éxito digital</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-10">
+            {[
+              { title: "Página Web Corporativa", price: "1,500", desc: "Sitio web profesional con diseño moderno, optimizado para SEO y totalmente responsive.", tags: ["Diseño Responsivo", "SEO Optimizado", "Hosting"], color: "from-blue-600 to-indigo-800", icon: <FaGlobe /> },
+              { title: "Tienda Online E-Commerce", price: "3,500", desc: "Plataforma completa de ventas online con carrito, pasarela de pagos y panel de administración.", tags: ["Pagos Seguros", "Inventario", "Panel Admin"], color: "from-emerald-600 to-teal-800", icon: <FaShoppingCart /> },
+              { title: "Sistema de Gestión CRM", price: "4,800", desc: "Gestiona clientes, ventas y seguimiento. Aumenta productividad con automatización y reportes.", tags: ["Automatización", "Reportes", "Multi-usuario"], color: "from-violet-600 to-purple-800", icon: <FaDatabase /> }
+            ].map((p, i) => (
+              <div key={i} className="project-card-midnight group">
+                <div className={`card-visual bg-gradient-to-br ${p.color}`}>
+                  <span className="bestseller-badge">⭐ MÁS VENDIDO</span>
+                  {p.icon}
+                </div>
+                <div className="p-10 flex-1 flex flex-col">
+                  <h3 className="text-2xl font-black mb-4 text-white">{p.title}</h3>
+                  <p className="text-slate-400 mb-8 leading-relaxed flex-1">{p.desc}</p>
+                  <div className="flex flex-wrap gap-2 mb-10">
+                    {p.tags.map(t => <span key={t} className="tag-elite">{t}</span>)}
+                  </div>
+                  <div className="flex justify-between items-center pt-8 border-t border-white/10">
+                    <div className="text-3xl font-black text-white">${p.price} <span className="text-sm text-slate-500 font-bold uppercase">USD</span></div>
+                    <button className="px-6 py-3 bg-blue-600/20 text-blue-400 border border-blue-600/50 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition-all">Detalles</button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </motion.section>
+      </section>
 
-    </div>
-  );
-}
-
-function ProjectCard({ p, onExpand }: { p: any, onExpand: () => void }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [lastCommit, setLastCommit] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchGitHubStatus = async () => {
-      if (p.repo && p.repo.includes("github.com")) {
-        try {
-          const parts = p.repo.replace("https://github.com/", "").split("/");
-          if (parts.length >= 2) {
-            const [owner, repo] = parts;
-            const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/commits?per_page=1`);
-            if (res.ok) {
-              const data = await res.json();
-              if (data?.[0]?.commit?.author?.date) {
-                const date = new Date(data[0].commit.author.date);
-                setLastCommit(date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }));
-              }
-            }
-          }
-        } catch (e) {
-          console.error("GitHub API error:", e);
-        }
-      }
-    };
-    fetchGitHubStatus();
-  }, [p.repo]);
-
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x);
-  const mouseYSpring = useSpring(y);
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["8deg", "-8deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-8deg", "8deg"]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
-    x.set(xPct);
-    y.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  const mediaGallery = p.media.length > 0 ? p.media : [{ type: "image", url: p.img }];
-
-  return (
-    <motion.div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className="group glass-card-pro border border-white/5 rounded-[4rem] overflow-hidden shadow-3xl transition-all duration-700 hover:border-cyan-500/30 font-bold cursor-pointer"
-      onClick={onExpand}
-    >
-      <div className="grid md:grid-cols-2 gap-0 overflow-hidden h-[500px]">
-        {/* LADO VISUAL - ENHANCED GALLERY */}
-        <div style={{ transform: "translateZ(50px)" }} className="relative h-full overflow-hidden border-b md:border-b-0 md:border-r border-white/5">
-          <Swiper
-            modules={[Autoplay, Pagination, EffectFade]}
-            effect="fade"
-            pagination={{ clickable: true }}
-            autoplay={{ delay: 4000, disableOnInteraction: false }}
-            className="w-full h-full"
-          >
-            {mediaGallery.map((m: any, idx: number) => (
-              <SwiperSlide key={idx} className="relative w-full h-full bg-black/40">
-                {m.type === "image" ? (
-                  <Image
-                    src={m.url}
-                    alt={`${p.titulo} gallery ${idx}`}
-                    fill
-                    className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                  />
-                ) : (
-                  <video
-                    src={m.url}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20 pointer-events-none">
-            <div className="px-8 py-4 rounded-full glass-light border border-white/20 text-white font-black tracking-widest text-[10px] uppercase shadow-2xl flex items-center gap-3">
-              EXPLORAR GALERÍA <FaPlayCircle className="text-cyan-400" />
+      {/* 3. 📂 ALL PROJECTS GRID */}
+      <section className="py-32 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-black mb-6 text-white">📂 Portafolio Completo</h2>
+            <div className="flex flex-wrap justify-center gap-4 mt-10">
+              {["all", "web", "ecommerce", "sistemas", "apps"].map(f => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`px-6 py-3 rounded-full font-bold transition-all border ${filter === f
+                      ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/30"
+                      : "bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-white"
+                    }`}
+                >
+                  {f === "all" ? "Todos" : f === "web" ? "Sitios Web" : f === "ecommerce" ? "E-Commerce" : f === "sistemas" ? "Sistemas" : "Apps Móviles"}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="absolute top-8 left-8 z-30">
-            <span className="px-5 py-2 bg-black/60 backdrop-blur-md border border-white/10 text-white font-black text-[9px] uppercase tracking-widest rounded-full w-fit">
-              {p.version}
-            </span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <AnimatePresence mode="popLayout">
+              {filteredProjects.map((p) => (
+                <motion.div
+                  layout
+                  key={p.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="project-card-midnight"
+                >
+                  <div className="card-visual h-40 text-5xl bg-gradient-to-br from-slate-800 to-slate-900">
+                    {p.icon}
+                  </div>
+                  <div className="p-8">
+                    <h3 className="text-lg font-black mb-2 text-white">{p.title}</h3>
+                    <p className="text-sm text-slate-400 mb-6 line-clamp-2">{p.desc}</p>
+                    <div className="flex justify-between items-center pt-4 border-t border-white/10">
+                      <div className="text-xl font-black text-blue-400">{p.price}</div>
+                      <button className="text-xs font-black uppercase tracking-widest text-slate-500 hover:text-white transition-colors">Ver Más</button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
+      </section>
 
-        {/* INFO LADO - UNIFIED AND EQUALIZED */}
-        <div style={{ transform: "translateZ(30px)" }} className="p-8 md:p-12 flex flex-col justify-center relative bg-black/40 backdrop-blur-md overflow-hidden">
-          <div className="flex flex-wrap items-center justify-between gap-6 mb-8">
-            <span className="text-cyan-400 text-[10px] font-black tracking-[0.4em] uppercase bg-cyan-400/10 px-6 py-2 rounded-full border border-cyan-500/20">
-              {p.categoria}
-            </span>
-            {p.deployment_date && (
-              <div className="relative group/cal-card cursor-default perspective-1000 scale-90">
-                <div className="w-14 h-15 bg-white rounded-xl overflow-hidden shadow-2xl flex flex-col items-center transform-gpu transition-all duration-300 group-hover/cal-card:-rotate-x-12 border border-white/20">
-                  <div className="w-full h-4 bg-red-600 flex items-center justify-center text-[7px] font-black text-white uppercase tracking-tighter">
-                    {new Date(p.deployment_date).toLocaleDateString('es-ES', { month: 'short' }).replace('.', '')}
+      {/* 4. 🎯 CLIENT TYPE GUIDE */}
+      <section className="py-32 px-6 bg-slate-900/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl font-black mb-6 text-white">🎯 ¿Qué Proyecto Es Ideal Para Ti?</h2>
+            <p className="text-xl text-slate-400">Encuentra la solución perfecta según el tamaño y necesidades de tu negocio</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-10">
+            {[
+              { type: "Emprendedor / Freelancer", icon: "💡", desc: "Estás comenzando tu negocio y necesitas establecer presencia online profesional.", recs: ["Landing Page Profesional", "Página Web Personal", "Catálogo Digital"], budget: "$800 - $2,000", color: "blue" },
+              { type: "PYME", icon: "🏢", desc: "Tu negocio está creciendo y necesitas herramientas profesionales para escalar operaciones.", recs: ["Web Corporativa Completa", "Tienda Online E-Commerce", "Sistema de Reservas", "Sistema CRM Básico"], budget: "$2,500 - $6,000", color: "emerald" },
+              { type: "Empresa / Corporativo", icon: "🏛️", desc: "Empresa establecida que requiere soluciones enterprise robustas y escalables.", recs: ["Portal Corporativo Enterprise", "Sistema ERP Personalizado", "Intranet Empresarial", "App Web/Móvil Custom"], budget: "$7,000+", color: "violet" }
+            ].map((c, i) => (
+              <div key={i} className="client-type-card-midnight border-t-4" style={{ borderColor: c.color === 'blue' ? '#3b82f6' : c.color === 'emerald' ? '#10b981' : '#8b5cf6' }}>
+                <div className="icon-circle text-white">{c.icon}</div>
+                <h3 className="text-2xl font-black mb-6 text-white">{c.type}</h3>
+                <p className="text-slate-400 mb-10 leading-relaxed italic">{c.desc}</p>
+                <div className="mb-10">
+                  <div className="text-xs font-black uppercase tracking-widest text-white mb-6">Proyectos Recomendados:</div>
+                  <div className="space-y-3">
+                    {c.recs.map(r => (
+                      <div key={r} className="p-4 bg-white/5 border-l-2 border-white/20 rounded-r-xl font-bold text-sm text-slate-300">
+                        <FaCheck className={`inline mr-2 text-${c.color}-400`} /> {r}
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex-1 flex flex-col items-center justify-center p-0.5 leading-none">
-                    <span className="text-black text-xl font-black">{new Date(p.deployment_date).getDate()}</span>
-                    <span className="text-black/30 text-[6px] font-bold">{new Date(p.deployment_date).getFullYear()}</span>
+                </div>
+                <div className="p-6 bg-black/20 rounded-2xl border border-white/5 mt-auto">
+                  <div className="text-xs text-slate-500 font-bold mb-2 uppercase">Presupuesto estimado:</div>
+                  <div className={`text-3xl font-black text-${c.color}-400`}>{c.budget}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. 🛡️ TECHNOLOGY COMPARISON */}
+      <section className="py-32 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl font-black mb-6 text-white">🛡️ Tecnologías y Seguridad</h2>
+            <p className="text-xl text-slate-400">Comparativa de herramientas tecnológicas y soluciones Microsoft</p>
+          </div>
+
+          <div className="comparison-wrapper-midnight mb-20 overflow-x-auto">
+            <table className="min-w-[800px]">
+              <thead>
+                <tr>
+                  <th className="w-1/3">Característica</th>
+                  <th className="text-center">Solución Estándar</th>
+                  <th className="text-center">Microsoft Azure</th>
+                  <th className="text-center text-blue-400">Nuestra Solución</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { f: "Certificación SSL/TLS", s: true, a: true, o: true },
+                  { f: "Firewall Avanzado", s: true, a: true, o: true },
+                  { f: "Backup Automático Diario", s: false, a: true, o: true },
+                  { f: "CDN Global (Velocidad)", s: false, a: true, o: true },
+                  { f: "Autenticación Multi-Factor", s: false, a: true, o: true },
+                  { f: "Protección DDoS", s: false, a: true, o: true },
+                  { f: "Monitoreo 24/7", s: false, a: true, o: true },
+                  { f: "Escalabilidad Automática", s: false, a: true, o: true },
+                  { f: "Cumplimiento GDPR/ISO", s: false, a: true, o: true }
+                ].map((row, i) => (
+                  <tr key={i}>
+                    <td className="font-bold text-slate-300">{row.f}</td>
+                    <td className="text-center">{row.s ? <span className="text-emerald-500">✓</span> : <span className="text-red-500">✗</span>}</td>
+                    <td className="text-center">{row.a ? <span className="text-emerald-500">✓</span> : <span className="text-red-500">✗</span>}</td>
+                    <td className="text-center">{row.o ? <span className="text-blue-400 font-bold">✓</span> : <span className="text-red-500">✗</span>}</td>
+                  </tr>
+                ))}
+                <tr className="bg-emerald-900/10">
+                  <td className="font-black text-emerald-400">💼 Soporte Técnico Dedicado</td>
+                  <td className="text-center text-slate-600 font-bold">Limitado</td>
+                  <td className="text-center text-slate-600 font-bold">Premium</td>
+                  <td className="text-center font-black text-emerald-400">24/7 Prioritario</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Certs Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { icon: <FaUserTie />, title: "Microsoft Partner", desc: "Acceso a tecnología Azure enterprise" },
+              { icon: <FaLock />, title: "Seguridad Total", desc: "Estándares ISO 27001 y GDPR" },
+              { icon: <FaBolt />, title: "Rendimiento", desc: "Uptime del 99.9% garantizado" },
+              { icon: <FaCloudUploadAlt />, title: "Backup Continuo", desc: "Respaldo automático cada 24h" }
+            ].map((c, i) => (
+              <div key={i} className="glass-box p-8 text-center hover:border-blue-500/50">
+                <div className="text-5xl mb-6 text-white">{c.icon}</div>
+                <h4 className="text-lg font-black text-white mb-2">{c.title}</h4>
+                <p className="text-sm text-slate-400 leading-relaxed">{c.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. 💡 SUGGESTED PROJECTS */}
+      <section className="py-32 px-6 bg-gradient-to-b from-slate-900 to-black">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl font-black mb-6 text-white">💡 Próximas Innovaciones</h2>
+            <p className="text-xl text-slate-400">¿Te gustaría que desarrollemos estos proyectos? Vota por tus favoritos</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-10">
+            {SUGGESTED_PROJECTS.map((p) => (
+              <div key={p.id} className="project-card-midnight border-dashed border-2 border-white/10" style={{ borderColor: p.color }}>
+                <div className="card-visual h-48 text-7xl relative" style={{ background: `linear-gradient(135deg, ${p.color}40, transpartent)` }}>
+                  <span className="absolute top-4 left-4 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full text-[10px] font-black tracking-widest text-white uppercase border border-white/20">
+                    🆕 PRÓXIMAMENTE
+                  </span>
+                  {p.icon}
+                </div>
+                <div className="p-10">
+                  <h3 className="text-2xl font-black mb-4 text-white">{p.title}</h3>
+                  <div className="flex flex-wrap gap-2 mb-8">
+                    {p.tags.map(t => <span key={t} className="tag-elite">{t}</span>)}
+                  </div>
+
+                  <div className="mb-10 p-6 bg-amber-900/10 rounded-2xl border-l-4 border-amber-500">
+                    <div className="text-xs font-black text-amber-500 mb-4 uppercase tracking-widest flex items-center gap-2">
+                      <FaLightbulb /> Interés del Mercado
+                    </div>
+                    <div className="h-3 w-full bg-amber-900/30 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${p.interest}%` }}
+                        className="h-full bg-amber-500"
+                      />
+                    </div>
+                    <div className="text-[11px] text-amber-500 mt-3 font-bold">{p.interest} empresas interesadas</div>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-8 border-t border-white/10">
+                    <div className="text-2xl font-black" style={{ color: p.color }}>{p.price}</div>
+                    <button
+                      onClick={() => handleVote(p.id)}
+                      disabled={votedProjects.includes(p.id)}
+                      className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all ${votedProjects.includes(p.id) ? "bg-white/10 text-slate-400" : "bg-white/90 text-black hover:scale-105"
+                        }`}
+                    >
+                      {votedProjects.includes(p.id) ? "Votado ✓" : <>👍 Me Interesa</>}
+                    </button>
                   </div>
                 </div>
               </div>
-            )}
+            ))}
           </div>
 
-          <h3 className="title-fire text-glow-blue bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(6,182,212,0.3)] text-3xl md:text-4xl font-black mb-4 leading-none uppercase tracking-tighter">
-            {p.titulo}
-          </h3>
-
-          <div className="flex flex-wrap items-center gap-6 mb-8 text-[11px] font-black tracking-[0.2em] text-white/40 uppercase">
-            <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-cyan-500" /> {p.estado}</span>
-            {p.client_name && (
-              <span className="flex items-center gap-2 px-4 py-1.5 bg-cyan-500/5 border border-cyan-500/20 rounded-full text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.1)]">
-                <FaUserTie className="text-[10px]" /> {p.client_name}
-              </span>
-            )}
-          </div>
-
-          <p className="text-gray-400 text-base md:text-lg font-medium leading-relaxed mb-8 line-clamp-3">
-            {p.descripcion || (p as any).description}
-          </p>
-
-          <div className="flex flex-wrap gap-6 font-black mt-auto">
-            <a href={p.demo} target="_blank" className="flex-1 md:flex-none inline-flex items-center justify-center gap-4 px-12 py-5 rounded-full btn-primary btn-alive btn-shimmer btn-border-glow text-xs tracking-widest uppercase shadow-xl transition-all">
-              DEMO EN VIVO <FaExternalLinkAlt />
-            </a>
-            <a href={p.repo} target="_blank" className="flex-1 md:flex-none inline-flex items-center justify-center gap-4 px-12 py-5 rounded-full glass-light border border-white/10 text-white/40 hover:text-white transition-all text-xs tracking-widest uppercase">
-              REPOSITORIO <FaGithub />
-            </a>
+          <div className="mt-20 p-12 glass-box text-center border border-blue-500/30 relative overflow-hidden">
+            <div className="absolute inset-0 bg-blue-600/5"></div>
+            <div className="relative z-10">
+              <h3 className="text-3xl font-black text-blue-400 mb-4">💡 ¿Tienes Una Idea Diferente?</h3>
+              <p className="text-lg text-blue-200/70 mb-10 max-w-2xl mx-auto">Si tienes en mente un proyecto que no está en esta lista, contáctanos y evaluamos tu visión empresarial.</p>
+              <button className="px-12 py-5 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-blue-500 transition-all shadow-xl shadow-blue-600/20">
+                🚀 Proponer Mi Proyecto
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </section>
+
+      {/* 7. ❓ FAQ SECTION - CATEGORIZED */}
+      <section className="py-32 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl font-black mb-6 text-white">❓ Preguntas Frecuentes</h2>
+            <p className="text-xl text-slate-400">Resolvemos tus dudas más comunes sobre nuestros servicios</p>
+          </div>
+
+          <div className="space-y-8">
+            {FAQ_CATEGORIES.map((cat, catIdx) => (
+              <div key={catIdx} className={`p-8 rounded-3xl border-l-4 bg-gradient-to-r from-${cat.color}-900/10 to-transparent border-${cat.color}-500`}>
+                <h3 className={`text-2xl font-black text-${cat.color}-400 mb-8 flex items-center gap-3`}>
+                  {cat.title}
+                </h3>
+                <div className="space-y-4">
+                  {cat.items.map((faq, i) => {
+                    const uniqueId = `${catIdx}-${i}`;
+                    const isActive = activeTab === uniqueId;
+                    return (
+                      <div
+                        key={i}
+                        className={`faq-item-midnight ${isActive ? 'active' : ''}`}
+                        onClick={() => toggleFaq(uniqueId)}
+                      >
+                        <div className="flex justify-between items-center">
+                          <h4 className="text-lg font-bold text-white">{faq.q}</h4>
+                          <span className={`text-2xl font-black text-${cat.color}-500 transition-transform duration-300 ${isActive ? 'rotate-180' : ''}`}>
+                            {isActive ? <FaMinus /> : <FaPlus />}
+                          </span>
+                        </div>
+                        <AnimatePresence>
+                          {isActive && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <p className="text-slate-400 mt-6 pt-6 border-t border-white/10 leading-relaxed">{faq.a}</p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-20 p-12 bg-slate-800/50 rounded-3xl text-center relative overflow-hidden group border border-white/5">
+            <h3 className="text-3xl font-black text-white mb-4">¿No encontraste tu pregunta?</h3>
+            <p className="text-white/60 mb-10">Contáctanos directamente y resolveremos todas tus dudas en minutos.</p>
+            <button className="px-12 py-5 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-3 mx-auto">
+              💬 Hacer Una Pregunta
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. ⭐ REVIEWS / TESTIMONIALS */}
+      <section className="py-32 px-6 bg-slate-900/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl font-black mb-6 text-white text-center">⭐ Voces de Éxito</h2>
+            <div className="flex justify-center items-center gap-12 mt-12 pb-12 border-b border-white/10">
+              <div className="text-center">
+                <div className="text-6xl font-black text-amber-500 mb-2">4.9</div>
+                <div className="flex justify-center text-amber-500 mb-2 text-xl"><FaStar /><FaStar /><FaStar /><FaStar /><FaStar /></div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">Calificación Promedio</div>
+              </div>
+              <div className="w-[1px] h-20 bg-white/10"></div>
+              <div className="text-center">
+                <div className="text-6xl font-black text-blue-500 mb-2">150+</div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-3">Reseñas Verificadas</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-10">
+            {REVIEWS.map((r, i) => (
+              <div key={i} className="review-card-midnight">
+                <div className="flex text-amber-500 gap-1 mb-8 relative z-10 text-xl">
+                  {Array.from({ length: r.rating }).map((_, st) => <FaStar key={st} />)}
+                </div>
+                <p className="text-slate-300 text-lg leading-relaxed mb-10 relative z-10 italic">"{r.text}"</p>
+                <div className="flex items-center gap-6 relative z-10">
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center font-black text-2xl text-white shadow-xl bg-${r.color}-600`}>
+                    {r.initial}
+                  </div>
+                  <div>
+                    <div className="text-lg font-black text-white">{r.name}</div>
+                    <div className="text-sm text-slate-500 font-bold">{r.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 9. ✍️ REVIEW SUBMISSION FORM */}
+          <div className="mt-32 max-w-4xl mx-auto">
+            <div className="glass-box p-16">
+              {!reviewSent ? (
+                <>
+                  <div className="text-center mb-16">
+                    <div className="text-6xl mb-6">✍️</div>
+                    <h3 className="text-4xl font-black text-white mb-4">¿Trabajaste con nosotros?</h3>
+                    <p className="text-lg text-slate-400">Nos encantaría conocer tu experiencia para seguir mejorando.</p>
+                  </div>
+                  <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); setReviewSent(true); }}>
+                    <div className="grid md:grid-cols-2 gap-8">
+                      <div className="space-y-3">
+                        <label className="text-xs font-black uppercase tracking-widest text-white ml-2">Nombre Completo *</label>
+                        <input type="text" required placeholder="Ej: María González" className="input-elite" />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-xs font-black uppercase tracking-widest text-white ml-2">Cargo o Empresa *</label>
+                        <input type="text" required placeholder="Ej: CEO TechSolutions" className="input-elite" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <label className="text-xs font-black uppercase tracking-widest text-white ml-2">Tu Calificación *</label>
+                      <div className="flex gap-4">
+                        {[1, 2, 3, 4, 5].map(s => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => setRating(s)}
+                            className={`text-5xl transition-all ${rating >= s ? "text-amber-500 scale-110" : "text-slate-700"}`}
+                          >
+                            ★
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-xs font-black uppercase tracking-widest text-white ml-2">Tu Reseña *</label>
+                      <textarea required rows={6} placeholder="Cuéntanos sobre los resultados del proyecto..." className="input-elite resize-none"></textarea>
+                      <div className="text-xs text-slate-500 text-right">Mínimo 50 caracteres</div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl font-black uppercase tracking-widest text-sm shadow-2xl shadow-blue-600/20 hover:scale-[1.01] active:scale-95 transition-all"
+                    >
+                      🚀 Enviar Mi Experiencia
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <div className="text-center py-20 px-10">
+                  <div className="text-8xl mb-8">🎉</div>
+                  <h3 className="text-4xl font-black text-emerald-400 mb-4">¡Gracias por tu reseña!</h3>
+                  <p className="text-xl text-slate-400 leading-relaxed mb-10">Tu opinión es invaluable. Será verificada por nuestro equipo antes de publicarse.</p>
+                  <button onClick={() => setReviewSent(false)} className="px-10 py-4 bg-white/10 text-white font-black rounded-xl uppercase tracking-widest text-xs hover:bg-white/20">Volver a Formulario</button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 10. 🚀 FINAL CTA */}
+      <section className="py-40 px-6 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-blue-600/5 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.15),transparent_60%)]"></div>
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h2 className="text-6xl md:text-7xl font-black text-white mb-8 leading-tight tracking-tighter">¿Listo Para Escalar Tu Negocio?</h2>
+          <p className="text-xl md:text-2xl text-slate-400 mb-16 leading-relaxed max-w-2xl mx-auto hover:text-white transition-colors">
+            Contáctanos hoy y recibe una cotización personalizada sin compromiso. Respondemos en menos de 24 horas.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-6 mb-20 text-slate-500 text-sm font-bold uppercase tracking-widest">
+            <span className="flex items-center gap-2"><FaCheck className="text-emerald-500" /> Respuesta en 24h</span>
+            <span className="flex items-center gap-2"><FaCheck className="text-emerald-500" /> Cotización Gratis</span>
+            <span className="flex items-center gap-2"><FaCheck className="text-emerald-500" /> Sin Compromiso</span>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-6">
+            <button className="px-12 py-6 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-2xl shadow-emerald-600/20 hover:bg-emerald-500 transition-all flex items-center gap-3">
+              <FaEnvelope /> Enviar Email
+            </button>
+            <button className="px-12 py-6 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-2xl shadow-blue-600/20 hover:bg-blue-500 transition-all flex items-center gap-3">
+              <FaWhatsapp /> WhatsApp
+            </button>
+            <button className="px-12 py-6 bg-white text-black rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-slate-200 transition-all flex items-center gap-3">
+              <FaPhone /> Llamar
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* FLOATING CONTACT BUTTON */}
+      <button className="floating-contact-btn group">
+        <span className="text-xl">📞</span>
+        <span>Contactar Ahora</span>
+      </button>
+
+      {/* FOOTER */}
+      <footer className="py-12 text-center border-t border-white/5 bg-black/40">
+        <p className="text-slate-600 text-xs font-bold uppercase tracking-[0.4em]">© 2024 Portfolio de Proyectos · Elite 2.0 Engineering</p>
+      </footer>
+
+    </div>
   );
 }

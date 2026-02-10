@@ -124,7 +124,7 @@ export default function ExperienceAdmin({ experiences: initialExperiences, onSav
                         key={exp.id}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="glass-card-pro p-8 border border-white/5 rounded-[3rem] group hover:border-cyan-500/30 transition-all flex flex-col"
+                        className="admin-card group hover:border-cyan-500/30 transition-all flex flex-col"
                     >
                         <div className="flex justify-between items-start mb-6">
                             <h4 className="text-xl font-black text-white uppercase leading-tight group-hover:text-cyan-400 transition-colors line-clamp-2">{exp.position}</h4>
@@ -199,7 +199,7 @@ function ExperienceModal({ item, onClose, onSave }: { item: Experience, onClose:
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="max-w-3xl w-full glass-card-pro border border-white/10 p-12 rounded-[4rem] max-h-[90vh] overflow-y-auto shadow-4xl custom-scrollbar"
+                className="max-w-3xl w-full bg-slate-900 border border-white/10 p-8 rounded-3xl max-h-[90vh] overflow-y-auto shadow-2xl custom-scrollbar"
             >
                 <div className="flex justify-between items-center mb-10">
                     <div className="flex items-center gap-4">

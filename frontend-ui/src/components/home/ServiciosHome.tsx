@@ -126,14 +126,14 @@ function ServiceCard({ s }: { s: any }) {
           rotateY,
           transformStyle: "preserve-3d",
         }}
-        className="service-card group relative p-10 rounded-[2.5rem] glass-light border border-white/10 transition-all duration-500 hover:border-cyan-500/50 cursor-pointer"
+        className="service-card group relative p-10 rounded-[2.5rem] glass-light border border-white/10 transition-all duration-500 hover:border-indigo-500/40 cursor-pointer"
       >
         <div style={{ transform: "translateZ(60px)" }} className="relative z-10">
           <motion.div
             onClick={() => setIsExpanded(true)}
             whileHover={{ scale: 1.15, rotate: 5 }}
             whileTap={{ scale: 0.9 }}
-            className="w-24 h-24 mb-8 rounded-[1.5rem] overflow-hidden border-2 border-white/10 group-hover:border-cyan-500/50 transition-all shadow-2xl bg-black/40 group/img relative"
+            className="w-24 h-24 mb-8 rounded-[1.5rem] overflow-hidden border-2 border-white/10 group-hover:border-indigo-500/40 transition-all shadow-2xl bg-black/40 group/img relative"
           >
             <Image
               src={s.icon}
@@ -142,10 +142,10 @@ function ServiceCard({ s }: { s: any }) {
               quality={100}
               className="object-cover group-hover:brightness-110 transition-all duration-500"
             />
-            <div className="absolute inset-0 bg-cyan-500/0 group-hover/img:bg-cyan-500/10 transition-colors pointer-events-none" />
+            <div className="absolute inset-0 bg-indigo-500/0 group-hover/img:bg-indigo-500/5 transition-colors pointer-events-none" />
           </motion.div>
 
-          <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors drop-shadow-xl tracking-tight">
+          <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-indigo-400 transition-colors drop-shadow-xl tracking-tight">
             {s.title}
           </h3>
 
@@ -156,7 +156,7 @@ function ServiceCard({ s }: { s: any }) {
           <ul className="space-y-3">
             {s.features.map((f: string, idx: number) => (
               <li key={idx} className="flex items-center gap-3 text-sm text-white/40 font-semibold group-hover:text-white/60 transition-colors">
-                <span className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.8)]" />
+                <span className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
                 {f}
               </li>
             ))}
@@ -164,7 +164,7 @@ function ServiceCard({ s }: { s: any }) {
         </div>
 
         {/* Glass depth effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2.5rem]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2.5rem]" />
       </motion.div>
 
       {/* 4D-LIKE MAGNIFICATION MODAL */}
@@ -182,7 +182,7 @@ function ServiceCard({ s }: { s: any }) {
               animate={{ scale: 1, rotateY: 0, opacity: 1 }}
               exit={{ scale: 0.5, rotateY: -90, opacity: 0 }}
               transition={{ type: "spring", damping: 20, stiffness: 100 }}
-              className="relative max-w-4xl w-full aspect-square md:aspect-video rounded-[3rem] overflow-hidden border border-white/20 shadow-[0_0_100px_rgba(6,182,212,0.3)] glass-light"
+              className="relative max-w-4xl w-full aspect-square md:aspect-video rounded-[3rem] overflow-hidden border border-white/20 shadow-[0_0_100px_rgba(99,102,241,0.2)] glass-light"
               onClick={(e) => e.stopPropagation()}
             >
               <Image
@@ -214,7 +214,7 @@ function ServiceCard({ s }: { s: any }) {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="text-xl md:text-2xl text-cyan-400 font-bold bg-black/20 backdrop-blur-sm p-4 rounded-2xl border border-white/5 inline-block"
+                  className="text-xl md:text-2xl text-indigo-400 font-bold bg-black/20 backdrop-blur-sm p-4 rounded-2xl border border-white/5 inline-block"
                 >
                   {s.desc}
                 </motion.p>

@@ -95,11 +95,11 @@ export default function SimularCotizacionPage() {
       <section className="text-center py-24">
         <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10">
           <h2 className="section-title">
-            <span className="block text-cyan-400 text-sm font-black tracking-[0.6em] uppercase mb-4">ENGINEERING ESTIMATOR</span>
-            <span className="title-fire text-glow-blue bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(6,182,212,0.5)] text-7xl md:text-8xl font-black uppercase tracking-tighter">Simulador</span>
+            <span className="block text-indigo-400 text-sm font-black tracking-[0.6em] uppercase mb-4">ENGINEERING ESTIMATOR</span>
+            <span className="title-fire text-glow-blue bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(99,102,241,0.5)] text-7xl md:text-8xl font-black uppercase tracking-tighter">Simulador</span>
           </h2>
           <p className="text-gray-400 mt-8 max-w-3xl mx-auto text-xl font-medium leading-relaxed">
-            Configure las especificaciones técnicas de su infraestructura corporativa. Obtenga un presupuesto instantáneo bajo <span className="text-white font-black underline decoration-cyan-500/50">Estándares Industriales</span>.
+            Configure las especificaciones técnicas de su infraestructura corporativa. Obtenga un presupuesto instantáneo bajo <span className="text-white font-black underline decoration-indigo-500/50">Estándares Industriales</span>.
           </p>
         </motion.div>
       </section>
@@ -159,9 +159,9 @@ function UnitCard({ s, isSelected, onClick }: any) {
       onMouseLeave={() => { x.set(0); y.set(0); }}
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
       onClick={onClick}
-      className={`p-10 glass-card-pro border transition-all cursor-pointer text-center rounded-[3.5rem] relative overflow-hidden group shadow-2xl ${isSelected ? "border-cyan-500 bg-cyan-500/10 shadow-3xl" : "border-white/5 hover:border-white/20"}`}
+      className={`p-10 glass-card-pro border transition-all cursor-pointer text-center rounded-[3.5rem] relative overflow-hidden group shadow-2xl ${isSelected ? "border-indigo-500 bg-indigo-500/10 shadow-3xl" : "border-white/5 hover:border-white/20"}`}
     >
-      <div style={{ transform: "translateZ(30px)" }} className={`text-5xl mb-6 transition-transform group-hover:scale-110 flex justify-center ${isSelected ? "text-white" : "text-cyan-500/40 group-hover:text-cyan-400"}`}>
+      <div style={{ transform: "translateZ(30px)" }} className={`text-5xl mb-6 transition-transform group-hover:scale-110 flex justify-center ${isSelected ? "text-white" : "text-indigo-500/40 group-hover:text-indigo-400"}`}>
         {s.icon}
       </div>
       <h3 className="text-xl text-white font-black mb-3 uppercase tracking-tighter">{s.nombre}</h3>
@@ -192,10 +192,10 @@ function SimulatorBox({ servicio, open, setOpen, selecciones, toggleOpcion, urge
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
       className="glass-card-pro p-10 md:p-20 rounded-[5rem] border border-white/10 shadow-3xl relative overflow-hidden font-bold"
     >
-      <div className="absolute top-0 right-0 p-12 text-cyan-500/5 text-[12rem] font-black select-none leading-none uppercase">BUILD</div>
+      <div className="absolute top-0 right-0 p-12 text-indigo-500/5 text-[12rem] font-black select-none leading-none uppercase">BUILD</div>
 
       <h3 className="text-3xl text-white font-black mb-16 flex items-center gap-6 uppercase tracking-tighter">
-        <span className="w-14 h-14 rounded-3xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 border border-cyan-500/20 shadow-2xl">{servicio.icon}</span>
+        <span className="w-14 h-14 rounded-3xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20 shadow-2xl">{servicio.icon}</span>
         Configuración del Sistema
       </h3>
 
@@ -203,7 +203,7 @@ function SimulatorBox({ servicio, open, setOpen, selecciones, toggleOpcion, urge
         <div key={sec.titulo} className="mb-6">
           <button
             onClick={() => setOpen(open === sec.titulo ? null : sec.titulo)}
-            className={`w-full p-10 rounded-[3rem] flex items-center justify-between transition-all font-black tracking-widest text-xs uppercase shadow-xl ${open === sec.titulo ? "bg-white/10 text-cyan-400 border border-cyan-500/30" : "glass-light border border-white/5 text-white/30 hover:text-white"}`}
+            className={`w-full p-10 rounded-[3rem] flex items-center justify-between transition-all font-black tracking-widest text-xs uppercase shadow-xl ${open === sec.titulo ? "bg-white/10 text-indigo-400 border border-indigo-500/30" : "glass-light border border-white/5 text-white/30 hover:text-white"}`}
           >
             {sec.titulo.toUpperCase()}
             <FaChevronDown className={`transition-transform duration-500 text-lg ${open === sec.titulo ? "rotate-180" : ""}`} />
@@ -221,10 +221,10 @@ function SimulatorBox({ servicio, open, setOpen, selecciones, toggleOpcion, urge
                         key={o.id}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => toggleOpcion(sec, o)}
-                        className={`p-7 rounded-[2.5rem] cursor-pointer flex justify-between items-center transition-all border group shadow-lg ${activo ? "bg-cyan-500 text-black border-cyan-500 shadow-cyan-500/20" : "glass-light border-white/5 hover:border-white/20"}`}
+                        className={`p-7 rounded-[2.5rem] cursor-pointer flex justify-between items-center transition-all border group shadow-lg ${activo ? "bg-indigo-500 text-black border-indigo-500 shadow-indigo-500/20" : "glass-light border-white/5 hover:border-white/20"}`}
                       >
                         <span className="font-black text-xs uppercase tracking-widest">{o.label}</span>
-                        <span className={`text-[10px] font-black tracking-widest ${activo ? "text-black" : "text-cyan-500"}`}>+USD {o.price}</span>
+                        <span className={`text-[10px] font-black tracking-widest ${activo ? "text-black" : "text-indigo-400"}`}>+USD {o.price}</span>
                       </motion.div>
                     );
                   })}
@@ -238,7 +238,7 @@ function SimulatorBox({ servicio, open, setOpen, selecciones, toggleOpcion, urge
       {/* NIVEL DE PRIORIDAD */}
       <div className="mt-20 pt-20 border-t border-white/5">
         <p className="text-white/40 text-[10px] font-black tracking-[0.5em] uppercase mb-10 ml-6 flex items-center gap-3">
-          <FaCalculator className="text-cyan-500" /> Nivel de Prioridad Operativa
+          <FaCalculator className="text-indigo-500" /> Nivel de Prioridad Operativa
         </p>
         <div className="flex flex-wrap gap-6">
           {urgencias.map((u) => (
@@ -254,11 +254,11 @@ function SimulatorBox({ servicio, open, setOpen, selecciones, toggleOpcion, urge
       </div>
 
       {/* RESULTADO FINANCIERO */}
-      <div className="mt-24 p-12 md:p-16 rounded-[4.5rem] bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 text-center relative overflow-hidden group shadow-3xl">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent animate-pulse" />
-        <p className="text-cyan-400 font-black tracking-[0.5em] text-xs uppercase mb-6">PRESUPUESTO ESTIMADO FINAL</p>
+      <div className="mt-24 p-12 md:p-16 rounded-[4.5rem] bg-gradient-to-br from-indigo-500/10 to-blue-600/10 border border-indigo-500/20 text-center relative overflow-hidden group shadow-3xl">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent animate-pulse" />
+        <p className="text-indigo-400 font-black tracking-[0.5em] text-xs uppercase mb-6">PRESUPUESTO ESTIMADO FINAL</p>
 
-        <motion.p key={total} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-7xl md:text-8xl font-black text-white tracking-tighter mb-12 drop-shadow-[0_0_20px_rgba(6,182,212,0.3)]">
+        <motion.p key={total} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-7xl md:text-8xl font-black text-white tracking-tighter mb-12 drop-shadow-[0_0_20px_rgba(99,102,241,0.3)]">
           USD ${total.toLocaleString()}
         </motion.p>
 
@@ -272,7 +272,7 @@ function SimulatorBox({ servicio, open, setOpen, selecciones, toggleOpcion, urge
         </div>
 
         <div className="mt-12 flex items-center justify-center gap-4 text-white/20 font-black text-[10px] uppercase tracking-widest">
-          <FaCheckCircle className="text-cyan-500" /> ANÁLISIS PRELIMINAR SUJETO A AUDITORÍA TÉCNICA
+          <FaCheckCircle className="text-indigo-500" /> ANÁLISIS PRELIMINAR SUJETO A AUDITORÍA TÉCNICA
         </div>
       </div>
     </motion.div>

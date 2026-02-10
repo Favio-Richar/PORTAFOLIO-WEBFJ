@@ -1,0 +1,294 @@
+// Services Elite Premium Design System (Block-Based)
+// Focus: Order, Professional Scaling, and High-Fidelity UI/UX
+// Theme: Midnight Elite (No white backgrounds)
+
+$elite-primary: #6366f1;
+$elite-secondary: #a855f7;
+$elite-accent: #ec4899;
+$elite-amber: #f59e0b;
+$elite-green: #10b981;
+$elite-dark-deep: #050816;
+$elite-dark-surface: #0f172a;
+$elite-dark-card: rgba(255, 255, 255, 0.03);
+$elite-border: rgba(255, 255, 255, 0.1);
+$container-max: 1280px;
+
+@mixin section-padding {
+    padding: 120px 24px;
+
+    @media (max-width: 768px) {
+        padding: 80px 16px;
+    }
+}
+
+@mixin glass-effect {
+    background: $elite-dark-card;
+    backdrop-filter: blur(12px);
+    border: 1px solid $elite-border;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+@mixin text-gradient {
+    background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.7) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.services-page-wrapper {
+    background: $elite-dark-deep;
+    color: #f8fafc;
+    font-family: 'Inter', 'Outfit', sans-serif;
+    overflow-x: hidden;
+
+    .container-elite {
+        max-width: $container-max;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+    }
+
+    // --- REUSABLES ---
+    .section-title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        @include text-gradient;
+        letter-spacing: -0.02em;
+
+        @media (max-width: 768px) {
+            font-size: 2.5rem;
+        }
+    }
+
+    .section-subtitle {
+        font-size: 1.25rem;
+        color: #94a3b8;
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto 4rem;
+        line-height: 1.6;
+    }
+
+    .section-block {
+        @include section-padding;
+        position: relative;
+        overflow: hidden;
+    }
+
+    // --- BLOCK: HERO ---
+    .hero-block {
+        @include section-padding;
+        background: radial-gradient(circle at 50% 0%, rgba($elite-primary, 0.15) 0%, transparent 70%),
+            radial-gradient(circle at 0% 100%, rgba($elite-secondary, 0.05) 0%, transparent 50%),
+            $elite-dark-deep;
+        min-height: 90vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        position: relative;
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background: rgba($elite-primary, 0.1);
+            border: 1px solid rgba($elite-primary, 0.2);
+            border-radius: 100px;
+            color: lighten($elite-primary, 10%);
+            font-size: 0.85rem;
+            font-weight: 800;
+            margin-bottom: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .hero-title {
+            font-size: 5rem;
+            line-height: 1;
+            font-weight: 950;
+            margin-bottom: 2rem;
+            letter-spacing: -0.04em;
+            @include text-gradient;
+
+            @media (max-width: 768px) {
+                font-size: 3.2rem;
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: #94a3b8;
+            margin-bottom: 3.5rem;
+            max-width: 750px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+
+    // --- BLOCK: PLANS ---
+    .plans-block {
+        @include section-padding;
+        background: lighten($elite-dark-deep, 2%);
+        position: relative;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, $elite-border, transparent);
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+
+            @media (max-width: 480px) {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .plan-card {
+            @include glass-effect;
+            border-radius: 32px;
+            padding: 48px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+
+            &::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg, rgba($elite-primary, 0.05) 0%, transparent 100%);
+                opacity: 0;
+                transition: opacity 0.4s;
+            }
+
+            &:hover {
+                transform: translateY(-12px);
+                border-color: rgba($elite-primary, 0.4);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba($elite-primary, 0.1);
+
+                &::after {
+                    opacity: 1;
+                }
+            }
+
+            .plan-header {
+                margin-bottom: 32px;
+                position: relative;
+                z-index: 2;
+
+                .plan-price {
+                    font-size: 3rem;
+                    font-weight: 900;
+                    margin: 1.5rem 0;
+                    @include text-gradient;
+                    color: white;
+                }
+            }
+
+            .plan-features {
+                margin-bottom: 40px;
+                flex-grow: 1;
+                position: relative;
+                z-index: 2;
+            }
+
+            .plan-btn {
+                width: 100%;
+                padding: 18px;
+                border-radius: 16px;
+                font-weight: 800;
+                font-size: 1.1rem;
+                transition: all 0.3s;
+                background: linear-gradient(135deg, $elite-primary, $elite-secondary);
+                color: white;
+                box-shadow: 0 4px 15px rgba($elite-primary, 0.3);
+                border: none;
+                cursor: pointer;
+
+                &:hover {
+                    box-shadow: 0 8px 25px rgba($elite-primary, 0.5);
+                    transform: scale(1.02);
+                }
+            }
+        }
+    }
+
+    // --- BLOCK: CALCULATOR ---
+    .calculator-block {
+        @include section-padding;
+        background: $elite-dark-deep;
+
+        .calculator-card {
+            @include glass-effect;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 40px;
+            padding: 60px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 60px;
+
+            @media (max-width: 1024px) {
+                grid-template-columns: 1fr;
+                padding: 30px;
+            }
+        }
+    }
+
+    // --- BUTTONS ---
+    .btn-primary {
+        background: linear-gradient(135deg, $elite-primary 0%, $elite-secondary 100%);
+        color: white;
+        padding: 20px 40px;
+        border-radius: 16px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        transition: all 0.4s;
+        box-shadow: 0 10px 20px rgba($elite-primary, 0.3);
+        border: none;
+
+        &:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 15px 30px rgba($elite-primary, 0.5);
+        }
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        color: white;
+        padding: 20px 40px;
+        border-radius: 16px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+    }
+
+    // --- UTILS ---
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}

@@ -175,20 +175,20 @@ function ExperienceCard({ e, i }: { e: any, i: number }) {
         rotateY,
         transformStyle: "preserve-3d",
       }}
-      className="experience-card group relative p-8 md:p-10 rounded-[2.5rem] glass-light border border-white/10 transition-colors duration-500 hover:border-cyan-500/40"
+      className="experience-card group relative p-8 md:p-10 rounded-[2.5rem] glass-light border border-white/10 transition-colors duration-500 hover:border-indigo-500/40"
     >
       <div style={{ transform: "translateZ(40px)" }} className="relative z-10">
         <div className="flex flex-col md:flex-row md:items-center gap-6 mb-6">
-          <div className="w-16 h-16 bg-black/30 rounded-2xl flex items-center justify-center border border-white/5 group-hover:border-cyan-500/30 transition-colors shadow-2xl">
+          <div className="w-16 h-16 bg-black/30 rounded-2xl flex items-center justify-center border border-white/5 group-hover:border-indigo-500/30 transition-colors shadow-2xl">
             {e.icon}
           </div>
 
           <div className="flex-1">
-            <h3 className="title-fire text-2xl md:text-3xl font-bold text-white group-hover:text-cyan-400 transition-colors drop-shadow-md">
+            <h3 className="title-fire text-2xl md:text-3xl font-bold text-white group-hover:text-indigo-400 transition-colors drop-shadow-md">
               {e.cargo}
             </h3>
             <div className="flex flex-wrap items-center gap-3 mt-1">
-              <span className="text-cyan-400 font-bold tracking-wide uppercase text-sm">
+              <span className="text-indigo-400 font-bold tracking-wide uppercase text-sm">
                 {e.empresa}
               </span>
               <span className="text-white/40">•</span>
@@ -215,7 +215,7 @@ function ExperienceCard({ e, i }: { e: any, i: number }) {
           {e.skills.map((skill: string, idx: number) => (
             <span
               key={idx}
-              className="px-4 py-1.5 text-xs bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded-xl font-bold tracking-tight drop-shadow-sm"
+              className="px-4 py-1.5 text-xs bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 rounded-xl font-bold tracking-tight drop-shadow-sm"
             >
               {skill}
             </span>
@@ -224,7 +224,7 @@ function ExperienceCard({ e, i }: { e: any, i: number }) {
       </div>
 
       {/* Decorative accent */}
-      <div className="absolute top-8 right-8 w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.8)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute top-8 right-8 w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.8)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
     </motion.div>
   );
 }

@@ -12,10 +12,10 @@ import { gsap } from "@/lib/gsap";
    MAPA DE CLASES ESTÁTICAS (TAILWIND SAFE)
 ========================================== */
 const glowColors: Record<string, string> = {
-  blue: "bg-cyan-500/30",
-  indigo: "bg-blue-600/30",
+  blue: "bg-indigo-500/30",
+  indigo: "bg-indigo-600/30",
   emerald: "bg-emerald-500/30",
-  sky: "bg-sky-400/30",
+  sky: "bg-violet-400/30",
   gray: "bg-white/20",
   yellow: "bg-yellow-500/30",
   gold: "bg-amber-400/40",
@@ -37,7 +37,7 @@ const certs = [
   {
     name: "Desarrollo Web Moderno",
     desc: "Arquitectura limpia, UI/UX, SSR, componentes reutilizables y micro-servicios frontales.",
-    icon: <FaCode className="text-blue-400 text-4xl" />,
+    icon: <FaCode className="text-indigo-400 text-4xl" />,
     level: "Avanzado",
     color: "blue",
     certificateUrl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1200",
@@ -77,7 +77,7 @@ const certs = [
   {
     name: "Flutter Avanzado",
     desc: "Ecosistema móvil completo con arquitectura limpia, inyección de dependencias y Provider/BLoC.",
-    icon: <FaMobileAlt className="text-sky-400 text-4xl" />,
+    icon: <FaMobileAlt className="text-violet-400 text-4xl" />,
     level: "Intermedio",
     color: "sky",
     certificateUrl: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=1200",
@@ -85,7 +85,7 @@ const certs = [
   {
     name: "Fundamentos de Docker",
     desc: "Contenedores, imágenes, volúmenes, redes orchestración y despliegue continuo.",
-    icon: <FaDocker className="text-blue-500 text-4xl" />,
+    icon: <FaDocker className="text-indigo-500 text-4xl" />,
     level: "Intermedio",
     color: "blue",
     certificateUrl: "https://images.unsplash.com/photo-1605745341112-85968b193ef5?q=80&w=1200",
@@ -97,14 +97,14 @@ const certs = [
 ========================================== */
 const iconMap: Record<string, any> = {
   FaUserGraduate: <FaUserGraduate className="text-amber-400 text-5xl" />,
-  FaCode: <FaCode className="text-blue-400 text-4xl" />,
+  FaCode: <FaCode className="text-indigo-400 text-4xl" />,
   FaPython: <FaPython className="text-yellow-400 text-4xl" />,
   SiFastapi: <SiFastapi className="text-emerald-400 text-4xl" />,
   SiNextdotjs: <SiNextdotjs className="text-white text-4xl" />,
   FaDatabase: <FaDatabase className="text-indigo-400 text-4xl" />,
-  FaMobileAlt: <FaMobileAlt className="text-sky-400 text-4xl" />,
-  FaDocker: <FaDocker className="text-blue-500 text-4xl" />,
-  FaCertificate: <FaCode className="text-cyan-400 text-4xl" />, // Fallback
+  FaMobileAlt: <FaMobileAlt className="text-violet-400 text-4xl" />,
+  FaDocker: <FaDocker className="text-indigo-500 text-4xl" />,
+  FaCertificate: <FaCode className="text-indigo-400 text-4xl" />, // Fallback
 };
 
 /* ==========================================
@@ -143,8 +143,8 @@ export default function Certificaciones() {
     <section className="relative max-w-7xl mx-auto px-6 py-32 overflow-hidden">
 
       {/* Glows Decorativos */}
-      <div className="absolute -top-24 right-0 w-[500px] h-[500px] bg-cyan-500/10 blur-[140px] rounded-full pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-600/10 blur-[160px] rounded-full pointer-events-none"></div>
+      <div className="absolute -top-24 right-0 w-[500px] h-[500px] bg-indigo-500/10 blur-[140px] rounded-full pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-violet-600/10 blur-[160px] rounded-full pointer-events-none"></div>
 
       <SectionTitle
         badge="Trayectoria Académica"
@@ -212,7 +212,7 @@ function CertCard({ c, i }: { c: any, i: number }) {
         rotateY,
         transformStyle: "preserve-3d",
       }}
-      className={`group relative p-10 rounded-[3rem] glass-card-pro border transition-all duration-500 cursor-pointer overflow-hidden ${c.color === "gold" ? "border-amber-500/30 hover:border-amber-500/60" : "border-white/5 hover:border-cyan-500/40"
+      className={`group relative p-10 rounded-[3rem] glass-card-pro border transition-all duration-500 cursor-pointer overflow-hidden ${c.color === "gold" ? "border-amber-500/30 hover:border-amber-500/60" : "border-white/5 hover:border-indigo-500/40"
         }`}
     >
       {/* Dynamic Background Glow */}
@@ -229,11 +229,11 @@ function CertCard({ c, i }: { c: any, i: number }) {
           </div>
         )}
 
-        <div className="mb-8 p-6 rounded-[2rem] bg-black/20 border border-white/5 group-hover:scale-110 group-hover:border-cyan-500/20 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.2)] transition-all duration-500">
+        <div className="mb-8 p-6 rounded-[2rem] bg-black/20 border border-white/5 group-hover:scale-110 group-hover:border-indigo-500/20 group-hover:shadow-[0_0_30px_rgba(99,102,241,0.2)] transition-all duration-500">
           {c.icon}
         </div>
 
-        <h3 className="title-fire text-xl md:text-2xl font-bold text-white text-center mb-4 drop-shadow-md group-hover:text-cyan-400 transition-colors uppercase tracking-tight leading-tight">
+        <h3 className="title-fire text-xl md:text-2xl font-bold text-white text-center mb-4 drop-shadow-md group-hover:text-indigo-400 transition-colors uppercase tracking-tight leading-tight">
           {c.name}
         </h3>
 
@@ -245,7 +245,7 @@ function CertCard({ c, i }: { c: any, i: number }) {
           <div className="flex items-center justify-center gap-2">
             <span className={`text-[10px] font-black px-4 py-1.5 rounded-full border tracking-widest uppercase transition-colors ${c.color === "gold"
               ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-              : "bg-cyan-500/10 text-cyan-300 border-cyan-500/20"
+              : "bg-indigo-500/10 text-indigo-300 border-indigo-500/20"
               }`}>
               {c.level}
             </span>
@@ -254,13 +254,13 @@ function CertCard({ c, i }: { c: any, i: number }) {
           <button
             className="w-full flex items-center justify-center gap-2 py-3 rounded-full glass-light border border-white/10 group-hover:border-white/20 text-[10px] font-black text-white/40 group-hover:text-white uppercase tracking-widest transition-all"
           >
-            {c.color === "gold" ? "VER TÍTULO" : "VER CERTIFICADO"} <FaSearchPlus className="group-hover:text-cyan-400" />
+            {c.color === "gold" ? "VER TÍTULO" : "VER CERTIFICADO"} <FaSearchPlus className="group-hover:text-indigo-400" />
           </button>
         </div>
       </div>
 
       {/* Subtle Scanner Effect */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 h-1/2 w-full animate-pulse pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 h-1/2 w-full animate-pulse pointer-events-none" />
     </motion.div>
   );
 }

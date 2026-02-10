@@ -1,18 +1,17 @@
-from sqlmodel import create_engine, text
+import sys
 import os
+from sqlmodel import create_engine, text, inspect
 
-# Usar la misma URL que en .env
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/portafolio-web"
-engine = create_engine(DATABASE_URL)
+# Add current directory to path
+sys.path.append(os.getcwd())
+
+from app.db import DATABASE_URL
 
 def list_tables():
-    with engine.connect() as conn:
-        result = conn.execute(text("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name"))
-        tables = result.fetchall()
-    with open("tables_utf8.txt", "w", encoding="utf-8") as f:
-        f.write(f"Total tables found: {len(tables)}\n")
-        for table in tables:
-            f.write(f"- {table[0]}\n")
+    engine = create_engine(DATABASE_URL)
+    inspector = inspect(engine)
+    tables = inspector.get_table_names()
+    print(f"Current tables in database: {tables}")
 
 if __name__ == "__main__":
     list_tables()
