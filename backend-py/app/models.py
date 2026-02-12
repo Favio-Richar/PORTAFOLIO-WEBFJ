@@ -72,9 +72,16 @@ class Contact(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str
     phone: str
+    whatsapp: Optional[str] = None
     linkedin: Optional[str] = None
     github: Optional[str] = None
+    facebook: Optional[str] = None
+    instagram: Optional[str] = None
+    twitter: Optional[str] = None
+    tiktok: Optional[str] = None
     location: str
+    hero_image: Optional[str] = None
+    hero_video: Optional[str] = None
 
 # ========== TIMELINE (HITOS) ==========
 
@@ -189,4 +196,16 @@ class Review(SQLModel, table=True):
     created_at: Optional[str] = None
     author_image: Optional[str] = None
     initials: Optional[str] = None
+
+# ========== GALLERY / MEDIA ==========
+
+class Media(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: Optional[str] = None
+    description: Optional[str] = None
+    type: str = Field(default="image") # image, video
+    url: str
+    order_index: int = Field(default=0)
+    active: bool = Field(default=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 

@@ -5,7 +5,7 @@ import {
     FaBriefcase, FaGraduationCap, FaCertificate, FaPhone,
     FaClock, FaCogs, FaSignOutAlt, FaServicestack, FaCommentAlt,
     FaEnvelopeOpenText, FaUserPlus, FaAd,
-    FaSearch, FaBell, FaEnvelope, FaBars
+    FaSearch, FaBell, FaEnvelope, FaBars, FaImages
 } from "react-icons/fa";
 
 interface AdminSidebarProps {

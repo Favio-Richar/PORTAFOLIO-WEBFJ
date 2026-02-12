@@ -4,10 +4,10 @@
 
 // --- CONFIGURATION (ELECTRIC BLUE PALETTE) ---
 $base-bg: #030712; // Deeper Black-Blue
-$electric-blue: #1e40af; // Azul Oscuro Eléctrico
+$electric-blue: #0047FF; // Intense Electric Blue
 $neon-cyan: #06b6d4;
-$accent-blue: #3b82f6;
-$glow-electric: rgba(30, 64, 175, 0.4);
+$accent-blue: #0047FF;
+$glow-electric: rgba(0, 71, 255, 0.4);
 $glass-bg: rgba(3, 7, 18, 0.6);
 $border-gradient: linear-gradient(135deg, #3b82f6, #06b6d4);
 $slate-400: #94a3b8;
@@ -103,21 +103,24 @@ $slate-500: #64748b;
         min-height: 400px;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
-        text-align: center;
+        text-align: left;
+        padding-left: 5%;
+        padding-right: 5%;
         z-index: 5;
         overflow: hidden;
+
+        @media (min-width: 1024px) {
+            padding-left: 10%;
+        }
 
         &::before {
             content: "";
             position: absolute;
             inset: 0;
-            background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000'); // Professional office background
-            background-size: cover;
-            background-position: center;
-            opacity: 0.15;
-            filter: grayscale(1);
+            background: linear-gradient(to bottom, rgba($base-bg, 0.4), $base-bg);
+            z-index: 1;
         }
 
         &::after {
@@ -128,14 +131,16 @@ $slate-500: #64748b;
         }
 
         .hero-title {
-            font-size: clamp(3rem, 10vw, 6rem);
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            line-height: 1.1;
             font-weight: 900;
             color: white;
             text-transform: uppercase;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.04em;
             position: relative;
             z-index: 2;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            max-width: 900px;
 
             span {
                 color: $neon-cyan;
@@ -443,22 +448,47 @@ $slate-500: #64748b;
     }
 
     .submit-btn-elite {
-        background: $neon-cyan;
-        color: #000 !important;
-        -webkit-text-stroke: 1px rgba(0, 0, 0, 0.5);
-        text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        // Metallic Silver-Black Gradient
+        background: linear-gradient(135deg, #111827 0%, #374151 50%, #111827 100%);
+        color: $electric-blue !important;
+        -webkit-text-stroke: 0px transparent;
+        text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         border-radius: 0 !important; // ENFORCED RECTANGULAR
-        transition: 0.5s;
-        box-shadow: 0 10px 30px -5px rgba(6, 182, 212, 0.5);
+        transition: 0.5s all cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow:
+            0 10px 30px -10px rgba(0, 0, 0, 0.8),
+            inset 0 1px 1px rgba(255, 255, 255, 0.1);
         letter-spacing: 0.4em !important;
         font-weight: 900 !important;
-        border: 2px solid $neon-cyan !important;
+        // Metallic Black Border
+        border: 2px solid #000 !important;
+        position: relative;
+        overflow: hidden;
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transform: skewX(-20deg) translateX(-150%);
+            transition: 0.5s;
+        }
 
         &:hover {
-            background: #fff;
-            border-color: #fff !important;
-            transform: translateY(-4px) scale(1.01);
-            box-shadow: 0 20px 40px -10px rgba(6, 182, 212, 0.6);
+            background: linear-gradient(135deg, #1f2937 0%, #4b5563 50%, #1f2937 100%);
+            color: #fff !important; // Let's make it shine white on hover for "metallic highlight" or keep blue? User said text azul electrico.
+            // I'll keep the text electric blue but make it glow more on hover.
+            color: $electric-blue !important;
+            text-shadow: 0 0 15px $electric-blue;
+            border-color: #111827 !important;
+            transform: translateY(-4px);
+            box-shadow:
+                0 20px 40px -15px rgba(0, 0, 0, 0.9),
+                0 0 20px rgba(0, 71, 255, 0.2);
+
+            &::after {
+                transform: skewX(-20deg) translateX(150%);
+            }
         }
 
         &:active {

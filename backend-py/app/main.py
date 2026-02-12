@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api import (
     auth, ads, upload,
     profile, experience,
-    proyectos, contact, timeline,
+    proyectos, contact, media, timeline,
     certifications, education, blog,
     services_page, enviar_cotizacion
 )
@@ -28,7 +28,9 @@ app = FastAPI(title="PORTAFOLIO API")
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://localhost:3001", # Para redundancia o si 3000 está ocupado
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "http://localhost:8000", # Sometimes needed for internal redirects
 ]
 
 # Agregar URL de producción si existe
@@ -38,8 +40,8 @@ if frontend_url:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False, # Required for allow_origins=["*"]
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -55,6 +57,7 @@ app.include_router(education.router, prefix="/api/education", tags=["education"]
 app.include_router(blog.router, prefix="/api/blog", tags=["blog"])
 app.include_router(proyectos.router, prefix="/api/proyectos", tags=["proyectos"])
 app.include_router(contact.router, prefix="/api/contact", tags=["contact"])
+app.include_router(media.router, prefix="/api/media", tags=["media"])
 app.include_router(timeline.router, prefix="/api/timeline", tags=["timeline"])
 app.include_router(services_page.router, prefix="/api/services-page", tags=["services-page"])
 app.include_router(enviar_cotizacion.router, prefix="/api/enviar-cotizacion", tags=["enviar-cotizacion"])
