@@ -21,6 +21,26 @@ def create_media(media: Media):
         session.refresh(media)
         return media
 
+@router.put("/{media_id}")
+def update_media(media_id: int, media_data: Media):
+    """Actualizar metadata de un elemento de media"""
+    with Session(engine) as session:
+        media = session.get(Media, media_id)
+        if not media:
+            raise HTTPException(status_code=404, detail="Media not found")
+
+        media.title = media_data.title
+        media.description = media_data.description
+        media.type = media_data.type
+        media.url = media_data.url
+        media.order_index = media_data.order_index
+        media.active = media_data.active
+
+        session.add(media)
+        session.commit()
+        session.refresh(media)
+        return media
+
 @router.delete("/{media_id}")
 def delete_media(media_id: int):
     """Eliminar elemento de la galería"""

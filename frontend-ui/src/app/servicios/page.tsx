@@ -382,6 +382,7 @@ const calculatorOptions = {
 export default function ServicesPage() {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [reviewAverage, setReviewAverage] = useState(4.9);
 
   // Calculator State
   const [selectedType, setSelectedType] = useState('landing');
@@ -402,6 +403,29 @@ export default function ServicesPage() {
     }, 0);
     setTotalPrice(typePrice + featuresPrice);
   }, [selectedType, selectedFeatures]);
+
+  useEffect(() => {
+    const loadReviewAverage = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/services-page/reviews");
+        if (!res.ok) return;
+        const reviews = await res.json();
+        if (!Array.isArray(reviews) || reviews.length === 0) return;
+
+        const ratings = reviews
+          .map((review: any) => Number(review.rating))
+          .filter((value: number) => !Number.isNaN(value) && value > 0);
+        if (ratings.length === 0) return;
+
+        const average = ratings.reduce((sum: number, value: number) => sum + value, 0) / ratings.length;
+        setReviewAverage(Number(average.toFixed(1)));
+      } catch (error) {
+        console.error("Error loading services review average:", error);
+      }
+    };
+
+    loadReviewAverage();
+  }, []);
 
   const toggleFeature = (id: string) => {
     setSelectedFeatures(prev =>
@@ -805,7 +829,7 @@ export default function ServicesPage() {
                   {[
                     { label: "Diseño UI", val: 5, color: "text-indigo-400" },
                     { label: "Velocidad", val: 5, color: "text-emerald-400" },
-                    { label: "Soporte", val: 4.9, color: "text-indigo-400" },
+                    { label: "Soporte", val: reviewAverage, color: "text-indigo-400" },
                     { label: "Conversión", val: 5, color: "text-pink-400" }
                   ].map((rate, i) => (
                     <div key={i} className="bg-black/40 p-10 rounded-3xl text-center border border-white/5">

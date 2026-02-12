@@ -18,6 +18,8 @@ import EducationAdmin from "@/components/admin/EducationAdmin";
 import ProjectsAdmin, { Project } from "@/components/admin/ProjectsAdmin";
 import AdsAdmin from "@/components/admin/AdsAdmin";
 import MediaAdmin from "@/components/admin/MediaAdmin";
+import ClientsAdmin from "@/components/admin/ClientsAdmin";
+import TestimonialsAdmin from "@/components/admin/TestimonialsAdmin";
 
 // Data types (keep imports for type safety)
 import { defaultProfile, ProfileData } from "@/lib/data/profile";
@@ -162,9 +164,11 @@ export default function AdminPanel() {
         />
       );
       case 'projects': return <ProjectsAdmin projects={projects} onSave={saveProjects} />;
+      case 'clients': return <ClientsAdmin />;
       case 'contact': return <ContactAdmin contact={contact} onSave={saveContact} />;
       case 'media': return <MediaAdmin />;
       case 'ads': return <AdsAdmin />;
+      case 'testimonials': return <TestimonialsAdmin />;
       // case 'timeline': now inside profile
       default: return <PlaceholderSection name={activeSection} />;
     }

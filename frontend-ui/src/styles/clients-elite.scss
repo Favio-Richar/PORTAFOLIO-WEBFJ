@@ -1,10 +1,10 @@
 // Clientes Elite 2.0 - High Fidelity Professional Styles
 @use "services-elite.scss" as *;
 
-$elite-indigo: #6366f1;
-$elite-purple: #a855f7;
-$elite-dark: #0f0f1e;
-$elite-surface: #1a1a2e;
+$elite-indigo: #38bdf8;
+$elite-purple: #0ea5e9;
+$elite-dark: #030817;
+$elite-surface: #0b1326;
 $elite-white: #ffffff;
 
 .clients-elite-wrapper {
@@ -53,8 +53,8 @@ $elite-white: #ffffff;
 
     // --- HERO SECTION ---
     .hero-gradient {
-        background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15), transparent 50%),
-            radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15), transparent 50%),
+        background: radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.14), transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(56, 189, 248, 0.12), transparent 50%),
             $elite-dark;
         position: relative;
         overflow: hidden;
@@ -64,7 +64,7 @@ $elite-white: #ffffff;
             position: absolute;
             width: 600px;
             height: 600px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.12) 0%, transparent 70%);
             top: -300px;
             right: -300px;
             animation: pulse-ring 6s ease-in-out infinite;
@@ -75,7 +75,7 @@ $elite-white: #ffffff;
             position: absolute;
             width: 500px;
             height: 500px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
             bottom: -250px;
             left: -250px;
             animation: pulse-ring 8s ease-in-out infinite reverse;

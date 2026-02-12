@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaRocket, FaStar, FaCheck, FaTimes, FaPlus, FaMinus, FaLightbulb,
@@ -97,6 +97,9 @@ export default function ProyectosElitePage() {
   const [rating, setRating] = useState(0);
   const [reviewSent, setReviewSent] = useState(false);
   const [votedProjects, setVotedProjects] = useState<number[]>([]);
+  const [reviewSummary, setReviewSummary] = useState({ average: 4.9, total: 150 });
+  const [reviewError, setReviewError] = useState("");
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
   const filteredProjects = useMemo(() =>
     filter === "all" ? ALL_PROJECTS : ALL_PROJECTS.filter(p => p.category === filter),
@@ -111,6 +114,79 @@ export default function ProyectosElitePage() {
     if (!votedProjects.includes(id)) {
       setVotedProjects([...votedProjects, id]);
       alert("¡Gracias por tu voto! Hemos registrado tu interés.");
+    }
+  };
+
+  useEffect(() => {
+    const loadReviewSummary = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/services-page/reviews");
+        if (!res.ok) return;
+        const reviews = await res.json();
+        if (!Array.isArray(reviews) || reviews.length === 0) return;
+
+        const ratings = reviews
+          .map((review: any) => Number(review.rating))
+          .filter((value: number) => !Number.isNaN(value) && value > 0);
+        if (ratings.length === 0) return;
+
+        const average = ratings.reduce((sum: number, value: number) => sum + value, 0) / ratings.length;
+        setReviewSummary({ average, total: ratings.length });
+      } catch (error) {
+        console.error("Error loading project reviews summary:", error);
+      }
+    };
+
+    loadReviewSummary();
+  }, []);
+
+  const handleSubmitReview = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setReviewError("");
+
+    if (rating < 1) {
+      setReviewError("Selecciona una calificacion entre 1 y 5.");
+      return;
+    }
+
+    const formData = new FormData(event.currentTarget);
+    const authorName = String(formData.get("author_name") || "").trim();
+    const authorRole = String(formData.get("author_role") || "").trim();
+    const content = String(formData.get("content") || "").trim();
+
+    if (!authorName || !authorRole || content.length < 20) {
+      setReviewError("Completa nombre, cargo y un comentario mas detallado.");
+      return;
+    }
+
+    try {
+      setIsSubmittingReview(true);
+      const res = await fetch("http://localhost:8000/api/services-page/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          author_name: authorName,
+          author_role: authorRole,
+          author_company: authorRole,
+          content,
+          rating,
+          page_context: "proyectos",
+        }),
+      });
+
+      if (!res.ok) {
+        setReviewError("No se pudo guardar la reseña. Intenta nuevamente.");
+        return;
+      }
+
+      event.currentTarget.reset();
+      setRating(0);
+      setReviewSent(true);
+    } catch (error) {
+      console.error("Error submitting project review:", error);
+      setReviewError("Error de conexion al guardar la reseña.");
+    } finally {
+      setIsSubmittingReview(false);
     }
   };
 
@@ -469,13 +545,13 @@ export default function ProyectosElitePage() {
             <h2 className="text-5xl font-black mb-6 text-white text-center">⭐ Voces de Éxito</h2>
             <div className="flex justify-center items-center gap-12 mt-12 pb-12 border-b border-white/10">
               <div className="text-center">
-                <div className="text-6xl font-black text-amber-500 mb-2">4.9</div>
+                <div className="text-6xl font-black text-amber-500 mb-2">{reviewSummary.average.toFixed(1)}</div>
                 <div className="flex justify-center text-amber-500 mb-2 text-xl"><FaStar /><FaStar /><FaStar /><FaStar /><FaStar /></div>
                 <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">Calificación Promedio</div>
               </div>
               <div className="w-[1px] h-20 bg-white/10"></div>
               <div className="text-center">
-                <div className="text-6xl font-black text-blue-500 mb-2">150+</div>
+                <div className="text-6xl font-black text-blue-500 mb-2">{reviewSummary.total}</div>
                 <div className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-3">Reseñas Verificadas</div>
               </div>
             </div>
@@ -511,7 +587,7 @@ export default function ProyectosElitePage() {
                     <h3 className="text-4xl font-black text-white mb-4">¿Trabajaste con nosotros?</h3>
                     <p className="text-lg text-slate-400">Nos encantaría conocer tu experiencia para seguir mejorando.</p>
                   </div>
-                  <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); setReviewSent(true); }}>
+                  <form className="space-y-8" onSubmit={handleSubmitReview}>
                     <div className="grid md:grid-cols-2 gap-8">
                       <div className="space-y-3">
                         <label className="text-xs font-black uppercase tracking-widest text-white ml-2">Nombre Completo *</label>
