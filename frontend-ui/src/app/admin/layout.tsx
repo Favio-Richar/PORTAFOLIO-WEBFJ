@@ -16,7 +16,22 @@ export default function AdminLayout({
         if (!token) {
             router.push("/auth/login");
         } else {
-            setAuthorized(true);
+            // Verificar token contra el servidor
+            fetch("http://localhost:8000/api/auth/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token })
+            })
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error("Token inválido");
+                    }
+                    setAuthorized(true);
+                })
+                .catch(() => {
+                    localStorage.removeItem("token");
+                    router.push("/auth/login");
+                });
         }
     }, [router]);
 

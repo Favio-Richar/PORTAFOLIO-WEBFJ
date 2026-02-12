@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from app.db import get_session
 from app.models import User
-from app.core.security import get_password_hash, verify_password, create_access_token
+from app.core.security import get_password_hash, verify_password, create_access_token, ALGORITHM, SECRET_KEY
+from jose import jwt, JWTError
 from app.core.email import send_reset_password_email
 from pydantic import BaseModel
 from typing import Optional
@@ -13,6 +14,9 @@ from datetime import datetime, timedelta
 router = APIRouter()
 
 # --- SCHEMAS ---
+class TokenVerifyRequest(BaseModel):
+    token: str
+
 class UserCreate(BaseModel):
     email: str
     password: str
@@ -111,6 +115,17 @@ def recover_password(request: PasswordRecoveryRequest, session: Session = Depend
             status_code=500, 
             detail="Error al enviar el correo. Revisa la configuración de Resend."
         )
+
+@router.post("/verify")
+def verify_token(data: TokenVerifyRequest):
+    try:
+        payload = jwt.decode(data.token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(status_code=401, detail="Token inválido")
+        return {"status": "valid", "email": email}
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Token expirado o inválido")
 
 @router.post("/reset-password")
 def reset_password(data: PasswordResetConfirm, session: Session = Depends(get_session)):

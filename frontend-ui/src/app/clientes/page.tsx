@@ -643,7 +643,7 @@ export default function Clientes() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-4">
                   <label className="text-xs font-black uppercase tracking-widest text-indigo-400">Empresa *</label>
-                  <input placeholder="Nombre de tu empresa" className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-indigo-500 transition-all font-bold placeholder-white/20" />
+                  <input placeholder="Nombre de su empresa" className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-indigo-500 transition-all font-bold placeholder-white/20" />
                 </div>
                 <div className="space-y-4">
                   <label className="text-xs font-black uppercase tracking-widest text-indigo-400">Tipo de Proyecto *</label>

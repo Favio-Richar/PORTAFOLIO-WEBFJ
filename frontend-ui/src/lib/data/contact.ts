@@ -7,9 +7,9 @@ export interface ContactData {
 }
 
 export const defaultContact: ContactData = {
-    email: "favio@example.com",
+    email: "contacto@levelsoftwarepro.com",
     phone: "+56 9 1234 5678",
     linkedin: "https://linkedin.com/in/favio-jimenez",
     github: "https://github.com/favio",
-    location: "Chile",
+    location: "Santiago, Chile",
 };

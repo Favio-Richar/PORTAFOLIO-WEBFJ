@@ -1,243 +1,439 @@
-// Contact Elite 2.0 Premium Styles
-// Optimized for High-Fidelity Professional Appearance
-@import "services-elite.scss"; // Reuse base elite mixins
+// Contact Elite 3.0 - Drastic Visual Refresh
+// Optimized for International Engineering & High-Contrast Electric Aesthetics
+@use "services-elite.scss" as *;
+
+// --- CONFIGURATION (ELECTRIC BLUE PALETTE) ---
+$base-bg: #030712; // Deeper Black-Blue
+$electric-blue: #1e40af; // Azul Oscuro Eléctrico
+$neon-cyan: #06b6d4;
+$accent-blue: #3b82f6;
+$glow-electric: rgba(30, 64, 175, 0.4);
+$glass-bg: rgba(3, 7, 18, 0.6);
+$border-gradient: linear-gradient(135deg, #3b82f6, #06b6d4);
+$slate-400: #94a3b8;
+$slate-500: #64748b;
 
 .contact-elite-wrapper {
     position: relative;
-    overflow: hidden;
-    background: radial-gradient(circle at 50% -20%, rgba(99, 102, 241, 0.15), transparent 80%),
-        $elite-dark-deep;
+    min-height: 100vh;
+    background-color: $base-bg;
+    overflow-x: hidden;
 
-    // --- FLOATING SHAPES ---
+    // --- GEOMETRIC GRID OVERLAY ---
+    &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    // --- DEEP BACKGROUND LAYERS ---
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            radial-gradient(circle at 50% 20%, rgba(30, 64, 175, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    // Noise Overlay (Increased for texture)
+    .bg-noise {
+        position: fixed;
+        inset: 0;
+        z-index: 2;
+        opacity: 0.05;
+        pointer-events: none;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    // Mesh Gradient (Sharper levels)
+    .bg-mesh {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background: radial-gradient(circle at 20% 30%, $glow-electric 0%, transparent 40%);
+        filter: blur(80px);
+        pointer-events: none;
+    }
+
     .floating-shapes {
         position: fixed;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        z-index: 0;
+        inset: 0;
+        z-index: 1;
         pointer-events: none;
 
         .shape {
             position: absolute;
             border-radius: 50%;
-            opacity: 0.1;
-            filter: blur(60px);
-            animation: float-elite 20s infinite ease-in-out;
+            filter: blur(80px);
+            opacity: 0.12;
+            animation: float-slow 25s infinite ease-in-out;
         }
 
         .shape-1 {
-            width: 400px;
-            height: 400px;
-            background: $elite-primary;
-            top: -100px;
-            right: -100px;
+            width: 500px;
+            height: 500px;
+            background: #6366F1;
+            top: -10%;
+            right: -5%;
         }
 
         .shape-2 {
-            width: 300px;
-            height: 300px;
-            background: $elite-secondary;
-            bottom: 10%;
-            left: -100px;
-            animation-delay: -5.3s;
-        }
-
-        .shape-3 {
-            width: 250px;
-            height: 250px;
-            background: #06b6d4;
-            top: 40%;
-            right: 5%;
-            animation-delay: -10.7s;
+            width: 400px;
+            height: 400px;
+            background: #8B5CF6;
+            bottom: 5%;
+            left: -5%;
+            animation-delay: -5s;
         }
     }
 
-    // --- QUICK CARDS ---
+    .content-wrapper {
+        position: relative;
+        z-index: 10;
+
+        header {
+            h1 {
+                color: #000;
+                -webkit-text-stroke: 2px $neon-cyan;
+                text-shadow: 0 0 15px $neon-cyan;
+                text-transform: uppercase;
+                letter-spacing: -0.04em;
+                position: relative;
+                font-size: 5rem;
+                line-height: 1;
+
+                @media (min-width: 768px) {
+                    font-size: 8rem;
+                }
+
+                &::after {
+                    content: "";
+                    position: absolute;
+                    bottom: -15px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 120px;
+                    height: 3px;
+                    background: $neon-cyan;
+                    box-shadow: 0 0 20px $neon-cyan;
+                }
+            }
+        }
+    }
+
+    // --- QUICK CONTACT CARDS ---
     .quick-contact-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 24px;
         margin-bottom: 80px;
     }
 
     .contact-card-pro {
-        @include glass-effect;
-        background: rgba(255, 255, 255, 0.02);
-        padding: 40px 30px;
-        border-radius: 32px;
-        text-align: center;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        background: $glass-bg;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        padding: 40px 32px;
+        border-radius: 20px;
         text-decoration: none;
-        display: block;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        overflow: hidden;
+        box-shadow:
+            0 10px 40px -10px rgba(0, 0, 0, 0.5),
+            inset 0 0 20px rgba(59, 130, 246, 0.05);
+
+        // Brighter gradient border on hover
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(135deg, $accent-blue, #fff, $neon-cyan);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.15;
+            transition: opacity 0.4s;
+        }
+
+        .sweep-effect {
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: skewX(-20deg);
+            z-index: 1;
+        }
 
         &:hover {
             transform: translateY(-12px);
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba($elite-primary, 0.3);
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5);
+            background: rgba(30, 64, 175, 0.1);
+            border-color: $accent-blue;
+            box-shadow:
+                0 30px 60px -15px rgba(30, 64, 175, 0.4),
+                inset 0 0 30px rgba(59, 130, 246, 0.1);
 
-            .card-icon-container .pulse-ring {
-                animation: pulse-ring-pro 2s infinite;
+            &::after {
+                opacity: 0.8;
             }
-        }
 
-        .card-icon-container {
-            position: relative;
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            .pulse-ring {
-                position: absolute;
-                inset: 0;
-                border-radius: 50%;
-                background: currentColor;
-                opacity: 0;
+            .sweep-effect {
+                left: 150%;
+                transition: 0.8s;
             }
 
             .icon-box {
-                position: relative;
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 2rem;
+                transform: scale(1.15) rotate(5deg);
+                box-shadow: 0 0 25px $accent-blue;
+                background: $accent-blue;
                 color: white;
-                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
             }
         }
 
-        h3 {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+        .contact-card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+
+            .card-icon-container {
+                position: relative;
+
+                .pulse-ring {
+                    position: absolute;
+                    inset: -4px;
+                    border: 1px solid currentColor;
+                    border-radius: 12px;
+                    opacity: 0.3;
+                    animation: pulse-border 2s infinite;
+                }
+
+                .icon-box {
+                    width: 52px;
+                    height: 52px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 24px;
+                    border-radius: 12px;
+                    transition: all 0.4s;
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                }
+            }
+
+            .card-action {
+                font-size: 10px;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: 0.2em;
+                color: rgba(255, 255, 255, 0.4);
+                background: rgba(255, 255, 255, 0.05);
+                padding: 6px 14px;
+                border-radius: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+            }
         }
 
-        p {
-            color: #94a3b8;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 20px;
+        .contact-card-body {
+            position: relative;
+            z-index: 2;
+
+            h3 {
+                color: white;
+                font-size: 24px;
+                font-weight: 800;
+                margin-bottom: 6px;
+                letter-spacing: -0.02em;
+            }
+
+            p {
+                color: $slate-400;
+                font-size: 14px;
+                font-weight: 600;
+            }
         }
 
         .card-link {
-            font-size: 0.75rem;
-            font-weight: 800;
-            letter-spacing: 0.2em;
+            font-size: 11px;
+            font-weight: 900;
             text-transform: uppercase;
-            transition: all 0.3s;
+            letter-spacing: 0.3em;
+            color: $accent-blue;
+            margin-top: auto;
+            position: relative;
+            z-index: 2;
+
+            &::after {
+                content: " →";
+                transition: 0.3s;
+            }
         }
     }
 
-    // --- SOCIAL BUTTONS ---
-    .social-elite-section {
-        @include glass-effect;
-        padding: 40px;
-        border-radius: 40px;
-        margin-top: 40px;
+    // --- FORM STYLES ---
+    .glass-card-pro {
+        background: $glass-bg;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
 
-        .social-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
+    .form-input-premium {
+        background: rgba(3, 7, 18, 0.4) !important;
+        border: 1px solid rgba(59, 130, 246, 0.1) !important;
+        color: white !important;
+        transition: all 0.4s !important;
+        border-radius: 12px !important;
+
+        &:focus {
+            background: rgba(3, 7, 18, 0.6) !important;
+            border-color: $accent-blue !important;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2) !important;
         }
 
-        .social-btn-pro {
-            width: 60px;
-            height: 60px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        &::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+            text-transform: none;
+        }
+    }
+
+    .submit-btn-elite {
+        background: $neon-cyan;
+        color: #000 !important;
+        -webkit-text-stroke: 1px rgba(0, 0, 0, 0.5);
+        text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        border-radius: 12px !important;
+        transition: 0.5s;
+        box-shadow: 0 10px 30px -5px rgba(6, 182, 212, 0.5);
+        letter-spacing: 0.4em !important;
+        font-weight: 900 !important;
+        border: 2px solid $neon-cyan !important;
+
+        &:hover {
+            background: #fff;
+            border-color: #fff !important;
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 20px 40px -10px rgba(6, 182, 212, 0.6);
+        }
+
+        &:active {
+            transform: scale(0.98);
+        }
+    }
+
+    // --- MAP SECTION ---
+    .map-container-pro {
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+        background: $base-bg;
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(11, 17, 32, 0.4), transparent);
+            pointer-events: none;
+        }
+    }
+
+    // --- SOCIAL ---
+    .social-btn-pro {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px; // Squircle style
+        background: rgba(59, 130, 246, 0.05);
+        border: 1px solid rgba(59, 130, 246, 0.1);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(30, 64, 175, 0.2), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            z-index: 1;
+        }
+
+        svg {
             position: relative;
-            overflow: hidden;
+            z-index: 2;
+        }
 
-            &:hover {
-                transform: scale(1.15) rotate(5deg);
-                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-            }
+        &:hover {
+            transform: translateY(-8px) scale(1.1);
+            border-color: $electric-blue;
+            background: #000;
+            box-shadow: 0 0 20px rgba(30, 64, 175, 0.4);
 
-            &.fb {
-                background: #1877f2;
-            }
-
-            &.ig {
-                background: linear-gradient(135deg, #405de6, #5851db, #833ab4, #c13584, #e1306c, #fd1d1d);
-            }
-
-            &.li {
-                background: #0077b5;
-            }
-
-            &.tw {
-                background: #000000;
+            &::before {
+                opacity: 1;
             }
         }
+    }
+
+    // --- BADGES ---
+    .status-badge {
+        background: rgba(6, 182, 212, 0.1);
+        border: 1px solid rgba(6, 182, 212, 0.2);
+        color: $neon-cyan;
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 }
 
-// --- ANIMATIONS ---
-@keyframes float-elite {
+// --- KEYFRAMES ---
+@keyframes float-slow {
 
     0%,
     100% {
-        transform: translate(0, 0) rotate(0deg);
+        transform: translate(0, 0) scale(1);
     }
 
     33% {
-        transform: translate(30px, -40px) rotate(5deg);
+        transform: translate(40px, -60px) scale(1.05);
     }
 
     66% {
-        transform: translate(-20px, 20px) rotate(-5deg);
-    }
-}
-
-@keyframes pulse-ring-pro {
-    0% {
-        transform: scale(0.8);
-        opacity: 0.5;
-    }
-
-    100% {
-        transform: scale(1.6);
-        opacity: 0;
-    }
-}
-
-@keyframes gradient-shift-elite {
-    0% {
-        background-position: 0% 50%;
-    }
-
-    50% {
-        background-position: 100% 50%;
-    }
-
-    100% {
-        background-position: 0% 50%;
-    }
-}
-
-.submit-btn-elite {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-    background-size: 200% 200%;
-    animation: gradient-shift-elite 4s linear infinite;
-
-    &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
+        transform: translate(-30px, 30px) scale(0.95);
     }
 }

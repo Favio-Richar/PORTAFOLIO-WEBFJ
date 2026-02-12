@@ -13,17 +13,12 @@ export async function POST(req: Request) {
       );
     }
 
-    const form = await req.formData();
-
-    const nombre = form.get("nombre")?.toString();
-    const email = form.get("email")?.toString();
-    const telefono = form.get("telefono")?.toString();
-    const servicio = form.get("servicio")?.toString();
-    const descripcion = form.get("descripcion")?.toString();
+    const body = await req.json();
+    const { nombre, email, telefono, servicio, descripcion } = body;
 
     const emailReceiver = process.env.EMAIL_RECEIVER;
-    const emailFrom = "Cotizaciones <onboarding@resend.dev>"; 
-    // 🔥 Usamos remitente 100% permitido y funcional
+    const emailFrom = process.env.EMAIL_FROM || "onboarding@resend.dev";
+    // 🔥 Usamos remitente configurable o el default de Resend
 
     if (!emailReceiver) {
       return NextResponse.json(

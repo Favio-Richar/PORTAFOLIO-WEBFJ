@@ -30,13 +30,13 @@ export default function InteractiveMap({ center, zoom = 13 }: InteractiveMapProp
                     center: center,
                     zoom: zoom,
                     scrollWheelZoom: false,
-                    className: "w-full h-full z-0"
+                    className: "w-full h-full z-0",
+                    attributionControl: false
                 } as any)}
             >
                 <TileLayer
                     {...({
-                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                        url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                        url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
                     } as any)}
                 />
                 <Marker
@@ -51,16 +51,16 @@ export default function InteractiveMap({ center, zoom = 13 }: InteractiveMapProp
                         } as any)}
                     >
                         <div className="p-2 font-bold text-slate-900">
-                            <h4 className="text-sm uppercase tracking-widest text-indigo-600 mb-1">Base de Operaciones</h4>
-                            <p className="text-xs">Santiago, Chile</p>
+                            <h4 className="text-sm uppercase tracking-widest text-blue-600 mb-1">Base de Operaciones</h4>
+                            <p className="text-xs text-slate-600 font-medium">Santiago, Chile</p>
                         </div>
                     </Popup>
                 </Marker>
             </MapContainer>
 
-            {/* OVERLAY DESIGN */}
-            <div className="absolute inset-0 pointer-events-none border-[20px] border-black/20 rounded-[3rem] z-10" />
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/20 to-transparent z-10" />
+            {/* TECH OVERLAY (Brighter) */}
+            <div className="absolute inset-0 pointer-events-none border-[1px] border-white/20 rounded-[3rem] z-10" />
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-blue-500/5 to-transparent z-10" />
         </div>
     );
 }

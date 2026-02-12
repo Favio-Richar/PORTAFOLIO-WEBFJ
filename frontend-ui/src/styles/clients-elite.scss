@@ -1,5 +1,5 @@
 // Clientes Elite 2.0 - High Fidelity Professional Styles
-@import "services-elite.scss";
+@use "services-elite.scss" as *;
 
 $elite-indigo: #6366f1;
 $elite-purple: #a855f7;

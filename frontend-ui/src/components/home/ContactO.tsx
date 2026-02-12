@@ -33,7 +33,7 @@ export default function ContactO() {
           {/* Contact Methods - RAIN OF ICONS EFFECT */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             {/* WhatsApp */}
-            <a href="https://wa.me/573001234567" target="_blank" rel="noopener noreferrer" className="contact-card-rain flex flex-col items-center gap-3 p-6 rounded-2xl bg-slate-900/50 border border-green-500/20 hover:border-green-500/50 transition-all duration-300 group">
+            <a href="https://wa.me/56912345678" target="_blank" rel="noopener noreferrer" className="contact-card-rain flex flex-col items-center gap-3 p-6 rounded-2xl bg-slate-900/50 border border-green-500/20 hover:border-green-500/50 transition-all duration-300 group">
               <div className="glow-dot bg-green-500 shadow-[0_0_10px_#22c55e]"></div>
               <div className="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <FaWhatsapp className="w-6 h-6 text-green-400" />
@@ -45,7 +45,7 @@ export default function ContactO() {
             </a>
 
             {/* Email */}
-            <a href="mailto:favio@example.com" className="contact-card-rain flex flex-col items-center gap-3 p-6 rounded-2xl bg-slate-900/50 border border-blue-500/20 hover:border-blue-500/50 transition-all duration-300 group">
+            <a href="mailto:contacto@levelsoftwarepro.com" className="contact-card-rain flex flex-col items-center gap-3 p-6 rounded-2xl bg-slate-900/50 border border-blue-500/20 hover:border-blue-500/50 transition-all duration-300 group">
               <div className="glow-dot bg-blue-500 shadow-[0_0_10px_#3b82f6]"></div>
               <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <FaEnvelope className="w-6 h-6 text-blue-400" />
@@ -57,7 +57,7 @@ export default function ContactO() {
             </a>
 
             {/* Llamar */}
-            <a href="tel:+573001234567" className="contact-card-rain flex flex-col items-center gap-3 p-6 rounded-2xl bg-slate-900/50 border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300 group">
+            <a href="tel:+56912345678" className="contact-card-rain flex flex-col items-center gap-3 p-6 rounded-2xl bg-slate-900/50 border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300 group">
               <div className="glow-dot bg-purple-500 shadow-[0_0_10px_#a855f7]"></div>
               <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <FaPhoneAlt className="w-6 h-6 text-purple-400" />
