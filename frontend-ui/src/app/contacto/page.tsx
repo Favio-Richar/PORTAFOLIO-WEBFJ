@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, Variants } from "framer-motion";
 import {
   FaPaperPlane,
@@ -20,7 +20,7 @@ import dynamic from "next/dynamic";
 
 const InteractiveMap = dynamic(() => import("@/components/layout/InteractiveMap"), {
   ssr: false,
-  loading: () => <div className="w-full h-full min-h-[400px] bg-white/5 animate-pulse rounded-[3rem]" />,
+  loading: () => <div className="w-full h-full min-h-[400px] bg-white/5 animate-pulse rounded-none" />,
 });
 
 const CONTACT_CONFIG = {
@@ -53,46 +53,166 @@ const FAQS = [
   },
 ];
 
-function QuickCard({
-  icon,
-  label,
-  sub,
-  link,
-  colorClass,
-  linkText,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  sub: string;
-  link: string;
-  colorClass: string;
-  linkText: string;
-}) {
+const BRAND_COLORS = {
+  location: "#EA4335", // Google Red
+  phone: "#34A853", // Green
+  email: "#4285F4", // Blue
+  whatsapp: "#25D366", // WA Green
+  facebook: "#1877F2",
+  instagram: "#E4405F",
+  linkedin: "#0A66C2",
+  x: "#ffffff",
+  tiktok: "#ff0050",
+  github: "#6e5494",
+};
+
+function QuickCard({ icon, label, sub, link, iconColor }: { icon: any; label: string; sub: string; link: string; iconColor: string }) {
   return (
     <motion.a
       href={link}
       target="_blank"
       rel="noreferrer"
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className="contact-card-pro group"
+      whileHover={{ scale: 1.02, y: -2 }}
+      className="flex items-start gap-3 p-4 !rounded-none border-white/5 group transition-all w-full relative overflow-hidden"
+      style={{
+        background: "linear-gradient(145deg, #020617 0%, #0f172a 100%)",
+        boxShadow: "inset 0 0 15px rgba(255, 255, 255, 0.02)"
+      }}
     >
-      <div className="sweep-effect" />
-      <div className="contact-card-head">
-        <div className="card-icon-container" style={{ color: colorClass }}>
-          <div className="pulse-ring" />
-          <div className="icon-box bg-white/5 border border-white/10">{icon}</div>
+      <div
+        className="w-12 h-12 rounded-none bg-black/40 border flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-all duration-500"
+        style={{ color: iconColor, borderColor: `${iconColor}30`, boxShadow: `0 0 20px ${iconColor}20` }}
+      >
+        <div style={{ filter: `drop-shadow(0 0 10px ${iconColor}60)` }}>
+          {icon}
         </div>
-        <span className="card-action">{linkText}</span>
       </div>
-
-      <div className="contact-card-body">
-        <h3>{label}</h3>
-        <p>{sub}</p>
+      <div className="flex-1">
+        <h3 className="text-white font-black text-[10px] uppercase tracking-widest mb-1 opacity-80 group-hover:opacity-100 transition-opacity">{label}</h3>
+        <p className="text-white/60 text-[10px] font-bold leading-tight drop-shadow-sm">{sub}</p>
       </div>
-
-      <span className="card-link">Abrir</span>
+      <div className="absolute bottom-0 right-0 w-8 h-8 bg-gradient-to-br from-transparent to-white/5 pointer-events-none" />
     </motion.a>
+  );
+}
+
+function HQBlock() {
+  const [time, setTime] = useState("");
+  const [status, setStatus] = useState({ label: "CARGANDO...", sub: "", active: true });
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      // Chile Time (Santiago)
+      const options: Intl.DateTimeFormatOptions = {
+        timeZone: "America/Santiago",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      };
+
+      const clTimeStr = now.toLocaleTimeString("es-CL", options);
+      setTime(clTimeStr);
+
+      // Status Logic
+      const clDate = new Date(now.toLocaleString("en-US", { timeZone: "America/Santiago" }));
+      const hours = clDate.getHours();
+      const day = clDate.getDay();
+      const isOpenDay = day >= 1 && day <= 5;
+      const hoursLimit = { open: 8, close: 19 };
+
+      if (isOpenDay && hours >= hoursLimit.open && hours < hoursLimit.close) {
+        setStatus({ label: "SISTEMA ACTIVO", sub: `OPERATIVO | CIERRA 19:00 HRS`, active: true });
+      } else {
+        const nextDayLabel = day >= 5 ? "LUNES" : "MAÑANA";
+        setStatus({ label: "FUERA DE LÍNEA", sub: `CERRADO | REANUDAMOS ${nextDayLabel} 08:00`, active: false });
+      }
+    };
+
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <motion.div
+      variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
+      className={`p-5 !rounded-none relative overflow-hidden transition-all duration-700 shadow-2xl ${!status.active ? "opacity-90 grayscale-[0.2]" : ""
+        }`}
+      style={{
+        background: "linear-gradient(135deg, #020617 0%, #0f172a 100%)",
+        border: "1px solid rgba(255, 255, 255, 0.05)",
+        boxShadow: status.active ? "0 0 50px rgba(0, 242, 255, 0.05), inset 0 0 20px rgba(255, 255, 255, 0.02)" : "none"
+      }}
+    >
+      <div className="flex flex-col gap-5 relative z-10">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-black text-white uppercase tracking-tighter leading-none">
+              Global Base <span className="text-blue-500">Santiago</span>
+            </h2>
+            <p className="text-white/30 font-black text-[9px] tracking-[0.3em] uppercase">Hub de Ingeniería Digital</p>
+          </div>
+
+          <div className="flex flex-col items-end gap-2">
+            <div className={`status-badge shrink-0 border border-white/10 ${status.active
+                ? "!bg-cyan-950/30 !text-[#00F2FF] shadow-[0_0_15px_rgba(0,242,255,0.1)]"
+                : "!bg-amber-950/30 !text-[#FFB800]"
+              } text-[9px] py-1 px-3 font-black tracking-widest rounded-none`}>
+              <span className={`w-1.5 h-1.5 ${status.active ? "bg-[#00F2FF] animate-pulse shadow-[0_0_8px_#00F2FF]" : "bg-[#FFB800]"} rounded-full mr-2 inline-block`} />
+              {status.label}
+            </div>
+
+            <div className="mt-1 bg-[#050b14] border border-[#00F2FF]/20 px-4 py-2 rounded-none shadow-[inset_0_0_15px_rgba(0,242,255,0.05)] flex items-center gap-3 w-full justify-end">
+              <div className="w-1.5 h-1.5 bg-[#00F2FF] animate-pulse rounded-full shadow-[0_0_10px_#00F2FF]" />
+              <span className="text-[#00F2FF] font-black text-xl tracking-[0.2em] tabular-nums font-mono drop-shadow-[0_0_10px_rgba(0,242,255,0.8)] leading-none">
+                {time}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="h-px w-full bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 bg-white/5 pr-4 rounded-none border border-white/5">
+            <div className={`w-10 h-10 rounded-none flex items-center justify-center text-lg flex-shrink-0 transition-all ${status.active
+                ? "bg-[#00F2FF]/10 text-[#00F2FF] shadow-[inset_0_0_10px_rgba(0,242,255,0.1)]"
+                : "bg-white/5 text-white/30"
+              }`}>
+              <FaClock />
+            </div>
+            <div className="space-y-0.5 py-1">
+              <p className="text-white/40 text-[8px] font-black uppercase tracking-[0.2em] leading-none mb-0.5">Horario de Operaciones</p>
+              <p className="text-white font-bold text-[10px] uppercase tracking-wide leading-tight max-w-[150px]">{status.sub}</p>
+            </div>
+          </div>
+
+          <div className="h-8 w-px bg-white/10" />
+
+          <div className="flex items-center gap-3">
+            <a
+              href={`https://www.google.com/maps?q=${CONTACT_CONFIG.lat},${CONTACT_CONFIG.lng}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-3 group"
+            >
+              <div className="w-10 h-10 rounded-none bg-[#EA4335] flex items-center justify-center text-white text-lg flex-shrink-0 shadow-[0_0_20px_rgba(234,67,53,0.4)] border border-[#EA4335]/30 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(234,67,53,0.6)] transition-all">
+                <FaLocationDot />
+              </div>
+              <div>
+                <p className="text-white/40 text-[8px] font-black uppercase tracking-[0.2em] leading-none mb-1">Navegación</p>
+                <span className="text-[#EA4335] font-black text-[10px] uppercase border-b border-[#EA4335]/30 group-hover:border-[#EA4335] group-hover:text-red-400 transition-all tracking-widest">Google Maps</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      {!status.active && (
+        <div className="absolute inset-0 bg-[#020617]/50 backdrop-grayscale-[0.5] pointer-events-none" />
+      )}
+    </motion.div>
   );
 }
 
@@ -149,324 +269,218 @@ export default function Contacto() {
   };
 
   const itemVariants: Variants = {
-    hidden: { y: 30, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.6, ease: "easeOut" as const } }
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: "easeOut" } }
   };
 
   return (
-    <div className="contact-elite-wrapper pb-40">
-      {/* Background Layers */}
+    <div className="contact-elite-wrapper">
       <div className="bg-noise" />
       <div className="bg-mesh" />
-      <div className="floating-shapes">
-        <div className="shape shape-1" />
-        <div className="shape shape-2" />
-      </div>
 
-      <motion.div
-        className="content-wrapper max-w-7xl mx-auto px-6 relative pt-40"
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-      >
-        <header className="text-center mb-24">
-          <motion.div
-            variants={itemVariants}
-            className="inline-flex items-center gap-3 bg-blue-500/10 border border-blue-500/20 backdrop-blur-md px-5 py-2 rounded-xl mb-8"
-          >
-            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_#3b82f6]" />
-            <span className="text-blue-400 text-[10px] font-black tracking-[0.4em] uppercase">
-              Global Engineering Center
-            </span>
-          </motion.div>
+      {/* Hero Section */}
+      <section className="contact-hero min-h-[400px] flex items-center justify-center relative overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="relative z-10 text-center"
+        >
+          <p className="hero-subtitle mb-4 text-blue-500 font-black tracking-[0.5em] uppercase text-[10px]">Global Engineering Center</p>
+          <h1 className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter">
+            Contact <span className="text-blue-500">Us</span>
+          </h1>
+        </motion.div>
+      </section>
 
-          <motion.h1
-            variants={itemVariants}
-            className="text-5xl md:text-8xl font-black text-white mb-6 tracking-tighter uppercase"
-          >
-            Conectemos <span className="text-blue-500">_</span>
-          </motion.h1>
+      {/* Block 2: Middle Section (Unified Block - FULL WIDTH RECTANGULAR) */}
+      <section className="contact-middle-section pt-24 pb-0 relative z-20 w-full border-y border-blue-500/10">
+        <motion.div
+          className="w-full"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          <div className="unified-glass-block p-10 md:p-14 lg:p-24 !rounded-none relative overflow-hidden backdrop-blur-3xl w-full">
+            <div className="max-w-[1600px] mx-auto">
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-16 lg:gap-24 items-stretch relative z-10">
+                {/* LEFT: SEND MESSAGE (FORM) - 7 COLS */}
+                <motion.div variants={itemVariants} className="xl:col-span-7 space-y-8 flex flex-col justify-between">
+                  <h2 className="text-5xl font-black text-white uppercase tracking-tighter">
+                    Enviar <span className="text-blue-500">Mensaje</span>
+                  </h2>
 
-          <motion.p
-            variants={itemVariants}
-            className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto font-medium"
-          >
-            Arquitectura de software avanzada y consultoría estratégica para empresas que exigen <span className="text-white font-bold tracking-tight">el máximo nivel digital</span>.
-          </motion.p>
-        </header>
-
-        <div className="quick-contact-grid">
-          <QuickCard
-            icon={<FaWhatsapp />}
-            label="WhatsApp"
-            sub={CONTACT_CONFIG.phone}
-            link={`https://wa.me/${CONTACT_CONFIG.whatsapp}`}
-            colorClass="#25D366"
-            linkText="Enlace Directo"
-          />
-          <QuickCard
-            icon={<FaEnvelope />}
-            label="E-mail"
-            sub={CONTACT_CONFIG.email}
-            link={`mailto:${CONTACT_CONFIG.email}`}
-            colorClass="#EA4335"
-            linkText="Enviar Propuesta"
-          />
-          <QuickCard
-            icon={<FaPhone />}
-            label="Teléfono"
-            sub={CONTACT_CONFIG.phone}
-            link={`tel:${CONTACT_CONFIG.phone.replace(/\s/g, "")}`}
-            colorClass="#34A853"
-            linkText="Llamada de Voz"
-          />
-          <QuickCard
-            icon={<FaLocationDot />}
-            label="Global HQ"
-            sub={CONTACT_CONFIG.address}
-            link={`https://www.google.com/maps?q=${CONTACT_CONFIG.lat},${CONTACT_CONFIG.lng}`}
-            colorClass="#4285F4"
-            linkText="Geo Localización"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-32 items-stretch">
-          <motion.div
-            variants={itemVariants}
-            className="glass-card-pro p-10 md:p-14 relative overflow-hidden !rounded-3xl"
-          >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-              <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-widest leading-none">
-                Briefing <span className="text-blue-500">Tech</span>
-              </h2>
-              <div className="status-badge self-start md:self-auto">
-                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-                Operativo 24/7
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="relative group/field">
-                  <input
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    required
-                    placeholder=" "
-                    className="form-input-premium peer w-full px-8 pt-8 pb-3 font-bold outline-none !rounded-xl"
-                  />
-                  <label className="absolute left-8 top-5 text-white/30 font-bold transition-all pointer-events-none peer-focus:top-2 peer-focus:text-[10px] peer-focus:text-blue-400 peer-[:not(:placeholder-shown)]:top-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:text-blue-400 uppercase tracking-[0.2em]">
-                    Nombre Corporativo
-                  </label>
-                </div>
-                <div className="relative group/field">
-                  <input
-                    name="email"
-                    type="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    required
-                    placeholder=" "
-                    className="form-input-premium peer w-full px-8 pt-8 pb-3 font-bold outline-none !rounded-xl"
-                  />
-                  <label className="absolute left-8 top-5 text-white/30 font-bold transition-all pointer-events-none peer-focus:top-2 peer-focus:text-[10px] peer-focus:text-blue-400 peer-[:not(:placeholder-shown)]:top-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:text-blue-400 uppercase tracking-[0.2em]">
-                    E-mail Institucional
-                  </label>
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="relative group/field">
-                  <input
-                    name="phone"
-                    value={form.phone}
-                    onChange={handleChange}
-                    placeholder=" "
-                    className="form-input-premium peer w-full px-8 pt-8 pb-3 font-bold outline-none !rounded-xl"
-                  />
-                  <label className="absolute left-8 top-5 text-white/30 font-bold transition-all pointer-events-none peer-focus:top-2 peer-focus:text-[10px] peer-focus:text-blue-400 peer-[:not(:placeholder-shown)]:top-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:text-blue-400 uppercase tracking-[0.2em]">
-                    Contacto Móvil
-                  </label>
-                </div>
-                <div className="relative group/field">
-                  <select
-                    name="subject"
-                    value={form.subject}
-                    onChange={handleChange}
-                    className="form-input-premium peer w-full px-8 pt-8 pb-3 font-bold outline-none appearance-none cursor-pointer !rounded-xl"
-                  >
-                    <option value="" disabled hidden></option>
-                    <option value="SaaS Architecture">SaaS Architecture</option>
-                    <option value="Enterprise Systems">Enterprise Systems</option>
-                    <option value="Digital Engineering">Digital Engineering</option>
-                    <option value="Cloud Solutions">Cloud Solutions</option>
-                  </select>
-                  <label className="absolute left-8 top-5 text-white/30 font-bold transition-all pointer-events-none peer-focus:top-2 peer-focus:text-[10px] peer-focus:text-blue-400 peer-[:not(:placeholder-shown)]:top-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:text-blue-400 uppercase tracking-[0.2em]">
-                    Solución Requerida
-                  </label>
-                  <span className="absolute right-6 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none text-xs">▼</span>
-                </div>
-              </div>
-
-              <div className="relative group/field">
-                <textarea
-                  name="message"
-                  value={form.message}
-                  onChange={handleChange}
-                  required
-                  rows={6}
-                  placeholder=" "
-                  className="form-input-premium peer w-full px-8 pt-10 pb-4 font-bold outline-none resize-none !rounded-2xl"
-                />
-                <label className="absolute left-8 top-7 text-white/30 font-bold transition-all pointer-events-none peer-focus:top-3 peer-focus:text-[10px] peer-focus:text-blue-400 peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:text-blue-400 uppercase tracking-[0.2em]">
-                  Descripción Técnica del Desafío
-                </label>
-              </div>
-
-              <div className="flex flex-col gap-6">
-                <button
-                  type="submit"
-                  disabled={status === "sending"}
-                  className="submit-btn-elite w-full py-6 text-white text-sm flex items-center justify-center gap-4"
-                >
-                  {status === "sending" ? (
-                    "PROCESANDO SOLICITUD..."
-                  ) : (
-                    <>
-                      <FaPaperPlane className="transform -rotate-12" />
-                      <span>AGENDAR CONSULTA TÉCNICA</span>
-                    </>
-                  )}
-                </button>
-                <div className="flex items-center justify-center gap-4 opacity-50">
-                  <div className="h-px bg-blue-500/30 flex-1" />
-                  <p className="text-white font-black text-[9px] uppercase tracking-[0.4em]">
-                    SLA: Respuesta en menos de 12 horas
-                  </p>
-                  <div className="h-px bg-blue-500/30 flex-1" />
-                </div>
-              </div>
-
-              {status === "success" && (
-                <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-center">
-                  <p className="text-blue-400 font-black text-[10px] tracking-[0.3em] uppercase">
-                    ✓ Transmisión completada. Procesando requerimiento.
-                  </p>
-                </div>
-              )}
-              {status === "error" && (
-                <p className="text-red-400 font-semibold text-center text-sm mt-4 italic">
-                  ERROR: {errorMsg || "Transmisión fallida"}
-                </p>
-              )}
-            </form>
-          </motion.div>
-
-          <motion.div
-            variants={itemVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            className="flex flex-col gap-8"
-          >
-            <div className="map-container-pro h-[450px] !rounded-[2rem]">
-              <InteractiveMap center={[CONTACT_CONFIG.lat, CONTACT_CONFIG.lng]} zoom={15} />
-            </div>
-
-            <div className="glass-card-pro !rounded-[2rem] p-10 relative overflow-hidden border-blue-500/20">
-              <div className="flex justify-between items-start mb-10">
-                <div>
-                  <h3 className="text-white font-black text-2xl tracking-tighter uppercase mb-1">Global Base Santiago</h3>
-                  <p className="text-blue-400 text-[10px] font-black uppercase tracking-[0.2em]">Hub de Ingeniería Digital</p>
-                </div>
-                <div className="status-badge bg-blue-500/10 border-blue-500/30 text-blue-400">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-ping" />
-                  SISTEMA ACTIVO
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <div className="space-y-8">
-                  <div className="flex items-center gap-5 text-slate-300">
-                    <div className="w-12 h-12 rounded-xl bg-slate-500/10 flex items-center justify-center text-[#94a3b8] border border-slate-500/20 shadow-[0_0_15px_rgba(148,163,184,0.3)]">
-                      <FaClock className="text-xl" />
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black text-blue-400/60 uppercase tracking-widest px-2">Nombre Corporativo</p>
+                        <input
+                          name="name"
+                          value={form.name}
+                          onChange={handleChange}
+                          required
+                          placeholder="NOMBRE CORPORATIVO"
+                          className="form-input-premium !rounded-none px-6 py-5 text-xs font-bold w-full"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black text-blue-400/60 uppercase tracking-widest px-2">E-mail Institucional</p>
+                        <input
+                          name="email"
+                          type="email"
+                          value={form.email}
+                          onChange={handleChange}
+                          required
+                          placeholder="E-MAIL INSTITUCIONAL"
+                          className="form-input-premium !rounded-none px-6 py-5 text-xs font-bold w-full"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[10px] text-white/30 uppercase font-black tracking-widest mb-1">Operaciones</p>
-                      <span className="text-sm font-black text-white">LUN - VIE: 08:00 - 19:00</span>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black text-blue-400/60 uppercase tracking-widest px-2">Contacto Móvil</p>
+                        <input
+                          name="phone"
+                          value={form.phone}
+                          onChange={handleChange}
+                          required
+                          placeholder="CONTACTO MÓVIL"
+                          className="form-input-premium !rounded-none px-6 py-5 text-xs font-bold w-full"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black text-blue-400/60 uppercase tracking-widest px-2">Solución Requerida</p>
+                        <select
+                          name="subject"
+                          value={form.subject}
+                          onChange={handleChange}
+                          className="form-input-premium !rounded-none px-6 py-5 text-xs font-bold w-full appearance-none bg-dark-deep cursor-pointer"
+                        >
+                          <option value="">SOLUCIÓN REQUERIDA</option>
+                          <option value="software">Software a Medida</option>
+                          <option value="cloud">Infraestructura Cloud</option>
+                          <option value="ai">Inteligencia Artificial</option>
+                          <option value="consultancy">Consultoría Técnica</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-[10px] font-black text-blue-400/60 uppercase tracking-widest px-2">Descripción Técnica del Desafío</p>
+                      <textarea
+                        name="message"
+                        value={form.message}
+                        onChange={handleChange}
+                        required
+                        rows={6}
+                        placeholder="DESCRIPCIÓN TÉCNICA DEL DESAFÍO"
+                        className="form-input-premium !rounded-none px-6 py-5 text-xs font-bold w-full resize-none"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={status === "sending"}
+                      className="submit-btn-elite !w-full px-12 py-6 text-white text-[13px] font-black tracking-[0.4em] uppercase !rounded-none flex items-center justify-center gap-4 group transition-all"
+                    >
+                      <FaPaperPlane className="text-lg group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                      {status === "sending" ? "PROCESANDO..." : "AGENDAR CONSULTA TÉCNICA"}
+                    </button>
+                  </form>
+                </motion.div>
+
+                {/* RIGHT: INFO STACK (HQ + CARDS + SOCIAL) - 5 COLS */}
+                <motion.div variants={itemVariants} className="xl:col-span-5 space-y-8 flex flex-col">
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-black text-blue-400/60 uppercase tracking-[0.4em] px-2">Status Operativo</p>
+                    <HQBlock />
+                  </div>
+
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-black text-blue-400/60 uppercase tracking-[0.4em] px-2">Canales Directos</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <QuickCard
+                        icon={<FaLocationDot />}
+                        label="Ubicación Base"
+                        sub={CONTACT_CONFIG.address}
+                        link={`https://www.google.com/maps?q=${CONTACT_CONFIG.lat},${CONTACT_CONFIG.lng}`}
+                        iconColor={BRAND_COLORS.location}
+                      />
+                      <QuickCard
+                        icon={<FaPhone />}
+                        label="Línea Móvil"
+                        sub={CONTACT_CONFIG.phone}
+                        link={`tel:${CONTACT_CONFIG.phone.replace(/\s/g, "")}`}
+                        iconColor={BRAND_COLORS.phone}
+                      />
+                      <QuickCard
+                        icon={<FaEnvelope />}
+                        label="E-mail Institucional"
+                        sub={CONTACT_CONFIG.email}
+                        link={`mailto:${CONTACT_CONFIG.email}`}
+                        iconColor={BRAND_COLORS.email}
+                      />
+                      <QuickCard
+                        icon={<FaWhatsapp />}
+                        label="WhatsApp Corporativo"
+                        sub={CONTACT_CONFIG.phone}
+                        link={`https://wa.me/${CONTACT_CONFIG.whatsapp}`}
+                        iconColor={BRAND_COLORS.whatsapp}
+                      />
                     </div>
                   </div>
 
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=Santiago+Centro+Chile`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-5 text-blue-400 hover:text-blue-300 transition-all group/link"
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-[#EA4335] flex items-center justify-center text-white shadow-[0_0_20px_rgba(234,67,53,0.5)]">
-                      <FaLocationDot className="text-xl" />
+                  {/* Integrated Social Links */}
+                  <div className="space-y-3 mt-auto">
+                    <p className="text-[10px] font-black text-blue-400/60 uppercase tracking-[0.4em] px-2">Presencia Digital</p>
+                    <div className="p-6 !rounded-none border-white/5" style={{ background: "linear-gradient(135deg, #020617 0%, #0f172a 100%)", boxShadow: "inset 0 0 20px rgba(255, 255, 255, 0.02)" }}>
+                      <div className="flex flex-wrap gap-3">
+                        {[
+                          { icon: <FaFacebookF />, link: CONTACT_CONFIG.social.facebook, color: BRAND_COLORS.facebook },
+                          { icon: <FaInstagram />, link: CONTACT_CONFIG.social.instagram, color: BRAND_COLORS.instagram },
+                          { icon: <FaLinkedinIn />, link: CONTACT_CONFIG.social.linkedin, color: BRAND_COLORS.linkedin },
+                          { icon: <FaXTwitter />, link: CONTACT_CONFIG.social.twitter, color: BRAND_COLORS.x },
+                          { icon: <FaTiktok />, link: "#", color: BRAND_COLORS.tiktok },
+                          { icon: <FaGithub />, link: "#", color: BRAND_COLORS.github },
+                        ].map((social, i) => (
+                          <motion.a
+                            key={i}
+                            href={social.link}
+                            target="_blank"
+                            rel="noreferrer"
+                            whileHover={{ scale: 1.1, filter: "brightness(1.5)", backgroundColor: `${social.color}20` }}
+                            className="w-11 h-11 rounded-none bg-black/40 border border-white/5 flex items-center justify-center transition-all shadow-[0_4px_10px_rgba(0,0,0,0.3)]"
+                            style={{ color: social.color, borderColor: `${social.color}40`, boxShadow: `inset 0 0 10px ${social.color}10` }}
+                          >
+                            <div className="text-xl" style={{ filter: `drop-shadow(0 0 10px ${social.color}60)` }}>
+                              {social.icon}
+                            </div>
+                          </motion.a>
+                        ))}
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[10px] text-white/30 uppercase font-black tracking-widest mb-1">Navegación</p>
-                      <span className="text-sm font-black border-b-2 border-[#EA4335]/40 pb-1">ACCEDER A GOOGLE MAPS</span>
-                    </div>
-                  </a>
-                </div>
-
-                <div className="flex flex-wrap gap-4 mt-4 md:mt-0 justify-start md:justify-end items-end flex-1">
-                  <a href={CONTACT_CONFIG.social.facebook} target="_blank" rel="noreferrer" className="social-btn-pro !text-[#1877F2]" aria-label="Facebook">
-                    <FaFacebookF />
-                  </a>
-                  <a href={CONTACT_CONFIG.social.instagram} target="_blank" rel="noreferrer" className="social-btn-pro !text-[#E4405F]" aria-label="Instagram">
-                    <FaInstagram />
-                  </a>
-                  <a href={CONTACT_CONFIG.social.linkedin} target="_blank" rel="noreferrer" className="social-btn-pro !text-[#0A66C2]" aria-label="LinkedIn">
-                    <FaLinkedinIn />
-                  </a>
-                  <a href={CONTACT_CONFIG.social.twitter} target="_blank" rel="noreferrer" className="social-btn-pro !text-[#1DA1F2]" aria-label="X">
-                    <FaXTwitter />
-                  </a>
-                  <a href="#" target="_blank" rel="noreferrer" className="social-btn-pro !text-[#FFF]" aria-label="TikTok">
-                    <FaTiktok />
-                  </a>
-                  <a href="#" target="_blank" rel="noreferrer" className="social-btn-pro !text-[#FFF]" aria-label="GitHub">
-                    <FaGithub />
-                  </a>
-                </div>
+                  </div>
+                </motion.div>
               </div>
             </div>
-          </motion.div>
-        </div>
-
-        <section className="max-w-4xl mx-auto pt-20">
-          <motion.div variants={itemVariants} className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter">
-              Protocolos de <span className="text-blue-500">Ejecución</span>
-            </h2>
-            <div className="w-16 h-1 bg-blue-500 mx-auto mt-6" />
-          </motion.div>
-
-          <div className="space-y-6">
-            {FAQS.map((faq, idx) => (
-              <motion.details
-                key={idx}
-                variants={itemVariants}
-                className="glass-card-pro !rounded-xl p-8 cursor-pointer group hover:bg-blue-500/5 transition-all overflow-hidden border-blue-500/10"
-              >
-                <summary className="list-none flex items-center justify-between text-white font-black uppercase text-sm tracking-[0.3em] pr-4">
-                  {faq.q}
-                  <span className="text-blue-500 group-open:rotate-180 transition-transform duration-500">▼</span>
-                </summary>
-                <div className="mt-8 text-slate-400 font-bold leading-relaxed text-base border-l-4 border-blue-500 pl-6">
-                  {faq.a}
-                </div>
-              </motion.details>
-            ))}
           </div>
-        </section>
-      </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Block 3: Map Section (Full Width Bottom - NO ROUNDED) */}
+      <section className="w-full">
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="map-container-pro h-[600px] w-full border-t border-blue-500/20 !rounded-none"
+        >
+          <InteractiveMap center={[CONTACT_CONFIG.lat, CONTACT_CONFIG.lng]} zoom={15} />
+        </motion.div>
+      </section>
     </div>
   );
 }

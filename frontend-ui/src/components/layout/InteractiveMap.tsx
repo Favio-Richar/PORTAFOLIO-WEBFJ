@@ -24,7 +24,7 @@ export default function InteractiveMap({ center, zoom = 13 }: InteractiveMapProp
     }, []);
 
     return (
-        <div className="w-full h-full min-h-[400px] relative rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
+        <div className="w-full h-full min-h-[400px] relative !rounded-none overflow-hidden">
             <MapContainer
                 {...({
                     center: center,
@@ -57,10 +57,6 @@ export default function InteractiveMap({ center, zoom = 13 }: InteractiveMapProp
                     </Popup>
                 </Marker>
             </MapContainer>
-
-            {/* TECH OVERLAY (Brighter) */}
-            <div className="absolute inset-0 pointer-events-none border-[1px] border-white/20 rounded-[3rem] z-10" />
-            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-blue-500/5 to-transparent z-10" />
         </div>
     );
 }

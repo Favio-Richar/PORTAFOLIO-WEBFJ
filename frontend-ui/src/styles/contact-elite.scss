@@ -96,9 +96,67 @@ $slate-500: #64748b;
         }
     }
 
-    .content-wrapper {
+    // --- HERO SECTION (Inspired by reference) ---
+    .contact-hero {
+        position: relative;
+        height: 50vh;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        z-index: 5;
+        overflow: hidden;
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000'); // Professional office background
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+            filter: grayscale(1);
+        }
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent, $base-bg);
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 10vw, 6rem);
+            font-weight: 900;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 0.5rem;
+
+            span {
+                color: $neon-cyan;
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1.125rem;
+            color: $slate-400;
+            text-transform: uppercase;
+            letter-spacing: 0.5em;
+            font-weight: 700;
+            position: relative;
+            z-index: 2;
+        }
+    }
+
+    .contact-middle-section {
         position: relative;
         z-index: 10;
+        margin-top: 0;
 
         header {
             h1 {
@@ -132,10 +190,10 @@ $slate-500: #64748b;
 
     // --- QUICK CONTACT CARDS ---
     .quick-contact-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 24px;
-        margin-bottom: 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        z-index: 5;
     }
 
     .contact-card-pro {
@@ -300,22 +358,87 @@ $slate-500: #64748b;
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
 
+    .quick-card-premium {
+        border-radius: 0 !important; // SHARP EDGES
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        transition: all 0.4s ease;
+
+        &:hover {
+            background: rgba(59, 130, 246, 0.05);
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: translateY(-5px);
+        }
+    }
+
+    // --- UNIFIED GLASS BLOCK (FULL WIDTH RECTANGULAR) ---
+    .unified-glass-block {
+        background: rgba(3, 7, 18, 0.7);
+        backdrop-filter: blur(50px);
+        -webkit-backdrop-filter: blur(50px);
+        border: none;
+        border-top: 2px solid rgba(59, 130, 246, 0.2);
+        border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+        box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8); // Reduced to prevent gap bleed
+        position: relative;
+        z-index: 10;
+        width: 100% !important;
+        margin: 0 !important;
+        border-radius: 0 !important; // NO ROUNDED CORNERS
+
+        &::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 0% 0%, rgba(30, 64, 175, 0.1), transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.05), transparent 50%);
+            pointer-events: none;
+        }
+
+        h2 {
+            text-shadow: 0 0 40px rgba(59, 130, 246, 0.4);
+            letter-spacing: -0.05em;
+            margin-bottom: 3rem !important;
+        }
+    }
+
+    // --- FORM STYLES ---
     .form-input-premium {
-        background: rgba(3, 7, 18, 0.4) !important;
-        border: 1px solid rgba(59, 130, 246, 0.1) !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
         color: white !important;
-        transition: all 0.4s !important;
-        border-radius: 12px !important;
+        border-radius: 0 !important; // SHARP EDGES
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        padding: 1.5rem !important;
+        font-family: inherit;
 
         &:focus {
-            background: rgba(3, 7, 18, 0.6) !important;
+            background: rgba(30, 64, 175, 0.08) !important;
             border-color: $accent-blue !important;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2) !important;
+            box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.1) !important;
+            outline: none;
         }
 
         &::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-            text-transform: none;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+    }
+
+    select.form-input-premium {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.4)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1.25rem center;
+        background-size: 1rem;
+        padding-right: 3rem;
+
+        option {
+            background: $base-bg;
+            color: white;
+            padding: 10px;
         }
     }
 
@@ -324,7 +447,7 @@ $slate-500: #64748b;
         color: #000 !important;
         -webkit-text-stroke: 1px rgba(0, 0, 0, 0.5);
         text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        border-radius: 12px !important;
+        border-radius: 0 !important; // ENFORCED RECTANGULAR
         transition: 0.5s;
         box-shadow: 0 10px 30px -5px rgba(6, 182, 212, 0.5);
         letter-spacing: 0.4em !important;
@@ -343,28 +466,44 @@ $slate-500: #64748b;
         }
     }
 
-    // --- MAP SECTION ---
+    // --- MAP SECTION (STRICT FULL WIDTH & SHARP EDGES) ---
     .map-container-pro {
-        border-radius: 24px;
-        overflow: hidden;
-        border: 1px solid rgba(59, 130, 246, 0.2);
-        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
-        background: $base-bg;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        overflow: hidden !important;
+        filter: none !important; // Restore full real color
+        transition: all 0.5s ease;
+        position: relative;
+        z-index: 5;
+        height: 600px;
+        border: none !important;
+        box-shadow: none !important;
 
-        &::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to top, rgba(11, 17, 32, 0.4), transparent);
-            pointer-events: none;
+        &:hover {
+            filter: none !important;
+        }
+
+        // Force zero radius on ALL internal Leaflet containers and tiles
+        .leaflet-container,
+        .leaflet-map-pane,
+        .leaflet-tile-container,
+        .leaflet-vml-pane,
+        .leaflet-layer,
+        .leaflet-marker-icon,
+        .leaflet-shadow-pane,
+        .leaflet-tile,
+        .leaflet-pane {
+            border-radius: 0 !important;
         }
     }
 
     // --- SOCIAL ---
     .social-btn-pro {
-        width: 56px;
-        height: 56px;
-        border-radius: 14px; // Squircle style
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
         background: rgba(59, 130, 246, 0.05);
         border: 1px solid rgba(59, 130, 246, 0.1);
         color: white;
@@ -402,6 +541,31 @@ $slate-500: #64748b;
                 opacity: 1;
             }
         }
+    }
+
+    // --- HQ CARD PREMIUM (NESTED ADJUSTMENT) ---
+    .hq-card-premium {
+        margin-top: 0;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(59, 130, 246, 0.1);
+        padding: 48px !important;
+        box-shadow: none;
+
+        &::before {
+            display: none; // Hide original pulse for nested version
+        }
+
+        .status-badge {
+            font-size: 9px;
+            padding: 4px 12px;
+            letter-spacing: 0.15em;
+        }
+    }
+
+    .shrink-content-centering {
+        max-width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     // --- BADGES ---
