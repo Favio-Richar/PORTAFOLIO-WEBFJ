@@ -104,7 +104,7 @@ $brand-accent: #06b6d4; // Cyan 500
                 align-items: center;
                 gap: 16px;
                 padding: 14px 18px;
-                border-radius: 12px;
+                border-radius: 0;
                 color: $text-secondary;
                 font-weight: 600;
                 font-size: 14px;
@@ -212,7 +212,7 @@ $brand-accent: #06b6d4; // Cyan 500
                         height: 24px;
                         width: 4px;
                         background: var(--item-color);
-                        border-radius: 0 4px 4px 0;
+                        border-radius: 0;
                         box-shadow: 0 0 15px var(--item-color);
                         animation: pulse-glow 2s infinite;
                     }
@@ -258,7 +258,7 @@ $brand-accent: #06b6d4; // Cyan 500
                 gap: 14px;
                 padding: 14px;
                 background: rgba(255, 255, 255, 0.03);
-                border-radius: 16px;
+                border-radius: 0;
                 border: 1px solid rgba(255, 255, 255, 0.05);
                 transition: all 0.3s ease;
 
@@ -271,7 +271,7 @@ $brand-accent: #06b6d4; // Cyan 500
                 .avatar {
                     width: 44px;
                     height: 44px;
-                    border-radius: 12px; // Squircle
+                    border-radius: 0; // Squared
                     background: linear-gradient(135deg, $brand-primary, $brand-secondary);
                     display: flex;
                     align-items: center;
@@ -317,7 +317,7 @@ $brand-accent: #06b6d4; // Cyan 500
     .dashboard-card {
         background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
+        border-radius: 0;
         overflow: hidden;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
 
@@ -412,7 +412,7 @@ $brand-accent: #06b6d4; // Cyan 500
                 background: rgba(30, 41, 59, 0.4);
                 backdrop-filter: blur(10px);
                 border: 1px solid rgba(255, 255, 255, 0.05);
-                border-radius: 16px;
+                border-radius: 0;
                 overflow: hidden;
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
                 transition: transform 0.2s;
@@ -448,7 +448,7 @@ $brand-accent: #06b6d4; // Cyan 500
                 background: rgba(30, 41, 59, 0.4); // Semi-transparent slate
                 backdrop-filter: blur(12px);
                 border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 16px;
+                border-radius: 0;
                 padding: 32px;
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); // Soft deep shadow
                 position: relative;
@@ -460,7 +460,7 @@ $brand-accent: #06b6d4; // Cyan 500
                     content: '';
                     position: absolute;
                     inset: 0;
-                    border-radius: 16px;
+                    border-radius: 0;
                     padding: 1px;
                     background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent);
                     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -505,7 +505,7 @@ $brand-accent: #06b6d4; // Cyan 500
             .admin-panel-container {
                 background: rgba(15, 23, 42, 0.6);
                 border: 1px solid rgba(255, 255, 255, 0.05);
-                border-radius: 24px;
+                border-radius: 0;
                 padding: 32px;
                 margin-top: 32px;
                 box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.02); // Subtle rim
@@ -528,7 +528,7 @@ $brand-accent: #06b6d4; // Cyan 500
                     background: rgba(30, 41, 59, 0.4);
                     backdrop-filter: blur(12px);
                     border: 1px solid rgba(255, 255, 255, 0.05);
-                    border-radius: 16px;
+                    border-radius: 0;
                     padding: 24px;
                     display: flex;
                     align-items: center;

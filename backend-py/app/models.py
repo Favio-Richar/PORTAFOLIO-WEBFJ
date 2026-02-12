@@ -80,6 +80,8 @@ class Contact(SQLModel, table=True):
     twitter: Optional[str] = None
     tiktok: Optional[str] = None
     location: str
+    lat: Optional[float] = Field(default=-33.4569385)
+    lng: Optional[float] = Field(default=-70.6482684)
     hero_image: Optional[str] = None
     hero_video: Optional[str] = None
 

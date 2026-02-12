@@ -15,10 +15,10 @@ export default function DashboardHome() {
                     <p className="text-slate-400 font-medium">Bienvenido al sistema central, Favio.</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="flex items-center gap-2 bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-700 transition-all border border-white/5">
+                    <button className="flex items-center gap-2 bg-slate-800 text-slate-300 px-4 py-2 rounded-none text-xs font-bold hover:bg-slate-700 transition-all border border-white/5">
                         <FaCalendarAlt /> Últimos 30 días
                     </button>
-                    <button className="flex items-center gap-2 bg-brand-primary text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20">
+                    <button className="flex items-center gap-2 bg-brand-primary text-white px-4 py-2 rounded-none text-xs font-bold hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20">
                         <FaDownload /> Exportar Data
                     </button>
                 </div>
@@ -126,14 +126,14 @@ export default function DashboardHome() {
                                         ].map((m, i) => (
                                             <tr key={i} className="hover:bg-white/5 transition-colors group cursor-pointer">
                                                 <td className="p-4 flex items-center gap-3">
-                                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs bg-slate-800 text-slate-300 ring-2 ring-transparent group-hover:ring-${m.color}-500 transition-all`}>
+                                                    <div className={`w-8 h-8 rounded-none flex items-center justify-center font-bold text-xs bg-slate-800 text-slate-300 ring-2 ring-transparent group-hover:ring-${m.color}-500 transition-all`}>
                                                         {m.name.charAt(0)}
                                                     </div>
                                                     <span className="text-sm font-bold text-slate-200 group-hover:text-white">{m.name}</span>
                                                 </td>
                                                 <td className="p-4 text-sm text-slate-400">{m.msg}</td>
                                                 <td className="p-4">
-                                                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase bg-${m.color}-500/10 text-${m.color}-400 border border-${m.color}-500/20`}>
+                                                    <span className={`px-2 py-1 rounded-none text-[10px] font-bold uppercase bg-${m.color}-500/10 text-${m.color}-400 border border-${m.color}-500/20`}>
                                                         {m.status}
                                                     </span>
                                                 </td>

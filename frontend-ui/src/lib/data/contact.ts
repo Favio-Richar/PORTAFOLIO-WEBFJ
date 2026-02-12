@@ -9,6 +9,8 @@ export interface ContactData {
     twitter: string;
     tiktok: string;
     location: string;
+    lat?: number;
+    lng?: number;
     hero_image?: string;
     hero_video?: string;
 }

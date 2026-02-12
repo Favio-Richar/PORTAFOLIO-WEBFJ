@@ -80,7 +80,7 @@ npm install --save-dev @types/nombre_paquete
 Al finalizar una tarea importante:
 ```bash
 git add .
-git commit -m "Descripción clara del avance (ej: feat: navbar 3d animation)"
+git commit -m "CONTACTO LISTO OK"
 git push
 ```
 

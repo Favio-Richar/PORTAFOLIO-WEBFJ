@@ -27,6 +27,7 @@ const CONTACT_CONFIG = {
   phone: "+56 9 1234 5678",
   whatsapp: "56912345678",
   email: "contacto@levelsoftwarepro.com",
+  location: "Santiago Centro, Chile",
   address: "Santiago Centro, Chile",
   lat: -33.4569385,
   lng: -70.6482684,
@@ -70,7 +71,27 @@ const BRAND_COLORS = {
   github: "#6e5494",
 };
 
-function QuickCard({ icon, label, sub, link, iconColor }: { icon: any; label: string; sub: string; link: string; iconColor: string }) {
+function getCountryBadge(location: string) {
+  const normalized = (location || "").toLowerCase();
+  if (normalized.includes("chile") || normalized.includes(" santiago")) {
+    return { code: "cl", name: "Chile" };
+  }
+  if (normalized.includes("argentina")) {
+    return { code: "ar", name: "Argentina" };
+  }
+  if (normalized.includes("peru") || normalized.includes("perú")) {
+    return { code: "pe", name: "Perú" };
+  }
+  if (normalized.includes("colombia")) {
+    return { code: "co", name: "Colombia" };
+  }
+  if (normalized.includes("mexico") || normalized.includes("méxico")) {
+    return { code: "mx", name: "México" };
+  }
+  return { code: "", name: "Internacional" };
+}
+
+function QuickCard({ icon, label, sub, link, iconColor, meta, hideIcon = false }: { icon: any; label: string; sub: string; link: string; iconColor: string; meta?: React.ReactNode; hideIcon?: boolean }) {
   return (
     <motion.a
       href={link}
@@ -83,16 +104,21 @@ function QuickCard({ icon, label, sub, link, iconColor }: { icon: any; label: st
         boxShadow: "inset 0 0 15px rgba(255, 255, 255, 0.02)"
       }}
     >
-      <div
-        className="w-12 h-12 rounded-none bg-black/40 border flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-all duration-500"
-        style={{ color: iconColor, borderColor: `${iconColor}30`, boxShadow: `0 0 20px ${iconColor}20` }}
-      >
-        <div style={{ filter: `drop-shadow(0 0 10px ${iconColor}60)` }}>
-          {icon}
+      {!hideIcon ? (
+        <div
+          className="w-12 h-12 rounded-none bg-black/40 border flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-all duration-500"
+          style={{ color: iconColor, borderColor: `${iconColor}30`, boxShadow: `0 0 20px ${iconColor}20` }}
+        >
+          <div style={{ filter: `drop-shadow(0 0 10px ${iconColor}60)` }}>
+            {icon}
+          </div>
         </div>
-      </div>
+      ) : null}
       <div className="flex-1">
         <h3 className="text-white font-black text-[10px] uppercase tracking-widest mb-1 opacity-80 group-hover:opacity-100 transition-opacity">{label}</h3>
+        {meta ? (
+          <p className="text-white/90 text-[9px] font-black uppercase tracking-wider mb-0.5">{meta}</p>
+        ) : null}
         <p className="text-white/60 text-[10px] font-bold leading-tight drop-shadow-sm">{sub}</p>
       </div>
       <div className="absolute bottom-0 right-0 w-8 h-8 bg-gradient-to-br from-transparent to-white/5 pointer-events-none" />
@@ -154,7 +180,8 @@ function HQBlock() {
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="space-y-1">
             <h2 className="text-2xl font-black uppercase tracking-tighter leading-none" style={{ color: '#0047FF', textShadow: '0 0 20px rgba(0, 71, 255, 0.4)' }}>
-              Global Base Santiago
+              <span className="block">Digital Systems</span>
+              <span className="block text-center mt-1">FJ</span>
             </h2>
             <p className="font-black text-[9px] tracking-[0.3em] uppercase" style={{ color: '#0047FF' }}>Hub de Ingeniería Digital</p>
           </div>
@@ -235,6 +262,22 @@ export default function Contacto() {
   const [contactData, setContactData] = useState(CONTACT_CONFIG);
   const [galleryMedia, setGalleryMedia] = useState<any[]>([]);
   const [currentMediaIdx, setCurrentMediaIdx] = useState(0);
+  const mapLat = typeof contactData.lat === "number" ? contactData.lat : CONTACT_CONFIG.lat;
+  const mapLng = typeof contactData.lng === "number" ? contactData.lng : CONTACT_CONFIG.lng;
+  const phoneText = contactData.phone || CONTACT_CONFIG.phone;
+  const emailText = contactData.email || CONTACT_CONFIG.email;
+  const locationText = (contactData.location || CONTACT_CONFIG.address)
+    .replace(/\bcl\s+chile\b/gi, "Chile")
+    .replace(/\bcl\b(?=\s*,|\s*$)/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  const locationParts = locationText.split(",").map((p) => p.trim()).filter(Boolean);
+  const popupStreet = locationParts[0] || "Av. Sta. Rosa 3573";
+  const popupArea = locationParts.slice(1).join(", ") || "San Miguel, Región Metropolitana";
+  const directionsUrl = `https://www.google.com/maps?q=${mapLat},${mapLng}`;
+  const countryBadge = getCountryBadge(locationText);
+  const whatsappRaw = contactData.whatsapp || phoneText;
+  const whatsappDigits = whatsappRaw.replace(/\D/g, "");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -525,29 +568,42 @@ export default function Contacto() {
                       <QuickCard
                         icon={<FaLocationDot />}
                         label="Ubicación Base"
-                        sub={CONTACT_CONFIG.address}
-                        link={`https://www.google.com/maps?q=${CONTACT_CONFIG.lat},${CONTACT_CONFIG.lng}`}
+                        hideIcon
+                        meta={
+                          <span className="inline-flex items-center gap-1.5">
+                            {countryBadge.code ? (
+                              <img
+                                src={`https://flagcdn.com/w20/${countryBadge.code}.png`}
+                                alt={countryBadge.name}
+                                className="w-4 h-3 object-cover border border-white/20"
+                              />
+                            ) : null}
+                            <span>{countryBadge.name}</span>
+                          </span>
+                        }
+                        sub={locationText}
+                        link={`https://www.google.com/maps?q=${mapLat},${mapLng}`}
                         iconColor={BRAND_COLORS.location}
                       />
                       <QuickCard
                         icon={<FaPhone />}
                         label="Línea Móvil"
-                        sub={CONTACT_CONFIG.phone}
-                        link={`tel:${CONTACT_CONFIG.phone.replace(/\s/g, "")}`}
+                        sub={phoneText}
+                        link={`tel:${phoneText.replace(/\s/g, "")}`}
                         iconColor={BRAND_COLORS.phone}
                       />
                       <QuickCard
                         icon={<FaEnvelope />}
                         label="E-mail Institucional"
-                        sub={CONTACT_CONFIG.email}
-                        link={`mailto:${CONTACT_CONFIG.email}`}
+                        sub={emailText}
+                        link={`mailto:${emailText}`}
                         iconColor={BRAND_COLORS.email}
                       />
                       <QuickCard
                         icon={<FaWhatsapp />}
                         label="WhatsApp Corporativo"
-                        sub={CONTACT_CONFIG.phone}
-                        link={`https://wa.me/${CONTACT_CONFIG.whatsapp}`}
+                        sub={contactData.whatsapp || phoneText}
+                        link={`https://wa.me/${whatsappDigits}`}
                         iconColor={BRAND_COLORS.whatsapp}
                       />
                     </div>
@@ -600,7 +656,15 @@ export default function Contacto() {
           viewport={{ once: true }}
           className="map-container-pro h-[600px] w-full !rounded-none"
         >
-          <InteractiveMap center={[CONTACT_CONFIG.lat, CONTACT_CONFIG.lng]} zoom={15} />
+          <InteractiveMap
+            center={[mapLat, mapLng]}
+            zoom={15}
+            popupTitle="FJ Digital Systems"
+            popupStreet={popupStreet}
+            popupArea={popupArea}
+            popupSchedule="Lun–Vie 08:00–19:00"
+            directionsUrl={directionsUrl}
+          />
         </motion.div>
       </section>
     </div>

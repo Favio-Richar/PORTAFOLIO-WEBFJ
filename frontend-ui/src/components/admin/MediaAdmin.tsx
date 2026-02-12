@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { FaImages, FaPlus, FaTrash, FaPlayCircle, FaImage, FaUpload, FaChevronRight, FaRegObjectGroup } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 interface MediaItem {
     id?: number;
@@ -109,186 +110,235 @@ export default function MediaAdmin() {
     const videoItems = (mediaItems || []).filter(m => m.type === 'video');
 
     return (
-        <div className="space-y-12 pb-20">
-            {/* --- HEADER SaaS SECTION --- */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 bg-[#0a0f1d] p-10 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-transparent pointer-events-none" />
-                <div className="relative z-10 space-y-4">
-                    <div className="flex items-center gap-4 text-blue-500 font-black uppercase tracking-[0.4em] text-[10px]">
-                        <FaRegObjectGroup />
-                        <span>Gestión de Activos Elite</span>
-                    </div>
-                    <h3 className="text-5xl font-black text-white uppercase tracking-tighter leading-none">
-                        Pasarela <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400">Multimedia</span>
-                    </h3>
-                    <div className="flex gap-6 pt-2">
-                        <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl flex flex-col gap-1">
-                            <span className="text-[9px] text-white/40 uppercase font-bold tracking-widest">Fotos cargadas</span>
-                            <div className="flex items-end gap-2">
-                                <span className={`text-2xl font-black ${photoItems.length >= 5 ? 'text-emerald-400' : 'text-blue-500'}`}>{photoItems.length}</span>
-                                <span className="text-white/20 font-bold mb-1">/ 5</span>
+        <div className="space-y-16">
+            {/* Consolidated Media Block with Elite Styling */}
+            <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="relative group/master"
+            >
+                <div className="absolute -inset-[1px] bg-gradient-to-b from-white/10 to-transparent rounded-none opacity-50 pointer-events-none" />
+                <div className="relative glass-card-pro bg-[#0a1120]/90 rounded-none border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.4)] overflow-hidden">
+
+                    {/* Block Header with Scanline and Metallic Look */}
+                    <div className="px-10 md:px-14 py-10 border-b border-white/5 flex flex-col lg:flex-row justify-between items-center gap-10 bg-gradient-to-b from-white/[0.03] to-transparent relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent animate-shimmer" />
+
+                        <div className="relative z-10 flex items-center gap-8">
+                            <div className="w-16 h-16 rounded-none bg-gradient-to-br from-cyan-600/80 to-blue-500/80 p-[1px] shadow-[0_0_25px_rgba(6,182,212,0.2)] group-hover/master:shadow-[0_0_40px_rgba(6,182,212,0.4)] transition-all duration-1000">
+                                <div className="w-full h-full rounded-[inherit] bg-[#070b14] flex items-center justify-center text-cyan-400">
+                                    <FaRegObjectGroup className="text-2xl animate-spin-slow" />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <span className="text-cyan-500 font-bold uppercase tracking-[0.6em] text-[12px] block ml-1">Asset Orchestration System</span>
+                                <h3 className="text-5xl md:text-6xl font-black text-white uppercase tracking-tighter leading-none">
+                                    Pasarela <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-300 to-cyan-500">Multimedia</span>
+                                </h3>
                             </div>
                         </div>
-                        <div className="bg-white/5 border border-white/10 px-6 py-3 rounded-2xl flex flex-col gap-1">
-                            <span className="text-[9px] text-white/40 uppercase font-bold tracking-widest">Videos activos</span>
-                            <div className="flex items-end gap-2">
-                                <span className={`text-2xl font-black ${videoItems.length >= 5 ? 'text-emerald-400' : 'text-blue-500'}`}>{videoItems.length}</span>
-                                <span className="text-white/20 font-bold mb-1">/ 5</span>
+
+                        <div className="relative z-10 flex items-center gap-6">
+                            <div className="flex gap-4">
+                                <div className="group/stat bg-white/[0.02] border border-white/5 px-8 py-5 rounded-none flex flex-col gap-1 min-w-[140px] hover:border-emerald-500/30 transition-all duration-500">
+                                    <span className="text-[9px] text-white/20 uppercase font-black tracking-[0.3em]">Still Imagery</span>
+                                    <div className="flex items-end gap-2">
+                                        <span className="text-2xl font-black text-emerald-400/90 leading-none">{photoItems.length}</span>
+                                        <span className="text-white/5 font-mono text-[9px] mb-1">/ 05</span>
+                                    </div>
+                                </div>
+                                <div className="group/stat bg-white/[0.02] border border-white/5 px-8 py-5 rounded-none flex flex-col gap-1 min-w-[140px] hover:border-blue-500/30 transition-all duration-500">
+                                    <span className="text-[9px] text-white/20 uppercase font-black tracking-[0.3em]">Cinematics</span>
+                                    <div className="flex items-end gap-2">
+                                        <span className="text-2xl font-black text-blue-500/90 leading-none">{videoItems.length}</span>
+                                        <span className="text-white/5 font-mono text-[9px] mb-1">/ 05</span>
+                                    </div>
+                                </div>
                             </div>
+
+                            {(photoItems.length < 5 || videoItems.length < 5) && (
+                                <button
+                                    onClick={() => setShowAdd(!showAdd)}
+                                    className={`relative group/btn px-12 py-7 rounded-none font-black uppercase text-[12px] tracking-[0.4em] transition-all duration-700 flex items-center gap-5 overflow-hidden ${showAdd
+                                        ? "bg-white/5 text-white border border-white/10"
+                                        : "bg-blue-600 text-white shadow-[0_20px_50px_rgba(37,99,235,0.3)] hover:shadow-[0_25px_70px_rgba(37,99,235,0.5)] hover:-translate-y-1"
+                                        }`}
+                                >
+                                    {!showAdd && <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-white/10 to-blue-600/0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />}
+                                    {showAdd ? <FaPlus className="rotate-45 text-red-400" /> : <FaPlus className="text-white/80 group-hover:scale-125 transition-transform" />}
+                                    <span className="relative z-10">{showAdd ? "Close Uplink" : "Inject Asset"}</span>
+                                </button>
+                            )}
                         </div>
                     </div>
-                </div>
 
-                <div className="relative z-10">
-                    {(photoItems.length < 5 || videoItems.length < 5) && (
-                        <button
-                            onClick={() => setShowAdd(!showAdd)}
-                            className={`group relative overflow-hidden px-10 py-5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all duration-500 ${showAdd
-                                    ? "bg-white/5 text-white border border-white/10 hover:bg-white/10"
-                                    : "bg-blue-600 text-white shadow-[0_0_30px_rgba(37,99,235,0.3)] hover:shadow-[0_0_50px_rgba(37,99,235,0.5)] hover:-translate-y-1"
-                                }`}
-                        >
-                            <span className="flex items-center gap-3 relative z-10">
-                                {showAdd ? <FaPlus className="rotate-45" /> : <FaPlus />}
-                                {showAdd ? "Cerrar Panel" : "Añadir Nuevo Activo"}
-                            </span>
-                        </button>
-                    )}
-                </div>
-            </div>
-
-            <AnimatePresence>
-                {showAdd && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -20, scale: 0.98 }}
-                        className="glass-card-pro p-1 bg-[#0a0f1d] rounded-[3rem] border border-blue-500/20 shadow-2xl overflow-hidden"
-                    >
-                        <div className="grid lg:grid-cols-2">
-                            {/* Drop Zone */}
-                            <div className="p-10 bg-white/5 border-r border-white/5 relative group">
-                                <div className="absolute inset-0 bg-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                                <div className="flex items-center gap-3 mb-8">
-                                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-black">1</div>
-                                    <span className="text-white font-black uppercase tracking-widest text-[11px]">Subir Archivo de Origen</span>
-                                </div>
-                                <label className={`relative cursor-pointer h-56 rounded-[2rem] border-2 border-dashed border-white/10 hover:border-blue-500/50 transition-all flex flex-col items-center justify-center gap-4 bg-black/40 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                                    <div className="w-20 h-20 rounded-3xl bg-blue-600/10 flex items-center justify-center group-hover:bg-blue-600/20 transition-all">
-                                        {isUploading ? <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent animate-spin rounded-full" /> : <FaUpload className="text-blue-500 text-3xl" />}
+                    <AnimatePresence>
+                        {showAdd && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="overflow-hidden bg-[#070b14]/50 border-b border-white/5"
+                            >
+                                <div className="grid lg:grid-cols-2 p-4">
+                                    <div className="p-10">
+                                        <label className={`relative group/drop cursor-pointer h-72 rounded-none border border-white/5 hover:border-blue-500/30 transition-all duration-700 flex flex-col items-center justify-center gap-6 bg-black/40 overflow-hidden ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover/drop:opacity-100 transition-opacity" />
+                                            <div className="w-24 h-24 rounded-none bg-blue-600/5 border border-blue-500/10 flex items-center justify-center relative z-10 group-hover/drop:scale-110 group-hover/drop:border-blue-500/30 transition-all duration-700">
+                                                {isUploading ? <div className="w-10 h-10 border-2 border-blue-500 border-t-transparent animate-spin rounded-full shadow-[0_0_15px_rgba(37,99,235,0.5)]" /> : <FaUpload className="text-blue-500/60 text-4xl group-hover/drop:text-blue-400" />}
+                                            </div>
+                                            <div className="text-center relative z-10 space-y-2">
+                                                <p className="text-white font-black uppercase text-[12px] tracking-[0.2em]">{isUploading ? "Syncing..." : "Inject Multimedia"}</p>
+                                                <p className="text-white/10 font-mono text-[9px] uppercase tracking-widest mt-1">Accepts: RAW_JPG • PNG • MP4_ELITE</p>
+                                            </div>
+                                            <input type="file" className="hidden" onChange={handleFileUpload} accept="image/*,video/*" />
+                                        </label>
                                     </div>
-                                    <div className="text-center">
-                                        <p className="text-white font-black uppercase text-[11px] tracking-widest">{isUploading ? "Transfiriendo..." : "Seleccionar Multimedia"}</p>
-                                        <p className="text-white/30 font-bold text-[9px] uppercase mt-1 tracking-widest">Soporta JPG, PNG, MP4</p>
-                                    </div>
-                                    <input type="file" className="hidden" onChange={handleFileUpload} accept="image/*,video/*" />
-                                </label>
-                                {newItem.url && (
-                                    <div className="mt-4 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                        <span className="text-[10px] text-emerald-400 font-bold uppercase truncate">Asset ID: {newItem.url.split('/').pop()}</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Info Form */}
-                            <div className="p-10 space-y-8">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-black">2</div>
-                                    <span className="text-white font-black uppercase tracking-widest text-[11px]">Metadatos del Proyecto</span>
-                                </div>
-
-                                <div className="space-y-6">
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase text-white/40 tracking-[0.2em] ml-1">Título Descriptivo</label>
-                                        <input
-                                            value={newItem.title || ""}
-                                            onChange={(e) => setNewItem({ ...newItem, title: e.target.value })}
-                                            className="w-full bg-black/60 border border-white/5 rounded-2xl px-6 py-5 text-white font-bold outline-none focus:border-blue-500/50 transition-all placeholder:text-white/10"
-                                            placeholder="Ej: Master Plan Digital v1.0"
-                                        />
-                                    </div>
-
-                                    <div className="pt-4">
+                                    <div className="p-10 space-y-10 flex flex-col justify-center">
+                                        <div className="space-y-4 group/input">
+                                            <label className="text-[12px] font-black uppercase text-white/40 tracking-[0.4em] ml-2 group-focus-within/input:text-blue-400/50 transition-colors">Descriptor Protocol</label>
+                                            <div className="relative">
+                                                <input
+                                                    value={newItem.title || ""}
+                                                    onChange={(e) => setNewItem({ ...newItem, title: e.target.value })}
+                                                    className="w-full bg-black/40 border border-white/5 rounded-none px-8 py-6 text-white font-bold outline-none focus:border-blue-500/30 transition-all duration-500 placeholder:text-white/5 text-[14px] shadow-inner"
+                                                    placeholder="Assign meta title..."
+                                                />
+                                                <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/30 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity" />
+                                            </div>
+                                        </div>
                                         <button
                                             onClick={handleSave}
                                             disabled={!newItem.url}
-                                            className={`w-full py-6 rounded-2xl font-black uppercase text-xs tracking-[0.4em] flex items-center justify-center gap-4 transition-all duration-500 ${newItem.url
-                                                    ? "bg-gradient-to-r from-blue-700 to-blue-600 text-white shadow-[0_15px_40px_rgba(37,99,235,0.2)] hover:shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:-translate-y-1"
-                                                    : "bg-white/5 text-white/20 grayscale cursor-not-allowed"
+                                            className={`group/save w-full py-7 rounded-none font-black uppercase text-[12px] tracking-[0.5em] flex items-center justify-center gap-6 transition-all duration-700 relative overflow-hidden ${newItem.url
+                                                ? "bg-gradient-to-r from-blue-800 to-blue-700 text-white shadow-[0_25px_60px_rgba(37,99,235,0.2)] hover:shadow-[0_30px_80px_rgba(37,99,235,0.4)] hover:-translate-y-1"
+                                                : "bg-white/5 text-white/5 grayscale cursor-not-allowed"
                                                 }`}
                                         >
-                                            Integrar a la Pasarela <FaChevronRight className="text-[10px]" />
+                                            {newItem.url && <div className="absolute inset-0 bg-white/5 animate-pulse" />}
+                                            <span className="relative z-10">Authorize Integration</span>
+                                            <FaChevronRight className="text-[10px] relative z-10 group-hover/save:translate-x-2 transition-transform" />
                                         </button>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
-            {/* --- GRID VIEW SaaS --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {(mediaItems || []).map((item, idx) => (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        key={item.id}
-                        className="group bg-[#0a0f1d] rounded-[2rem] border border-white/5 hover:border-blue-500/40 transition-all duration-500 overflow-hidden shadow-xl"
-                    >
-                        <div className="aspect-video relative overflow-hidden bg-black/60">
-                            {item.type === 'video' ? (
-                                <div className="w-full h-full flex items-center justify-center relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-blue-600/5 group-hover:bg-blue-600/10 transition-colors" />
-                                    <FaPlayCircle className="text-blue-500 text-5xl relative z-10 group-hover:scale-110 transition-transform duration-500" />
-                                    <div className="absolute bottom-3 right-3 text-[9px] font-black uppercase bg-blue-600 px-3 py-1 rounded-full text-white">Video</div>
+                    {/* Elite Grid Area */}
+                    <div className="p-10 md:p-14">
+                        {mediaItems.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-10">
+                                {mediaItems.map((item, idx) => (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: idx * 0.05 }}
+                                        key={item.id}
+                                        className="group relative bg-[#070b14] rounded-none border border-white/5 hover:border-blue-500/40 transition-all duration-700 overflow-hidden shadow-2xl flex flex-col"
+                                    >
+                                        <div className="aspect-[4/5] relative overflow-hidden bg-black/60">
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-700 z-10" />
+
+                                            {item.type === 'video' ? (
+                                                <div className="w-full h-full relative group/vid">
+                                                    <video
+                                                        src={item.url}
+                                                        className="w-full h-full object-cover opacity-40 group-hover:opacity-100 transition-all duration-1000 group-hover:scale-105"
+                                                        muted
+                                                        autoPlay
+                                                        loop
+                                                        playsInline
+                                                    />
+                                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover/vid:opacity-0 transition-opacity duration-700 z-20">
+                                                        <div className="w-12 h-12 rounded-none bg-blue-500/20 backdrop-blur-md border border-blue-500/30 flex items-center justify-center">
+                                                            <FaPlayCircle className="text-blue-500/80 text-xl" />
+                                                        </div>
+                                                    </div>
+                                                    <div className="absolute top-4 right-4 text-[7px] font-black uppercase tracking-[0.2em] bg-blue-600 px-4 py-1.5 rounded-none text-white z-20 shadow-lg">Cinematic</div>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <Image
+                                                        src={item.url}
+                                                        alt={item.title || "Elite Asset"}
+                                                        fill
+                                                        unoptimized
+                                                        className="object-cover opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all duration-1000"
+                                                    />
+                                                    <div className="absolute top-4 right-4 text-[7px] font-black uppercase tracking-[0.2em] bg-emerald-600 px-4 py-1.5 rounded-full text-white z-20 shadow-lg">Still</div>
+                                                </>
+                                            )}
+
+                                            <div className="absolute inset-x-0 bottom-0 p-6 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-700 flex flex-col gap-3 z-30">
+                                                <button
+                                                    onClick={() => item.id && handleDelete(item.id)}
+                                                    className="w-full py-3 bg-red-500/10 backdrop-blur-xl border border-red-500/30 text-red-500 rounded-sm flex items-center justify-center gap-3 hover:bg-red-500 hover:text-white transition-all font-black uppercase text-[8px] tracking-[0.2em]"
+                                                >
+                                                    <FaTrash className="text-xs" /> Purge Asset
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-6 flex-1 flex flex-col justify-center relative bg-gradient-to-b from-[#0a1120] to-[#070b14]">
+                                            <div className="flex flex-col gap-1.5 overflow-hidden">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 rounded-none bg-blue-500/30" />
+                                                    <h4 className="text-white font-black text-[10px] uppercase tracking-[0.2em] truncate group-hover:text-blue-400 transition-colors">{item.title || "ANONYMOUS_ACT"}</h4>
+                                                </div>
+                                                <div className="flex items-center gap-2 pl-3.5">
+                                                    <span className="text-white/5 font-mono text-[7px] uppercase tracking-tighter">DATA:</span>
+                                                    <p className="text-white/10 font-mono text-[7px] truncate tracking-tighter uppercase">{item.url.split('/').pop()}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="py-32 rounded-none border border-white/5 bg-white/[0.01] flex flex-col items-center justify-center text-center space-y-8 group/empty relative overflow-hidden">
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(37,99,235,0.05),transparent)] opacity-0 group-hover/empty:opacity-100 transition-opacity duration-1000" />
+                                <div className="w-24 h-24 rounded-sm bg-white/[0.02] border border-white/5 flex items-center justify-center text-4xl text-white/5 group-hover/empty:scale-110 group-hover/empty:text-blue-500/20 transition-all duration-700 relative z-10">
+                                    <FaImages />
                                 </div>
-                            ) : (
-                                <>
-                                    <img src={item.url} alt={item.title || ""} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" />
-                                    <div className="absolute bottom-3 right-3 text-[9px] font-black uppercase bg-emerald-600 px-3 py-1 rounded-full text-white">Imagen</div>
-                                </>
-                            )}
-
-                            {/* Action Overlay */}
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                                <button
-                                    onClick={() => item.id && handleDelete(item.id)}
-                                    className="w-12 h-12 bg-red-500/20 border border-red-500/50 text-red-500 rounded-2xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 duration-500"
-                                >
-                                    <FaTrash />
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="p-6 space-y-4">
-                            <div className="flex justify-between items-start">
-                                <div className="space-y-1 overflow-hidden">
-                                    <h4 className="text-white font-black text-xs uppercase tracking-widest truncate">{item.title || "ASSET_UNNAMED"}</h4>
-                                    <p className="text-white/20 font-mono text-[9px] truncate">{item.url}</p>
+                                <div className="space-y-2 relative z-10">
+                                    <p className="text-white/50 font-black uppercase tracking-[0.5em] text-[11px]">System Repository Empty</p>
+                                    <p className="text-white/10 text-[9px] font-bold uppercase tracking-widest max-w-[200px] mx-auto leading-relaxed">No multimedia nodes synchronized with current protocol.</p>
                                 </div>
+                                {!showAdd && (
+                                    <button
+                                        onClick={() => setShowAdd(true)}
+                                        className="relative z-10 px-12 py-5 bg-white/5 border border-white/10 rounded-sm text-white/60 font-black uppercase text-[10px] tracking-[0.3em] hover:bg-white/10 hover:text-white transition-all duration-500 shadow-xl"
+                                    >
+                                        Initiate Handshake
+                                    </button>
+                                )}
                             </div>
-                        </div>
-                    </motion.div>
-                ))}
-
-                {(mediaItems || []).length === 0 && !showAdd && (
-                    <div className="col-span-full py-32 rounded-[3.5rem] border-2 border-dashed border-white/5 flex flex-col items-center justify-center text-center space-y-6">
-                        <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center text-4xl text-white/10">
-                            <FaImages />
-                        </div>
-                        <div className="space-y-2">
-                            <p className="text-white font-black uppercase tracking-[0.3em] text-[11px]">Repositorio Vacio</p>
-                            <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest">No hay activos vinculados a la pasarela</p>
-                        </div>
-                        <button onClick={() => setShowAdd(true)} className="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-white font-black uppercase text-[10px] tracking-widest hover:bg-white/10 transition-all">
-                            Iniciar Carga de Activos
-                        </button>
+                        )}
                     </div>
-                )}
-            </div>
+
+                    {/* Elite Footer Status */}
+                    <div className="px-14 py-8 bg-[#070b14]/80 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                        <div className="flex items-center gap-8">
+                            <div className="flex items-center gap-3">
+                                <div className="w-1.5 h-1.5 rounded-none bg-blue-500/40 animate-pulse shadow-[0_0_10px_rgba(37,99,235,0.4)]" />
+                                <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Protocol Capacity</span>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="h-0.5 w-12 bg-white/5 rounded-none overflow-hidden">
+                                    <div className="h-full bg-blue-500/50" style={{ width: `${(mediaItems.length / 10) * 100}%` }} />
+                                </div>
+                                <span className="text-[8px] font-mono text-white/10 uppercase tracking-tighter">{mediaItems.length} / 10 NODES</span>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4 text-white/5 font-mono text-[7px] tracking-widest uppercase overflow-hidden group/f">
+                            <span className="group-hover/f:text-blue-500 transition-colors">CLUSTER_STATUS: STABLE</span>
+                            <span className="group-hover/f:text-blue-500 transition-colors opacity-30">|</span>
+                            <span className="group-hover/f:text-blue-500 transition-colors">OPTIMIZATION: MAX</span>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
         </div>
     );
 }
