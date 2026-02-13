@@ -35,6 +35,31 @@ body {
     background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    isolation: isolate;
+}
+
+/* Premium Main Background Implementation */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: url("/img/dark-3d-background.webp");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -10;
+    pointer-events: none;
+}
+
+/* Professional Dark Overlay */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent 0%, rgba(1, 4, 19, 0.4) 100%),
+        linear-gradient(180deg, rgba(1, 4, 19, 0.7) 0%, rgba(1, 4, 19, 0.9) 100%);
+    z-index: -9;
+    pointer-events: none;
 }
 
 /* Glassmorphism Global Utils (Pro Level) */

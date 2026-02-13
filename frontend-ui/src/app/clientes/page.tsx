@@ -28,7 +28,21 @@ import {
   FaImages,
   FaPlayCircle,
   FaArrowLeft,
+  FaComments,
+  FaSearch,
+  FaPencilRuler,
+  FaCogs,
+  FaVial,
 } from "react-icons/fa";
+
+import {
+  HiOutlineChatBubbleLeftRight,
+  HiOutlineMagnifyingGlass,
+  HiOutlinePencilSquare,
+  HiOutlineCommandLine,
+  HiOutlineBeaker,
+  HiOutlineRocketLaunch
+} from "react-icons/hi2";
 
 /* ================= EXACT DATA FROM HTML ================= */
 
@@ -62,12 +76,54 @@ export default function ClientesPage() {
   ];
 
   const PROCESS_STEPS = [
-    { number: "01", title: "Consulta Inicial", description: "Reunión estratégica para entender tus objetivos, desafíos y visión del proyecto.", icon: "💬", duration: "1-2 días" },
-    { number: "02", title: "Análisis & Estrategia", description: "Investigación profunda, análisis competitivo y desarrollo de estrategia personalizada.", icon: "🔍", duration: "1-2 semanas" },
-    { number: "03", title: "Diseño & Prototipo", description: "Creación de wireframes, diseño UI/UX y prototipos interactivos para validación.", icon: "🎨", duration: "2-4 semanas" },
-    { number: "04", title: "Desarrollo", description: "Construcción del producto con metodología ágil y entregas incrementales.", icon: "⚙️", duration: "8-16 semanas" },
-    { number: "05", title: "Testing & QA", description: "Pruebas exhaustivas de funcionalidad, rendimiento, seguridad y experiencia.", icon: "✅", duration: "2-3 semanas" },
-    { number: "06", title: "Lanzamiento & Soporte", description: "Implementación en producción, monitoreo continuo y soporte dedicado 24/7.", icon: "🚀", duration: "Ongoing" }
+    {
+      number: "01",
+      title: "Consulta Inicial",
+      description: "Reunión estratégica para entender tus objetivos, desafíos y visión del proyecto.",
+      extra: "Definimos alcance, prioridades y oportunidades de mejora para asegurar una base sólida.",
+      icon: <HiOutlineChatBubbleLeftRight />,
+      duration: "1-2 días"
+    },
+    {
+      number: "02",
+      title: "Análisis & Estrategia",
+      description: "Investigación profunda, análisis competitivo y desarrollo de estrategia personalizada.",
+      extra: "Nos enfocamos en el estudio del mercado, identificación de oportunidades y definición técnica clara.",
+      icon: <HiOutlineMagnifyingGlass />,
+      duration: "1-2 semanas"
+    },
+    {
+      number: "03",
+      title: "Diseño & Prototipo",
+      description: "Creación de wireframes, diseño UI/UX y prototipos interactivos para validación.",
+      extra: "Realizamos validación temprana con una experiencia centrada totalmente en el usuario final.",
+      icon: <HiOutlinePencilSquare />,
+      duration: "2-4 semanas"
+    },
+    {
+      number: "04",
+      title: "Desarrollo",
+      description: "Construcción del producto con metodología ágil y entregas incrementales.",
+      extra: "Implementamos una arquitectura escalable siguiendo las mejores prácticas y optimización continua.",
+      icon: <HiOutlineCommandLine />,
+      duration: "8-16 semanas"
+    },
+    {
+      number: "05",
+      title: "Testing & QA",
+      description: "Pruebas exhaustivas de funcionalidad, rendimiento, seguridad y experiencia.",
+      extra: "Ejecutamos pruebas automatizadas y un control de calidad riguroso en cada etapa del desarrollo.",
+      icon: <HiOutlineBeaker />,
+      duration: "2-3 semanas"
+    },
+    {
+      number: "06",
+      title: "Lanzamiento & Soporte",
+      description: "Implementación operativa y monitoreo de impacto real.",
+      extra: "Ofrecemos monitoreo proactivo y acompañamiento estratégico post-lanzamiento.",
+      icon: <HiOutlineRocketLaunch />,
+      duration: "Continuo"
+    }
   ];
 
   const COMPARISONS = [
@@ -430,11 +486,15 @@ export default function ClientesPage() {
           <div className="section-header">
             <FadeInUp>
               <h2 className="section-title">Casos de Éxito Destacados</h2>
-              <p className="section-subtitle">
-                Selecciona un sector y revisa resultados reales con métricas de negocio.
-                Tecnología de punta aplicada a desafíos complejos de la industria.
+              <p className="section-description">
+                Empresas y negocios que confiaron en nuestra ingeniería digital para mejorar su gestión,
+                optimizar procesos y crecer de manera sostenible. Cada colaboración refleja soluciones prácticas,
+                diseñadas a la medida de pequeñas y medianas empresas que buscan profesionalizar y potenciar su operación.
               </p>
-              <div className="section-divider" />
+              <div className="section-divider" style={{ marginBottom: '2rem' }} />
+              <p className="section-subtitle">
+                Selecciona un sector y revisa resultados reales con métricas de negocio. Tecnología de punta aplicada a desafíos complejos de la industria.
+              </p>
             </FadeInUp>
           </div>
 
@@ -548,33 +608,76 @@ export default function ClientesPage() {
         </div>
       </section>
 
-      {/* 6. PROCESS SECTION */}
-      <section className="py-32 px-6 bg-white/[0.02]">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-24">
+      {/* 6. PROCESS SECTION (CORPORATE REDESIGN) */}
+      <section className="corporate-process-section py-24 px-6 relative overflow-hidden">
+        {/* High-Fidelity SVG Wavy Background */}
+        <div className="wavy-bg-svg-container">
+          <svg viewBox="0 0 1440 800" preserveAspectRatio="none" className="wavy-svg">
+            <defs>
+              <linearGradient id="waveGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#5b7a8a" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="#2c3e50" stopOpacity="0.9" />
+              </linearGradient>
+              <linearGradient id="waveGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#4d5c66" stopOpacity="0.7" />
+                <stop offset="100%" stopColor="#141e26" stopOpacity="0.95" />
+              </linearGradient>
+              <linearGradient id="waveGrad3" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#1a2a33" stopOpacity="1" />
+                <stop offset="100%" stopColor="#0d141a" stopOpacity="1" />
+              </linearGradient>
+            </defs>
+
+            <rect width="1440" height="800" fill="#0f172a" />
+
+            {/* Path 1: Top-Right Sweep */}
+            <path d="M1440 0C1100 0 800 200 600 500C400 800 100 800 0 800V0H1440Z" fill="url(#waveGrad1)" opacity="0.6" />
+
+            {/* Path 2: Bottom-Left Sweep */}
+            <path d="M0 800C300 800 600 600 800 300C1000 0 1300 0 1440 0V800H0Z" fill="url(#waveGrad2)" opacity="0.8" />
+
+            {/* Path 3: Bottom Accent */}
+            <path d="M1440 800C1100 800 900 600 700 700C500 800 200 800 0 700V800H1440Z" fill="url(#waveGrad3)" />
+          </svg>
+        </div>
+
+        <div className="max-w-7xl mx-auto z-10 relative">
+          <div className="text-center mb-16">
             <FadeInUp>
-              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 italic uppercase">Como Trabajamos</h2>
-              <p className="text-slate-400 max-w-2xl mx-auto">Una metodologia clara, escalable y orientada a resultados medibles.</p>
+              <h2 className="section-title">Como Trabajamos</h2>
+              <p className="section-description">
+                Aplicamos un proceso estructurado y orientado a resultados que permite a pequeñas y medianas empresas implementar tecnología con claridad, control y crecimiento sostenible.
+              </p>
             </FadeInUp>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+          <div className="corporate-grid">
             {PROCESS_STEPS.map((step, i) => (
-              <FadeInUp key={i} delay={i * 0.1}>
-                <div className="relative overflow-hidden p-10 rounded-[2.5rem] border border-cyan-400/15 bg-[linear-gradient(145deg,rgba(8,13,26,0.96),rgba(14,24,47,0.86))] min-h-[370px] flex flex-col justify-between group transition-all duration-500 hover:-translate-y-2 hover:border-cyan-300/35 hover:shadow-[0_20px_34px_rgba(8,145,178,0.16)]">
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.18),transparent_55%)]" />
-                  <div>
-                    <div className="relative z-10 flex items-center justify-between mb-6">
-                      <div className="text-5xl transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6">{step.icon}</div>
-                      <div className="text-5xl font-black text-cyan-400/15">{step.number}</div>
-                    </div>
-                    <h3 className="relative z-10 text-2xl font-bold text-white mb-3">{step.title}</h3>
-                    <p className="relative z-10 text-slate-300 leading-relaxed text-base">{step.description}</p>
-                  </div>
-                  <div className="relative z-10 inline-block px-5 py-2 bg-cyan-500/15 text-cyan-200 rounded-full text-[10px] font-black uppercase tracking-widest self-start border border-cyan-300/25">
-                    {step.duration}
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="step-card group"
+              >
+                <div className="step-header">
+                  <div className="watermark">{step.number}</div>
+                  <div className="icon-circle">
+                    {step.icon}
                   </div>
                 </div>
-              </FadeInUp>
+
+                <div className="step-content">
+                  <h3 className="step-title">{step.title}</h3>
+                  <p className="step-desc">{step.description}</p>
+                  <p className="step-extra">{step.extra}</p>
+                </div>
+
+                <div className="step-footer">
+                  <span className="duration-tag">{step.duration}</span>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -585,7 +688,7 @@ export default function ClientesPage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-20">
             <FadeInUp>
-              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 italic uppercase">Por Que Elegirnos</h2>
+              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 uppercase">Por Que Elegirnos</h2>
               <p className="text-slate-400">Comparacion directa de performance, calidad y soporte.</p>
             </FadeInUp>
           </div>
@@ -596,17 +699,19 @@ export default function ClientesPage() {
                 <div className="hidden md:block h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
                 <span className="text-cyan-300 font-black uppercase text-xs tracking-[0.28em]">Nuestra solucion</span>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {COMPARISONS.map((comp, i) => (
-                  <div key={i} className="flex items-center gap-5 p-5 rounded-2xl border border-white/10 bg-white/[0.02] group hover:border-cyan-300/30 hover:bg-[#0f1b32] transition-all">
-                    <div className="text-3xl w-14 text-center">{comp.icon}</div>
-                    <div className="flex-1 grid grid-cols-3 items-center gap-3">
-                      <span className="text-right text-white/30 line-through text-sm font-bold uppercase">{comp.before}</span>
-                      <FaArrowRight className="mx-auto text-cyan-300 group-hover:translate-x-1 transition-transform" />
-                      <span className="text-left text-white font-black text-lg uppercase tracking-tight">{comp.after}</span>
+                  <div key={i} className="comparison-card group">
+                    <div className="text-3xl w-12 flex justify-center">{comp.icon}</div>
+                    <div className="flex-1 grid grid-cols-3 items-center gap-4">
+                      <span className="text-right text-white/20 line-through text-[11px] font-bold uppercase tracking-wider">{comp.before}</span>
+                      <div className="flex justify-center">
+                        <FaArrowRight className="text-cyan-400/50 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all duration-300" />
+                      </div>
+                      <span className="text-left text-white font-black text-base uppercase tracking-tight">{comp.after}</span>
                     </div>
-                    <div className="w-44 text-right">
-                      <span className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-200/60 group-hover:text-cyan-200">{comp.label}</span>
+                    <div className="w-40 text-right">
+                      <span className="text-[9px] font-black uppercase tracking-[0.2em] text-cyan-400/40 group-hover:text-cyan-400 transition-colors">{comp.label}</span>
                     </div>
                   </div>
                 ))}
@@ -620,7 +725,7 @@ export default function ClientesPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-24">
             <FadeInUp>
-              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 italic uppercase">Nuestro Trabajo en Acción</h2>
+              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 uppercase">Nuestro Trabajo en Acción</h2>
               <p className="text-gray-500">Explora una selección de nuestros proyectos más destacados.</p>
             </FadeInUp>
           </div>
@@ -645,7 +750,7 @@ export default function ClientesPage() {
       <section className="py-32 px-6">
         <div className="max-w-7xl mx-auto text-center">
           <FadeInUp>
-            <h2 className="text-5xl font-bold text-white tracking-tighter mb-24 italic uppercase">Reconocidos Globalmente</h2>
+            <h2 className="text-5xl font-bold text-white tracking-tighter mb-24 uppercase">Reconocidos Globalmente</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
               {AWARDS.map((award, i) => (
                 <div key={i} className="glass-effect p-10 rounded-[2.5rem] border border-white/5 transition-all hover:translate-y-[-10px] hover:border-indigo-500/30 flex flex-col items-center justify-center">
@@ -665,7 +770,7 @@ export default function ClientesPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-24">
             <FadeInUp>
-              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 italic uppercase">Voces de Éxito</h2>
+              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 uppercase">Voces de Éxito</h2>
               <div className="w-24 h-1 bg-indigo-500 mx-auto rounded-full" />
             </FadeInUp>
           </div>
@@ -674,7 +779,7 @@ export default function ClientesPage() {
               <FadeInUp key={i} delay={i * 0.15}>
                 <div className="glass-effect p-16 rounded-[4rem] border border-white/10 relative group hover:border-indigo-500/30 transition-all">
                   <div className="text-7xl text-indigo-500/20 absolute top-10 right-10 leading-none">"</div>
-                  <p className="text-xl text-white/90 italic font-medium leading-relaxed mb-12 relative z-10">
+                  <p className="text-xl text-white/90 font-medium leading-relaxed mb-12 relative z-10">
                     {client.testimonial}
                   </p>
                   <div className="flex items-center gap-6 border-t border-white/5 pt-10">
@@ -700,7 +805,7 @@ export default function ClientesPage() {
             <div className="inline-block px-6 py-2 bg-indigo-500/10 border border-indigo-500/50 rounded-full mb-8">
               <span className="text-[10px] font-black tracking-[0.4em] uppercase text-indigo-400">🎥 Historias de Éxito en Video</span>
             </div>
-            <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 italic uppercase">Vea la Transformación en Realidad</h2>
+            <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 uppercase">Vea la Transformación en Realidad</h2>
             <p className="text-gray-400 mb-20 max-w-2xl mx-auto">Escucha directamente de nuestros clientes cómo transformamos sus negocios.</p>
           </FadeInUp>
 
@@ -721,8 +826,8 @@ export default function ClientesPage() {
                     </div>
                   </div>
                   <div className="p-10 text-left">
-                    <h3 className="text-xl font-bold text-white mb-2 uppercase italic">{video.company}</h3>
-                    <p className="text-gray-500 text-sm italic mb-8">"{video.quote}"</p>
+                    <h3 className="text-xl font-bold text-white mb-2 uppercase">{video.company}</h3>
+                    <p className="text-gray-500 text-sm mb-8">"{video.quote}"</p>
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-2xl border border-white/5">{video.logo}</div>
                       <div>
@@ -744,7 +849,7 @@ export default function ClientesPage() {
           <FadeInUp>
             <div className="text-center mb-16">
               <div className="text-6xl mb-8">💬</div>
-              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 italic uppercase">Hablemos de Tu Proyecto</h2>
+              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 uppercase">Hablemos de Tu Proyecto</h2>
               <p className="text-gray-500">Cuéntanos tu visión y te mostraremos cómo hacerla realidad.</p>
             </div>
             <form className="glass-effect p-12 md:p-20 rounded-[4rem] border border-white/10 space-y-8">
@@ -790,7 +895,7 @@ export default function ClientesPage() {
           <FadeInUp>
             <div className="text-center mb-16">
               <div className="text-5xl mb-8">⭐</div>
-              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 italic uppercase">Comparte Tu Experiencia</h2>
+              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 uppercase">Comparte Tu Experiencia</h2>
               <p className="text-gray-500">Tu opinión nos ayuda a mejorar cada día.</p>
             </div>
             <div className="glass-effect p-12 md:p-20 rounded-[4rem] border border-white/10 text-center">
@@ -822,8 +927,8 @@ export default function ClientesPage() {
         <div className="max-w-5xl mx-auto text-center relative z-10 text-white">
           <FadeInUp>
             <div className="text-8xl mb-8 floating-anim">🚀</div>
-            <h2 className="text-6xl font-bold tracking-tighter mb-8 italic uppercase leading-none">¿Listo para Ser Nuestro Próximo Caso de Éxito?</h2>
-            <p className="text-2xl font-medium opacity-80 mb-16 max-w-2xl mx-auto italic">Únete a las empresas líderes que ya están transformando sus industrias con nosotros.</p>
+            <h2 className="text-6xl font-bold tracking-tighter mb-8 uppercase leading-none">¿Listo para Ser Nuestro Próximo Caso de Éxito?</h2>
+            <p className="text-2xl font-medium opacity-80 mb-16 max-w-2xl mx-auto">Únete a las empresas líderes que ya están transformando sus industrias con nosotros.</p>
             <button className="btn-elite px-20 py-8 bg-white text-indigo-600 rounded-full font-black uppercase tracking-[0.4em] text-sm shadow-2xl hover:scale-110">
               Iniciar Proyecto
             </button>
