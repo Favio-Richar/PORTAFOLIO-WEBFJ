@@ -61,8 +61,10 @@ class Proyecto(SQLModel, table=True):
     demo_url: str
     repo_url: str
     stack: str # JSON list
+    results: Optional[str] = "{}" # JSON string mapping for metrics
     deployment_date: Optional[str] = None
     client_name: Optional[str] = None
+    year: Optional[str] = "2024"
 
 
 

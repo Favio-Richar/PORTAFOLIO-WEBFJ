@@ -21,288 +21,217 @@ import {
   FaBuilding,
   FaTools,
   FaBullseye,
+  FaTrophy,
+  FaLightbulb,
+  FaPalette,
+  FaHardHat,
+  FaImages,
+  FaPlayCircle,
+  FaArrowLeft,
 } from "react-icons/fa";
 
 /* ================= EXACT DATA FROM HTML ================= */
 
-const INDUSTRIES = ['todos', 'tecnología', 'finanzas', 'salud', 'retail', 'educación'];
+const INDUSTRIES = ['todos', 'tecnología', 'finanzas', 'salud', 'retail', 'educación', 'construcción'];
 
-const CLIENTS = [
-  {
-    id: 1,
-    name: "TechCorp Global",
-    industry: "tecnología",
-    logo: "🚀",
-    description: "Transformación digital completa de sistemas legacy",
-    results: { revenue: "+245%", users: "2M+", satisfaction: "98%" },
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop",
-    testimonial: "La mejor decisión que tomamos fue trabajar con este equipo. Revolucionaron completamente nuestra infraestructura.",
-    author: "Sarah Johnson",
-    role: "CTO, TechCorp Global",
-    year: "2023",
-    services: ["Desarrollo Web", "Cloud Architecture", "DevOps"],
-    timeline: [
-      { phase: "Análisis", duration: "2 semanas", status: "completed" },
-      { phase: "Desarrollo", duration: "3 meses", status: "completed" },
-      { phase: "Implementación", duration: "1 mes", status: "completed" },
-      { phase: "Optimización", duration: "Ongoing", status: "active" }
-    ],
-    metrics: [
-      { label: "Tiempo de Carga", before: "4.5s", after: "0.8s", improvement: 82 },
-      { label: "Conversión", before: "2.3%", after: "5.8%", improvement: 152 },
-      { label: "Usuarios Activos", before: "50K", after: "2M", improvement: 3900 }
-    ]
-  },
-  {
-    id: 2,
-    name: "FinanceHub Pro",
-    industry: "finanzas",
-    logo: "💎",
-    description: "Plataforma de inversión con IA y análisis en tiempo real",
-    results: { transactions: "$2.5B", clients: "150K+", uptime: "99.99%" },
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop",
-    testimonial: "Nuestra plataforma ahora procesa millones de transacciones diarias sin problemas. Impresionante trabajo.",
-    author: "Michael Chen",
-    role: "CEO, FinanceHub Pro",
-    year: "2023",
-    services: ["Fintech Development", "Security", "AI Integration"],
-    timeline: [
-      { phase: "Research", duration: "3 semanas", status: "completed" },
-      { phase: "MVP", duration: "2 meses", status: "completed" },
-      { phase: "Testing", duration: "1 mes", status: "completed" },
-      { phase: "Scale", duration: "Ongoing", status: "active" }
-    ],
-    metrics: [
-      { label: "Transacciones/seg", before: "100", after: "10,000", improvement: 9900 },
-      { label: "Tiempo Respuesta", before: "2.1s", after: "0.3s", improvement: 86 },
-      { label: "Satisfacción Cliente", before: "78%", after: "96%", improvement: 23 }
-    ]
-  },
-  {
-    id: 3,
-    name: "HealthCare Plus",
-    industry: "salud",
-    logo: "🏥",
-    description: "Sistema de gestión hospitalaria y telemedicina",
-    results: { patients: "500K+", appointments: "1M+", efficiency: "+180%" },
-    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=600&fit=crop",
-    testimonial: "Han mejorado drásticamente la experiencia de nuestros pacientes y la eficiencia de nuestro personal médico.",
-    author: "Dr. Emma Williams",
-    role: "Director Médico, HealthCare Plus",
-    year: "2023",
-    services: ["Healthcare IT", "Telemedicina", "HIPAA Compliance"],
-    timeline: [
-      { phase: "Diagnóstico", duration: "1 mes", status: "completed" },
-      { phase: "Desarrollo", duration: "4 meses", status: "completed" },
-      { phase: "Piloto", duration: "2 meses", status: "completed" },
-      { phase: "Expansión", duration: "Ongoing", status: "active" }
-    ],
-    metrics: [
-      { label: "Tiempo de Espera", before: "45min", after: "12min", improvement: 73 },
-      { label: "Citas Online", before: "15%", after: "78%", improvement: 420 },
-      { label: "Satisfacción", before: "72%", after: "94%", improvement: 31 }
-    ]
-  },
-  {
-    id: 4,
-    name: "RetailMax",
-    industry: "retail",
-    logo: "🛍️",
-    description: "E-commerce omnicanal con experiencia personalizada",
-    results: { sales: "+320%", cart: "+85%", retention: "89%" },
-    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=600&fit=crop",
-    testimonial: "Nuestras ventas online se triplicaron en 6 meses. La plataforma es simplemente espectacular.",
-    author: "Laura Martinez",
-    role: "VP Marketing, RetailMax",
-    year: "2022",
-    services: ["E-commerce", "UX/UI Design", "Marketing Automation"],
-    timeline: [
-      { phase: "Estrategia", duration: "2 semanas", status: "completed" },
-      { phase: "Diseño", duration: "1 mes", status: "completed" },
-      { phase: "Desarrollo", duration: "2.5 meses", status: "completed" },
-      { phase: "Growth", duration: "Ongoing", status: "active" }
-    ],
-    metrics: [
-      { label: "Tasa Conversión", before: "1.8%", after: "5.2%", improvement: 189 },
-      { label: "Valor Pedido", before: "$45", after: "$89", improvement: 98 },
-      { label: "Retención", before: "42%", after: "89%", improvement: 112 }
-    ]
-  },
-  {
-    id: 5,
-    name: "EduLearn Academy",
-    industry: "educación",
-    logo: "🎓",
-    description: "Plataforma educativa con gamificación y AI tutoring",
-    results: { students: "750K+", completion: "94%", engagement: "+450%" },
-    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=600&fit=crop",
-    testimonial: "La plataforma ha revolucionado la forma en que enseñamos. Los estudiantes están más comprometidos que nunca.",
-    author: "Prof. David Rodriguez",
-    role: "Director Académico, EduLearn",
-    year: "2023",
-    services: ["EdTech", "Gamificación", "AI Learning"],
-    timeline: [
-      { phase: "Investigación", duration: "3 semanas", status: "completed" },
-      { phase: "Prototipo", duration: "1.5 meses", status: "completed" },
-      { phase: "Beta", duration: "2 meses", status: "completed" },
-      { phase: "Escala", duration: "Ongoing", status: "active" }
-    ],
-    metrics: [
-      { label: "Tasa Finalización", before: "58%", after: "94%", improvement: 62 },
-      { label: "Tiempo Estudio", before: "2.5h/sem", after: "8h/sem", improvement: 220 },
-      { label: "Satisfacción", before: "68%", after: "97%", improvement: 43 }
-    ]
-  },
-  {
-    id: 6,
-    name: "GreenEnergy Solutions",
-    industry: "tecnología",
-    logo: "⚡",
-    description: "IoT y monitoreo inteligente de energía renovable",
-    results: { energy: "500MW", reduction: "-65% CO2", efficiency: "+210%" },
-    image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&h=600&fit=crop",
-    testimonial: "La tecnología IoT nos permite optimizar cada panel solar en tiempo real. Resultados extraordinarios.",
-    author: "Ana Fernández",
-    role: "CTO, GreenEnergy",
-    year: "2023",
-    services: ["IoT", "Data Analytics", "Sustainability Tech"],
-    timeline: [
-      { phase: "Audit", duration: "2 semanas", status: "completed" },
-      { phase: "IoT Setup", duration: "3 meses", status: "completed" },
-      { phase: "Integration", duration: "1 mes", status: "completed" },
-      { phase: "Optimize", duration: "Ongoing", status: "active" }
-    ],
-    metrics: [
-      { label: "Eficiencia", before: "68%", after: "91%", improvement: 34 },
-      { label: "Downtime", before: "12%", after: "1.2%", improvement: 90 },
-      { label: "ROI", before: "5 años", after: "2.1 años", improvement: 58 }
-    ]
+export default function ClientesPage() {
+
+  const GLOBAL_STATS = [
+    { number: "200+", label: "Clientes Globales", icon: <FaGlobeAmericas className="text-cyan-300" /> },
+    { number: "$2.5B+", label: "Revenue Generado", icon: <FaChartLine className="text-blue-300" /> },
+    { number: "99.8%", label: "Tasa de Éxito", icon: <FaShieldAlt className="text-emerald-300" /> },
+    { number: "24/7", label: "Soporte Dedicado", icon: <FaHeadset className="text-sky-300" /> }
+  ];
+
+  const GLOBAL_RESULTS = [
+    { number: "850+", label: "Proyectos Completados", icon: <FaCheckCircle className="text-emerald-400" />, description: "En 50+ países", trend: "+127% YoY" },
+    { number: "$4.8B", label: "Revenue Cliente Generado", icon: <FaChartLine className="text-blue-400" />, description: "Impacto económico total", trend: "+215% crecimiento" },
+    { number: "98.9%", label: "Satisfacción Cliente", icon: <FaStar className="text-yellow-400" />, description: "Promedio de calificación", trend: "4.9/5.0 estrellas" },
+    { number: "15", label: "Industrias Atendidas", icon: <FaBuilding className="text-sky-400" />, description: "Experiencia diversa", trend: "Tech, Finance, Health+" },
+    { number: "2.3M", label: "Usuarios Finales", icon: <FaGlobeAmericas className="text-indigo-400" />, description: "Alcance global", trend: "+340% engagement" },
+    { number: "92%", label: "Retención Clientes", icon: <FaShieldAlt className="text-emerald-400" />, description: "Relaciones a largo plazo", trend: "Promedio 4.2 años" }
+  ];
+
+  const IMPACT_CARD_THEMES = [
+    { border: "border-emerald-300/30", glow: "shadow-[0_0_36px_rgba(16,185,129,0.22)]", value: "from-emerald-200 to-cyan-300" },
+    { border: "border-sky-300/30", glow: "shadow-[0_0_36px_rgba(56,189,248,0.24)]", value: "from-sky-200 to-indigo-300" },
+    { border: "border-violet-300/30", glow: "shadow-[0_0_36px_rgba(139,92,246,0.24)]", value: "from-violet-200 to-fuchsia-300" },
+    { border: "border-cyan-300/30", glow: "shadow-[0_0_36px_rgba(34,211,238,0.24)]", value: "from-cyan-200 to-blue-300" },
+    { border: "border-blue-300/30", glow: "shadow-[0_0_36px_rgba(59,130,246,0.24)]", value: "from-blue-200 to-indigo-300" },
+    { border: "border-teal-300/30", glow: "shadow-[0_0_36px_rgba(20,184,166,0.24)]", value: "from-teal-200 to-cyan-300" },
+  ];
+
+  const PROCESS_STEPS = [
+    { number: "01", title: "Consulta Inicial", description: "Reunión estratégica para entender tus objetivos, desafíos y visión del proyecto.", icon: "💬", duration: "1-2 días" },
+    { number: "02", title: "Análisis & Estrategia", description: "Investigación profunda, análisis competitivo y desarrollo de estrategia personalizada.", icon: "🔍", duration: "1-2 semanas" },
+    { number: "03", title: "Diseño & Prototipo", description: "Creación de wireframes, diseño UI/UX y prototipos interactivos para validación.", icon: "🎨", duration: "2-4 semanas" },
+    { number: "04", title: "Desarrollo", description: "Construcción del producto con metodología ágil y entregas incrementales.", icon: "⚙️", duration: "8-16 semanas" },
+    { number: "05", title: "Testing & QA", description: "Pruebas exhaustivas de funcionalidad, rendimiento, seguridad y experiencia.", icon: "✅", duration: "2-3 semanas" },
+    { number: "06", title: "Lanzamiento & Soporte", description: "Implementación en producción, monitoreo continuo y soporte dedicado 24/7.", icon: "🚀", duration: "Ongoing" }
+  ];
+
+  const COMPARISONS = [
+    { label: "Tiempo de Desarrollo", before: "6-12 meses", after: "2-4 meses", icon: "⏱️" },
+    { label: "Coste del Proyecto", before: "Alto presupuesto", after: "Optimizado -40%", icon: "💰" },
+    { label: "Calidad del Código", before: "Estándar", after: "Enterprise-grade", icon: "💻" },
+    { label: "Soporte Post-lanzamiento", before: "Limitado", after: "24/7 Dedicado", icon: "🛡️" },
+    { label: "Escalabilidad", before: "Limitada", after: "Ilimitada", icon: "📈" }
+  ];
+
+  const PROJECT_GALLERY = [
+    { title: "Dashboard Analytics", category: "UI/UX", client: "TechCorp", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" },
+    { title: "Mobile Banking App", category: "FinTech", client: "FinanceHub", image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&h=400&fit=crop" },
+    { title: "E-commerce Platform", category: "Retail", client: "RetailMax", image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop" },
+    { title: "Healthcare Portal", category: "HealthTech", client: "HealthCare Plus", image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=400&fit=crop" },
+    { title: "Learning Platform", category: "EdTech", client: "EduLearn", image: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&h=400&fit=crop" },
+    { title: "IoT Dashboard", category: "Technology", client: "GreenEnergy", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" }
+  ];
+
+  const AWARDS = [
+    { title: "Best Digital Agency 2023", organization: "Tech Awards Global", icon: <FaTrophy className="text-yellow-400" />, year: "2023" },
+    { title: "Innovation Excellence", organization: "Digital Innovation Summit", icon: <FaLightbulb className="text-orange-400" />, year: "2023" },
+    { title: "Top 10 Development Firms", organization: "Industry Leaders Magazine", icon: <FaStar className="text-sky-400" />, year: "2023" },
+    { title: "Customer Satisfaction Award", organization: "Client Success Institute", icon: <FaBullseye className="text-emerald-400" />, year: "2023" },
+    { title: "Excellence in Design", organization: "UX Design Awards", icon: <FaPalette className="text-purple-400" />, year: "2022" },
+    { title: "Best Fintech Solution", organization: "Financial Technology Forum", icon: <FaGem className="text-cyan-400" />, year: "2022" }
+  ];
+
+  const VIDEO_TESTIMONIALS = [
+    { company: "TechCorp Global", author: "Sarah Johnson", role: "CTO, TechCorp", logo: <FaRocket className="text-sky-400" />, quote: "La transformación digital que necesitábamos", url: "https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0" },
+    { company: "FinanceHub Pro", author: "Michael Chen", role: "CEO, FinanceHub", logo: <FaUniversity className="text-emerald-400" />, quote: "Crecimiento exponencial con AI", url: "https://www.youtube.com/embed/jNQXAC9IVRw?rel=0" },
+    { company: "HealthCare Plus", author: "Dr. Emma Williams", role: "Director Médico", logo: <FaHospital className="text-red-400" />, quote: "Mejorando la experiencia del paciente", url: "https://www.youtube.com/embed/9bZkp7q19f0?rel=0" },
+    { company: "RetailMax", author: "Laura Martinez", role: "VP Marketing", logo: <FaShoppingBag className="text-orange-400" />, quote: "E-commerce que vende 24/7", url: "https://www.youtube.com/embed/OPf0YbXqDm0?rel=0" },
+    { company: "EduLearn Academy", author: "Prof. David R.", role: "Director Académico", logo: <FaGraduationCap className="text-purple-400" />, quote: "Educación gamificada y personalizada", url: "https://www.youtube.com/embed/xfzgJ5dRJl4?rel=0" },
+    { company: "GreenEnergy Solutions", author: "Ana Fernández", role: "CTO, GreenEnergy", logo: <FaBolt className="text-yellow-400" />, quote: "IoT para energía sostenible", url: "https://www.youtube.com/embed/FrXWUjD7uZ4?rel=0" }
+  ];
+
+  const HERO_BACKGROUND_FALLBACK = [
+    {
+      type: "image",
+      url: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=2400&h=1400&fit=crop",
+      alt: "Equipo colaborando en sala de estrategia",
+    },
+    {
+      type: "video",
+      url: "https://cdn.coverr.co/videos/coverr-working-on-a-laptop-1579/1080p.mp4",
+    },
+    {
+      type: "image",
+      url: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=2400&h=1400&fit=crop",
+      alt: "Reunion ejecutiva con dashboards",
+    },
+  ];
+  const CLIENTS_HERO_TAG = "[clients-hero]";
+  const INDUSTRY_ICON_RAIL = [
+    { icon: <FaBullseye />, color: "#EF4444", glow: "rgba(239,68,68,0.38)", label: "Estrategia" },
+    { icon: <FaTools />, color: "#94A3B8", glow: "rgba(148,163,184,0.35)", label: "Ingenieria" },
+    { icon: <FaRocket />, color: "#3B82F6", glow: "rgba(59,130,246,0.38)", label: "Lanzamiento" },
+    { icon: <FaGem />, color: "#06B6D4", glow: "rgba(6,182,212,0.38)", label: "Premium" },
+    { icon: <FaHospital />, color: "#EC4899", glow: "rgba(236,72,153,0.36)", label: "Salud" },
+    { icon: <FaShoppingBag />, color: "#0EA5E9", glow: "rgba(14,165,233,0.36)", label: "Retail" },
+    { icon: <FaGraduationCap />, color: "#8B5CF6", glow: "rgba(139,92,246,0.36)", label: "Educacion" },
+    { icon: <FaBolt />, color: "#F59E0B", glow: "rgba(245,158,11,0.38)", label: "Energia" },
+    { icon: <FaUniversity />, color: "#A78BFA", glow: "rgba(167,139,250,0.36)", label: "Finanzas" },
+    { icon: <FaBuilding />, color: "#22C55E", glow: "rgba(34,197,94,0.36)", label: "Enterprise" },
+  ];
+
+  /* ================= COMPONENTS ================= */
+
+  function FadeInUp({ children, delay = 0 }: any) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay, ease: "easeOut" }}
+      >
+        {children}
+      </motion.div>
+    );
   }
-];
 
-const GLOBAL_STATS = [
-  { number: "200+", label: "Clientes Globales", icon: <FaGlobeAmericas className="text-cyan-300" /> },
-  { number: "$2.5B+", label: "Revenue Generado", icon: <FaChartLine className="text-blue-300" /> },
-  { number: "99.8%", label: "Tasa de Éxito", icon: <FaShieldAlt className="text-emerald-300" /> },
-  { number: "24/7", label: "Soporte Dedicado", icon: <FaHeadset className="text-sky-300" /> }
-];
-
-const GLOBAL_RESULTS = [
-  { number: "850+", label: "Proyectos Completados", icon: "✅", description: "En 50+ países", trend: "+127% YoY" },
-  { number: "$4.8B", label: "Revenue Cliente Generado", icon: "📈", description: "Impacto económico total", trend: "+215% crecimiento" },
-  { number: "98.9%", label: "Satisfacción Cliente", icon: "🌟", description: "Promedio de calificación", trend: "4.9/5.0 estrellas" },
-  { number: "15", label: "Industrias Atendidas", icon: "🏢", description: "Experiencia diversa", trend: "Tech, Finance, Health+" },
-  { number: "2.3M", label: "Usuarios Finales", icon: "👥", description: "Alcance global", trend: "+340% engagement" },
-  { number: "92%", label: "Retención Clientes", icon: "🔄", description: "Relaciones a largo plazo", trend: "Promedio 4.2 años" }
-];
-
-const IMPACT_CARD_THEMES = [
-  { border: "border-emerald-300/30", glow: "shadow-[0_0_36px_rgba(16,185,129,0.22)]", value: "from-emerald-200 to-cyan-300" },
-  { border: "border-sky-300/30", glow: "shadow-[0_0_36px_rgba(56,189,248,0.24)]", value: "from-sky-200 to-indigo-300" },
-  { border: "border-violet-300/30", glow: "shadow-[0_0_36px_rgba(139,92,246,0.24)]", value: "from-violet-200 to-fuchsia-300" },
-  { border: "border-cyan-300/30", glow: "shadow-[0_0_36px_rgba(34,211,238,0.24)]", value: "from-cyan-200 to-blue-300" },
-  { border: "border-blue-300/30", glow: "shadow-[0_0_36px_rgba(59,130,246,0.24)]", value: "from-blue-200 to-indigo-300" },
-  { border: "border-teal-300/30", glow: "shadow-[0_0_36px_rgba(20,184,166,0.24)]", value: "from-teal-200 to-cyan-300" },
-];
-
-const PROCESS_STEPS = [
-  { number: "01", title: "Consulta Inicial", description: "Reunión estratégica para entender tus objetivos, desafíos y visión del proyecto.", icon: "💬", duration: "1-2 días" },
-  { number: "02", title: "Análisis & Estrategia", description: "Investigación profunda, análisis competitivo y desarrollo de estrategia personalizada.", icon: "🔍", duration: "1-2 semanas" },
-  { number: "03", title: "Diseño & Prototipo", description: "Creación de wireframes, diseño UI/UX y prototipos interactivos para validación.", icon: "🎨", duration: "2-4 semanas" },
-  { number: "04", title: "Desarrollo", description: "Construcción del producto con metodología ágil y entregas incrementales.", icon: "⚙️", duration: "8-16 semanas" },
-  { number: "05", title: "Testing & QA", description: "Pruebas exhaustivas de funcionalidad, rendimiento, seguridad y experiencia.", icon: "✅", duration: "2-3 semanas" },
-  { number: "06", title: "Lanzamiento & Soporte", description: "Implementación en producción, monitoreo continuo y soporte dedicado 24/7.", icon: "🚀", duration: "Ongoing" }
-];
-
-const COMPARISONS = [
-  { label: "Tiempo de Desarrollo", before: "6-12 meses", after: "2-4 meses", icon: "⏱️" },
-  { label: "Coste del Proyecto", before: "Alto presupuesto", after: "Optimizado -40%", icon: "💰" },
-  { label: "Calidad del Código", before: "Estándar", after: "Enterprise-grade", icon: "💻" },
-  { label: "Soporte Post-lanzamiento", before: "Limitado", after: "24/7 Dedicado", icon: "🛡️" },
-  { label: "Escalabilidad", before: "Limitada", after: "Ilimitada", icon: "📈" }
-];
-
-const PROJECT_GALLERY = [
-  { title: "Dashboard Analytics", category: "UI/UX", client: "TechCorp", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" },
-  { title: "Mobile Banking App", category: "FinTech", client: "FinanceHub", image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&h=400&fit=crop" },
-  { title: "E-commerce Platform", category: "Retail", client: "RetailMax", image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop" },
-  { title: "Healthcare Portal", category: "HealthTech", client: "HealthCare Plus", image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=400&fit=crop" },
-  { title: "Learning Platform", category: "EdTech", client: "EduLearn", image: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&h=400&fit=crop" },
-  { title: "IoT Dashboard", category: "Technology", client: "GreenEnergy", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" }
-];
-
-const AWARDS = [
-  { title: "Best Digital Agency 2023", organization: "Tech Awards Global", icon: "🏆", year: "2023" },
-  { title: "Innovation Excellence", organization: "Digital Innovation Summit", icon: "💡", year: "2023" },
-  { title: "Top 10 Development Firms", organization: "Industry Leaders Magazine", icon: "⭐", year: "2023" },
-  { title: "Customer Satisfaction Award", organization: "Client Success Institute", icon: "🎯", year: "2023" },
-  { title: "Excellence in Design", organization: "UX Design Awards", icon: "🎨", year: "2022" },
-  { title: "Best Fintech Solution", organization: "Financial Technology Forum", icon: "💎", year: "2022" }
-];
-
-const VIDEO_TESTIMONIALS = [
-  { company: "TechCorp Global", author: "Sarah Johnson", role: "CTO, TechCorp", logo: "🚀", quote: "La transformación digital que necesitábamos", url: "https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0" },
-  { company: "FinanceHub Pro", author: "Michael Chen", role: "CEO, FinanceHub", logo: "💎", quote: "Crecimiento exponencial con AI", url: "https://www.youtube.com/embed/jNQXAC9IVRw?rel=0" },
-  { company: "HealthCare Plus", author: "Dr. Emma Williams", role: "Director Médico", logo: "🏥", quote: "Mejorando la experiencia del paciente", url: "https://www.youtube.com/embed/9bZkp7q19f0?rel=0" },
-  { company: "RetailMax", author: "Laura Martinez", role: "VP Marketing", logo: "🛍️", quote: "E-commerce que vende 24/7", url: "https://www.youtube.com/embed/OPf0YbXqDm0?rel=0" },
-  { company: "EduLearn Academy", author: "Prof. David R.", role: "Director Académico", logo: "🎓", quote: "Educación gamificada y personalizada", url: "https://www.youtube.com/embed/xfzgJ5dRJl4?rel=0" },
-  { company: "GreenEnergy Solutions", author: "Ana Fernández", role: "CTO, GreenEnergy", logo: "⚡", quote: "IoT para energía sostenible", url: "https://www.youtube.com/embed/FrXWUjD7uZ4?rel=0" }
-];
-
-const HERO_BACKGROUND_FALLBACK = [
-  {
-    type: "image",
-    url: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=2400&h=1400&fit=crop",
-    alt: "Equipo colaborando en sala de estrategia",
-  },
-  {
-    type: "video",
-    url: "https://cdn.coverr.co/videos/coverr-working-on-a-laptop-1579/1080p.mp4",
-  },
-  {
-    type: "image",
-    url: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=2400&h=1400&fit=crop",
-    alt: "Reunion ejecutiva con dashboards",
-  },
-];
-const CLIENTS_HERO_TAG = "[clients-hero]";
-const INDUSTRY_ICON_RAIL = [
-  { icon: <FaBullseye />, color: "#EF4444", glow: "rgba(239,68,68,0.38)", label: "Estrategia" },
-  { icon: <FaTools />, color: "#94A3B8", glow: "rgba(148,163,184,0.35)", label: "Ingenieria" },
-  { icon: <FaRocket />, color: "#3B82F6", glow: "rgba(59,130,246,0.38)", label: "Lanzamiento" },
-  { icon: <FaGem />, color: "#06B6D4", glow: "rgba(6,182,212,0.38)", label: "Premium" },
-  { icon: <FaHospital />, color: "#EC4899", glow: "rgba(236,72,153,0.36)", label: "Salud" },
-  { icon: <FaShoppingBag />, color: "#0EA5E9", glow: "rgba(14,165,233,0.36)", label: "Retail" },
-  { icon: <FaGraduationCap />, color: "#8B5CF6", glow: "rgba(139,92,246,0.36)", label: "Educacion" },
-  { icon: <FaBolt />, color: "#F59E0B", glow: "rgba(245,158,11,0.38)", label: "Energia" },
-  { icon: <FaUniversity />, color: "#A78BFA", glow: "rgba(167,139,250,0.36)", label: "Finanzas" },
-  { icon: <FaBuilding />, color: "#22C55E", glow: "rgba(34,197,94,0.36)", label: "Enterprise" },
-];
-
-/* ================= COMPONENTS ================= */
-
-function FadeInUp({ children, delay = 0 }: any) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.8, delay, ease: "easeOut" }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-export default function Clientes() {
   const [filter, setFilter] = useState("todos");
   const [selectedClient, setSelectedClient] = useState<any>(null);
+  const [liveClients, setLiveClients] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(0);
   const [heroMediaIdx, setHeroMediaIdx] = useState(0);
   const [heroBackgroundMedia, setHeroBackgroundMedia] = useState(HERO_BACKGROUND_FALLBACK);
   const [reviewSummary, setReviewSummary] = useState({ average: 4.9, total: 50 });
+  const [activeMediaIdx, setActiveMediaIdx] = useState(0); // For modal carousel
 
-  const filteredClients = filter === "todos" ? CLIENTS : CLIENTS.filter(c => c.industry === filter);
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const res = await fetch("http://localhost:8000/api/proyectos");
+        if (res.ok) {
+          const data = await res.json();
+          const normalized = data.map((c: any) => {
+            const industry = (c.category || "tecnología").toLowerCase();
+            let icon = <FaRocket />;
+            let color = "#0ea5e9";
+
+            if (industry === "finanzas") { icon = <FaUniversity />; color = "#10b981"; }
+            else if (industry === "salud") { icon = <FaHospital />; color = "#ef4444"; }
+            else if (industry === "retail") { icon = <FaShoppingBag />; color = "#f59e0b"; }
+            else if (industry === "educación") { icon = <FaGraduationCap />; color = "#8b5cf6"; }
+            else if (industry === "construcción") { icon = <FaHardHat />; color = "#fbbf24"; }
+            else if (c.title?.includes("GreenEnergy")) { icon = <FaBolt />; color = "#fbbf24"; }
+
+            // Consolidate all media (Hero Image, Hero Video, Gallery)
+            const gallery = typeof c.media === 'string' ? JSON.parse(c.media) : (c.media || []);
+            const allMedia = [];
+
+            // 1. Add Hero Video if exists
+            if (c.video_url) {
+              allMedia.push({ type: 'video', url: c.video_url });
+            }
+            // 2. Add Hero Image if exists
+            if (c.image_url) {
+              allMedia.push({ type: 'image', url: c.image_url });
+            }
+            // 3. Add Gallery items, avoiding duplicates with hero items
+            gallery.forEach((item: any) => {
+              if (item.url !== c.image_url && item.url !== c.video_url) {
+                allMedia.push(item);
+              }
+            });
+
+            return {
+              ...c,
+              name: c.title || c.name || "Sin título",
+              industry,
+              image: c.image_url || "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop",
+              logo: icon,
+              logoColor: color,
+              results: typeof c.results === 'string' ? JSON.parse(c.results) : (c.results || { revenue: "+100%", users: "10K+", satisfaction: "99%" }),
+              testimonial: (c.description || "Caso de éxito completado con excelencia.").replace(/["']/g, ""),
+              media: allMedia,
+              author: (c.client_name || c.name || "Client"),
+              role: "Partner",
+              year: c.year || "2024",
+              services: c.services || ["Consultoría", "Desarrollo", "Optimización"],
+              timeline: c.timeline || [
+                { phase: "Planeación", duration: "1 mes", status: "completed" },
+                { phase: "Ejecución", duration: "3 meses", status: "completed" }
+              ],
+              metrics: c.metrics || [
+                { label: "Eficiencia", before: "0%", after: "100%", improvement: 100 }
+              ]
+            };
+          });
+          setLiveClients(normalized);
+        }
+      } catch (e) {
+        console.error("Error fetching projects", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProjects();
+  }, []);
+
+  const displayClients = (liveClients || []).filter(c => filter === "todos" || c.industry === filter);
 
   useEffect(() => {
     const loadHeroMedia = async () => {
@@ -494,82 +423,105 @@ export default function Clientes() {
       </section>
 
 
-      {/* 4. FILTER SECTION (Sticky) */}
-      <section className="sticky top-20 z-[100] py-8 px-6 backdrop-blur-2xl bg-[linear-gradient(180deg,rgba(3,8,23,0.92),rgba(3,8,23,0.82))] border-y border-cyan-400/10">
+      {/* 4. SUCCESS CASES SECTION (Includes Filter and Grid) */}
+      <section className="clients-cases-section">
         <div className="max-w-7xl mx-auto">
-          <div className="mx-auto w-fit flex flex-wrap justify-center gap-3 p-2 rounded-2xl bg-white/[0.03] border border-cyan-400/15 shadow-[0_0_20px_rgba(34,211,238,0.08)]">
-            {INDUSTRIES.map(ind => (
-              <button
-                key={ind}
-                onClick={() => setFilter(ind)}
-                className={`px-7 py-3 rounded-xl text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 border ${
-                  filter === ind
-                    ? "bg-gradient-to-r from-cyan-500 to-blue-500 border-cyan-300 text-white shadow-[0_8px_24px_rgba(56,189,248,0.35)] -translate-y-[1px]"
-                    : "bg-[#0b1426]/80 border-white/10 text-slate-300 hover:text-white hover:border-cyan-300/40 hover:bg-[#0f1a30]"
-                }`}
-              >
-                {ind}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 5. CASE STUDIES SECTION */}
-      <section className="py-28 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
+          {/* Section Header */}
+          <div className="section-header">
             <FadeInUp>
-              <h2 className="text-6xl font-bold text-white tracking-tighter mb-4 italic uppercase">Casos de Exito Destacados</h2>
-              <p className="text-slate-400 max-w-2xl mx-auto mb-6">Selecciona un sector y revisa resultados reales con metricas de negocio.</p>
-              <div className="w-24 h-2 bg-gradient-to-r from-cyan-400 to-blue-500 mx-auto rounded-full" />
+              <h2 className="section-title">Casos de Éxito Destacados</h2>
+              <p className="section-subtitle">
+                Selecciona un sector y revisa resultados reales con métricas de negocio.
+                Tecnología de punta aplicada a desafíos complejos de la industria.
+              </p>
+              <div className="section-divider" />
             </FadeInUp>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          {/* Tabs / Filter Menu */}
+          <div className="filter-tabs-container">
+            <FadeInUp delay={0.1}>
+              <div className="tabs-wrapper" role="tablist" aria-label="Categorías de casos de éxito">
+                {INDUSTRIES.map(ind => (
+                  <button
+                    key={ind}
+                    role="tab"
+                    aria-selected={filter === ind}
+                    onClick={() => setFilter(ind)}
+                    className={`filter-tab ${filter === ind ? 'active' : ''}`}
+                  >
+                    {ind}
+                  </button>
+                ))}
+              </div>
+            </FadeInUp>
+          </div>
+
+          {/* Grid of Cards */}
+          <div className="cases-grid">
             <AnimatePresence mode="popLayout">
-              {filteredClients.map((client, i) => (
+              {displayClients.map((client: any, i) => (
                 <motion.div
                   key={client.id}
                   layout
-                  initial={{ opacity: 0, scale: 0.95, y: 18 }}
+                  initial={{ opacity: 0, scale: 0.95, y: 15 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.45, delay: i * 0.08 }}
+                  transition={{ duration: 0.4, delay: i * 0.05 }}
+                  className="h-full"
                 >
-                  <div className="h-full flex flex-col group cursor-pointer rounded-[2.2rem] overflow-hidden border border-cyan-400/15 bg-[linear-gradient(160deg,rgba(8,14,28,0.95),rgba(13,23,45,0.85))] shadow-[0_24px_40px_rgba(0,0,0,0.35)] hover:border-cyan-300/40 transition-all duration-500" onClick={() => setSelectedClient(client)}>
-                    <div className="aspect-[4/3] relative overflow-hidden">
-                      <img src={client.image} alt={client.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-[0.4deg]" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#030712]/90 via-[#030712]/20 to-transparent opacity-90" />
-                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-cyan-500/15 border border-cyan-300/40 text-cyan-200">
+                  <div
+                    className="case-card group cursor-pointer"
+                    onClick={() => setSelectedClient(client)}
+                    style={{ '--brand-color': client.logoColor } as any}
+                  >
+                    {/* Card Image Wrapper */}
+                    <div className="card-image">
+                      <img
+                        src={client.image}
+                        alt={client.name}
+                        loading="lazy"
+                      />
+                      <div className="image-overlay" />
+                      <div className="category-chip">
                         {client.industry}
                       </div>
+
+                      {/* Technical Logo Overlay */}
+                      <div
+                        className="absolute top-4 left-4 w-11 h-11 bg-black/60 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-xl z-10 shadow-2xl"
+                        style={{ color: (client as any).logoColor || 'white' }}
+                      >
+                        {(client as any).logo}
+                      </div>
                     </div>
-                    <div className="p-8 md:p-9 flex-1 flex flex-col">
-                      <div className="flex items-start gap-5 mb-6">
-                        <div className="client-logo-viz mt-1">{client.logo}</div>
-                        <div>
-                          <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight">{client.name}</h3>
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{client.year}</span>
-                        </div>
+
+                    {/* Card Body */}
+                    <div className="card-content">
+                      <div className="card-header">
+                        <h3 className="client-name">{client.name}</h3>
+                        <div className="meta-info">Proyecto {client.year}</div>
                       </div>
 
-                      <p className="text-slate-300 text-base mb-7 leading-relaxed font-medium flex-1">"{client.description}"</p>
+                      <p className="card-quote">
+                        {client.description}
+                      </p>
 
-                      <div className="grid grid-cols-3 gap-3 mb-7">
-                        {Object.entries(client.results).map(([k, v]: any) => (
-                          <div key={k} className="bg-black/25 p-4 rounded-2xl text-center border border-white/10 transition-all group-hover:border-cyan-300/25 group-hover:bg-[#0f1a31]">
-                            <div className="text-xl md:text-2xl font-black text-white mb-1 tracking-tighter italic">{v}</div>
-                            <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{k}</div>
+                      {/* Micro Metrics Grid */}
+                      <div className="metrics-grid">
+                        {Object.entries(client.results).slice(0, 3).map(([key, value]: any) => (
+                          <div key={key} className="metric-item">
+                            <div className="metric-value">{value}</div>
+                            <div className="metric-label">{key}</div>
                           </div>
                         ))}
                       </div>
 
-                      <div className="flex justify-end items-center pt-6 border-t border-white/10">
-                        <span className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] bg-cyan-500/12 border border-cyan-300/40 text-cyan-200 group-hover:bg-cyan-500/20 group-hover:text-white transition-all">
+                      <div className="card-footer">
+                        <button className="view-detail-btn">
                           Ver detalle
-                          <span className="text-sm">?</span>
-                        </span>
+                          <FaArrowRight />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -577,6 +529,22 @@ export default function Clientes() {
               ))}
             </AnimatePresence>
           </div>
+
+          {/* Pagination Counter */}
+          <FadeInUp delay={0.3}>
+            <div className="pagination-container">
+              <div className="page-counter">
+                <div className="counter-label">
+                  Página <span>1</span> DE 1
+                </div>
+                <div className="counter-nav">
+                  <div className="nav-dot active" />
+                  <div className="nav-dot" />
+                  <div className="nav-dot" />
+                </div>
+              </div>
+            </div>
+          </FadeInUp>
         </div>
       </section>
 
@@ -702,7 +670,7 @@ export default function Clientes() {
             </FadeInUp>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {CLIENTS.slice(0, 3).map((client, i) => (
+            {displayClients.slice(0, 3).map((client: any, i) => (
               <FadeInUp key={i} delay={i * 0.15}>
                 <div className="glass-effect p-16 rounded-[4rem] border border-white/10 relative group hover:border-indigo-500/30 transition-all">
                   <div className="text-7xl text-indigo-500/20 absolute top-10 right-10 leading-none">"</div>
@@ -870,82 +838,197 @@ export default function Clientes() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[2000] flex items-center justify-center p-6"
+            className="fixed inset-0 bg-[#050a18] z-[2000] flex flex-col overflow-hidden"
             onClick={() => setSelectedClient(null)}
           >
             <motion.div
-              initial={{ scale: 0.9, y: 50 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 50 }}
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "100%", opacity: 0 }}
+              transition={{ type: "spring", damping: 30, stiffness: 200 }}
               onClick={(e) => e.stopPropagation()}
-              className="glass-effect p-12 md:p-24 rounded-[4rem] border border-white/20 max-w-6xl w-full max-h-[90vh] overflow-y-auto relative"
+              className="bg-[#050a18] w-full h-full relative flex flex-col"
             >
-              <button onClick={() => setSelectedClient(null)} className="absolute top-10 right-10 w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-white/20 hover:text-white transition-all text-2xl">✕</button>
-
-              <div className="flex flex-col md:flex-row gap-16 items-start mb-20">
-                <div className="text-9xl filter drop-shadow-[0_0_30px_rgba(99,102,241,0.5)]">{selectedClient.logo}</div>
-                <div>
-                  <h2 className="text-6xl text-white font-bold uppercase italic tracking-tighter mb-6">{selectedClient.name}</h2>
-                  <div className="flex gap-4">
-                    <span className="bg-indigo-500/20 text-indigo-400 px-8 py-2 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-500/30">{selectedClient.industry}</span>
-                    <span className="bg-white/5 text-white/50 px-8 py-2 rounded-full text-xs font-black uppercase tracking-widest border border-white/10">{selectedClient.year}</span>
+              {/* Sticky Header inside Modal */}
+              <div className="p-8 md:p-12 border-b border-white/5 flex justify-between items-center bg-[#050a18]/80 backdrop-blur-md sticky top-0 z-10">
+                <div className="flex items-center gap-8">
+                  <div
+                    className="text-5xl md:text-6xl filter drop-shadow-[0_0_20px_rgba(14,165,233,0.3)] bg-white/5 w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center border border-white/10"
+                    style={{ color: selectedClient.logoColor || 'white' }}
+                  >
+                    {selectedClient.logo}
+                  </div>
+                  <div>
+                    <h2 className="text-3xl md:text-5xl text-white font-900 uppercase tracking-tight mb-2 leading-none">{selectedClient.name}</h2>
+                    <div className="flex gap-3">
+                      <span className="bg-sky-500/10 text-sky-400 px-4 py-1.5 rounded-full text-[10px] font-900 uppercase tracking-widest border border-sky-500/20">{selectedClient.industry}</span>
+                      <span className="bg-white/5 text-white/40 px-4 py-1.5 rounded-full text-[10px] font-900 uppercase tracking-widest border border-white/10">Proyecto {selectedClient.year}</span>
+                    </div>
                   </div>
                 </div>
+                <button
+                  onClick={() => setSelectedClient(null)}
+                  className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all text-xl border border-white/10"
+                >
+                  ✕
+                </button>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-20">
-                <div className="space-y-12">
-                  <div>
-                    <h4 className="text-indigo-400 text-xs font-black uppercase tracking-[0.4em] mb-8">El Desafío</h4>
-                    <p className="text-gray-300 text-2xl italic leading-relaxed font-medium">"{selectedClient.testimonial}"</p>
+              {/* Scrollable Content - Dashboard Grid */}
+              <div className="flex-1 overflow-y-auto p-12 md:p-20">
+                <div className="max-w-[1600px] mx-auto">
+                  <div className="modal-dashboard-grid">
+                    {/* FEATURED MEDIA (PASARELA) - SIDE BY SIDE ON DESKTOP */}
+                    <div className="hero-cell media-pasarela">
+                      <div className="main-media-viewer">
+                        {(() => {
+                          const currentMedia = (selectedClient.media && selectedClient.media.length > 0)
+                            ? selectedClient.media[activeMediaIdx]
+                            : { url: selectedClient.image, type: 'image' };
+
+                          if (currentMedia?.type === 'video') {
+                            return (
+                              <video key={currentMedia.url} autoPlay muted loop playsInline className="w-full h-full object-cover">
+                                <source src={currentMedia.url} type="video/mp4" />
+                              </video>
+                            );
+                          }
+                          return <img key={currentMedia?.url} src={currentMedia?.url} alt={selectedClient.name} className="w-full h-full object-cover" />;
+                        })()}
+
+                        {/* Media Navigation Overlay */}
+                        {selectedClient.media && selectedClient.media.length > 1 && (
+                          <div className="media-nav-overlay">
+                            <button
+                              onClick={() => setActiveMediaIdx(prev => (prev - 1 + selectedClient.media.length) % selectedClient.media.length)}
+                              className="nav-btn prev"
+                            >
+                              <FaArrowLeft />
+                            </button>
+                            <button
+                              onClick={() => setActiveMediaIdx(prev => (prev + 1) % selectedClient.media.length)}
+                              className="nav-btn next"
+                            >
+                              <FaArrowRight />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Mini Thumbnail Strip */}
+                      {selectedClient.media && selectedClient.media.length > 1 && (
+                        <div className="media-thumbnail-strip">
+                          {selectedClient.media.map((m: any, idx: number) => (
+                            <div
+                              key={idx}
+                              className={`mini-thumb ${idx === activeMediaIdx ? 'active' : ''}`}
+                              onClick={() => setActiveMediaIdx(idx)}
+                            >
+                              {m.type === 'video' ? (
+                                <video
+                                  src={m.url}
+                                  className="w-full h-full object-cover"
+                                  preload="metadata"
+                                  muted
+                                />
+                              ) : (
+                                <img
+                                  src={m.url}
+                                  alt={`thumbnail-${idx}`}
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=200&h=150&fit=crop';
+                                  }}
+                                />
+                              )}
+                              {m.type === 'video' && <div className="video-badge"><FaPlayCircle /></div>}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* PROJECT VISION CELL - BOX-LESS (MINIMALIST) */}
+                    <div className="vision-cell minimalist-detail">
+                      <div className="cell-header">
+                        <span className="cell-title">Visión del Proyecto</span>
+                        <div className="cell-line" />
+                      </div>
+                      <p className="text-white text-3xl md:text-5xl leading-[1.2] font-900 mb-12 tracking-tighter">
+                        "{selectedClient.testimonial}"
+                      </p>
+                      <div className="flex items-center gap-6 p-8 bg-white/5 rounded-[2rem] border border-white/10 backdrop-blur-xl">
+                        <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-5xl border border-white/10 shadow-2xl" style={{ color: selectedClient.logoColor }}>
+                          {selectedClient.logo}
+                        </div>
+                        <div>
+                          <div className="text-lg font-900 text-white uppercase tracking-[0.2em] mb-1">{selectedClient.author}</div>
+                          <div className="text-sm font-bold text-sky-400 uppercase tracking-[0.3em] opacity-80">{selectedClient.role}</div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-6">
-                    <h4 className="text-indigo-400 text-xs font-black uppercase tracking-[0.4em] mb-8">Servicios</h4>
-                    <div className="grid grid-cols-1 gap-4">
-                      {selectedClient.services.map((s: any) => (
-                        <div key={s} className="flex items-center gap-6 p-6 bg-white/5 rounded-3xl border border-white/5">
-                          <FaCheckCircle className="text-indigo-500 text-2xl" />
-                          <span className="text-white font-black uppercase tracking-widest text-xs">{s}</span>
+
+                  {/* METRICS CELL - MINIMALIST */}
+                  <div className="metrics-cell minimalist-section">
+                    <div className="cell-header">
+                      <span className="cell-title">Impacto en Negocio</span>
+                      <div className="cell-line" />
+                    </div>
+                    <div className="space-y-6">
+                      {selectedClient.metrics.map((m: any, idx: number) => (
+                        <div key={idx} className="p-6 bg-white/3 rounded-2xl border border-white/5 hover:border-sky-500/20 transition-all">
+                          <div className="flex justify-between items-center mb-4">
+                            <span className="text-[10px] font-900 text-white/40 uppercase tracking-widest">{m.label}</span>
+                            <span className="text-xs font-900 text-sky-400 bg-sky-500/10 px-3 py-1 rounded-full">+{m.improvement}%</span>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <span className="text-white/30 text-xs line-through">{m.before}</span>
+                            <FaArrowRight className="text-[10px] text-white/20" />
+                            <span className="text-2xl font-bold text-white uppercase tracking-tighter">{m.after}</span>
+                          </div>
                         </div>
                       ))}
                     </div>
                   </div>
-                </div>
-                <div className="space-y-12">
-                  <h4 className="text-indigo-400 text-xs font-black uppercase tracking-[0.4em] mb-8">Data Viz Performance</h4>
-                  <div className="space-y-10">
-                    {selectedClient.metrics.map((m: any, idx: number) => (
-                      <div key={idx} className="bg-white/5 p-10 rounded-[2.5rem] border border-white/5 relative overflow-hidden group">
-                        <div className="flex justify-between items-center mb-8">
-                          <span className="text-white font-black uppercase tracking-widest text-xs italic">{m.label}</span>
-                          <div className="px-6 py-2 bg-indigo-500 text-white rounded-full text-sm font-black italic">+{m.improvement}%</div>
+
+                  {/* SOLUTIONS CELL - MINIMALIST */}
+                  <div className="solutions-cell minimalist-section">
+                    <div className="cell-header">
+                      <span className="cell-title">Soluciones Aplicadas</span>
+                      <div className="cell-line" />
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {selectedClient.services.map((s: any) => (
+                        <div key={s} className="flex items-center gap-4 p-5 bg-white/2 rounded-2xl border border-white/5 hover:border-sky-500/30 transition-all">
+                          <FaCheckCircle className="text-sky-500 text-xl" />
+                          <span className="text-white/90 font-800 uppercase tracking-widest text-xs">{s}</span>
                         </div>
-                        <div className="flex items-center gap-10 mb-6">
-                          <div className="flex-1 text-right text-white/20 line-through text-xs font-black">{m.before}</div>
-                          <FaArrowRight className="text-indigo-500" />
-                          <div className="flex-1 text-left text-indigo-400 text-2xl font-black italic">{m.after}</div>
-                        </div>
-                        <div className="h-3 bg-white/5 rounded-full overflow-hidden">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            whileInView={{ width: `${Math.min(m.improvement, 100)}%` }}
-                            className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 shimmer-fill"
-                          />
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="pt-10">
-                    <h4 className="text-indigo-400 text-xs font-black uppercase tracking-[0.4em] mb-10">Cronograma de Ejecución</h4>
-                    <div className="timeline">
-                      {selectedClient.timeline.map((step: any, i: number) => (
-                        <div key={i} className="timeline-item">
-                          <div className="flex justify-between mb-2">
-                            <span className="text-xl text-white font-bold italic uppercase">{step.phase}</span>
-                            <span className={`text-[9px] font-black uppercase px-4 py-1 rounded-full ${step.status === 'completed' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-purple-500/20 text-purple-400 animate-pulse'}`}>{step.status}</span>
+                  {/* MULTIMEDIA GALLERY (Hidden as it's in pasarela) */}
+                  <div className="gallery-cell" />
+
+                  {/* TIMELINE CELL - MINIMALIST */}
+                  <div className="timeline-cell minimalist-section">
+                    <div className="cell-header">
+                      <span className="cell-title">Technical Timeline</span>
+                      <div className="cell-line" />
+                    </div>
+                    <div className="space-y-8">
+                      {selectedClient.timeline.map((step: any, idx: number) => (
+                        <div key={idx} className="flex justify-between items-center p-4 bg-white/2 rounded-2xl border border-white/5">
+                          <div className="flex items-center gap-4">
+                            <div className={`w-2 h-2 rounded-full ${step.status === 'completed' ? 'bg-sky-500' : 'bg-purple-500 animate-pulse'}`} />
+                            <div>
+                              <div className="text-xs font-900 text-white uppercase tracking-widest mb-1">{step.phase}</div>
+                              <div className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">{step.duration}</div>
+                            </div>
                           </div>
-                          <span className="text-xs text-gray-500 font-bold uppercase tracking-widest">{step.duration}</span>
+                          <span className={`text-[8px] font-900 uppercase px-3 py-1 rounded-full border ${step.status === 'completed' ? 'border-sky-500/30 text-sky-400 bg-sky-500/5' : 'border-purple-500/30 text-purple-400 bg-purple-500/5'}`}>
+                            {step.status}
+                          </span>
                         </div>
                       ))}
                     </div>

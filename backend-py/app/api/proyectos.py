@@ -20,8 +20,10 @@ class ProyectoCreate(BaseModel):
     demo_url: str
     repo_url: str
     stack: str # JSON list
+    results: Optional[str] = "{}"
     deployment_date: Optional[str] = None
     client_name: Optional[str] = None
+    year: Optional[str] = None
 
 class ProyectoUpdate(BaseModel):
     title: Optional[str] = None
@@ -35,8 +37,10 @@ class ProyectoUpdate(BaseModel):
     demo_url: Optional[str] = None
     repo_url: Optional[str] = None
     stack: Optional[str] = None
+    results: Optional[str] = None
     deployment_date: Optional[str] = None
     client_name: Optional[str] = None
+    year: Optional[str] = None
 
 @router.get("", response_model=List[Proyecto])
 def list_proyectos():
