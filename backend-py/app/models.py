@@ -67,6 +67,35 @@ class Proyecto(SQLModel, table=True):
     year: Optional[str] = "2024"
 
 
+# ========== CASOS DE ÉXITO (CLIENTES) ==========
+
+class CasoExito(SQLModel, table=True):
+    """Casos de éxito para la página de Clientes"""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    client_name: str  # Nombre del cliente
+    company_name: str  # Nombre de la empresa
+    industry: str  # Industria: finanzas, salud, retail, educación, construcción, tecnología
+    year: str = Field(default="2024")
+    website_url: Optional[str] = None  # URL de la web desplegada
+    logo_url: Optional[str] = None  # Logo del cliente
+    
+    # Contenido descriptivo
+    description: str  # Descripción detallada del caso de éxito
+    testimonial: Optional[str] = None  # Testimonio del cliente
+    
+    # Datos estructurados (JSON)
+    services: Optional[str] = "[]"  # JSON array: servicios aplicados
+    timeline: Optional[str] = "[]"  # JSON array: fases del proyecto
+    metrics: Optional[str] = "[]"  # JSON array: métricas de impacto
+    results: Optional[str] = "{}"  # JSON object: resultados resumidos (revenue, users, etc)
+    media: Optional[str] = "[]"  # JSON array: fotos y videos
+    
+    # Metadata
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = None
+
+
+
 
 # ========== CONTACTO ==========
 

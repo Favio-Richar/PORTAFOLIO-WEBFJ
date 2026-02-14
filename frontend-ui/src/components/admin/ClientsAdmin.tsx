@@ -23,17 +23,19 @@ interface GalleryItem {
 
 interface CaseStudy {
   id?: number;
-  title: string;
-  category: string;
+  client_name: string;
+  company_name: string;
+  industry: string;
+  year: string;
+  website_url: string;
+  logo_url: string;
   description: string;
-  image_url: string;
-  video_url: string;
+  testimonial: string;
   media: GalleryItem[];
-  client_name?: string;
-  status: string;
-  version: string;
+  services?: string;
+  timeline?: string;
+  metrics?: string;
   results?: string;
-  year?: string;
 }
 
 const CLIENTS_HERO_TAG = "[clients-hero]";
@@ -143,12 +145,14 @@ export default function ClientsAdmin() {
         }
       }
 
-      // Load Cases (Proyectos)
-      const casesRes = await fetch("http://localhost:8000/api/proyectos");
+      // Load Cases (Casos de Éxito)
+      const casesRes = await fetch("http://localhost:8000/api/casos-exito");
       if (casesRes.ok) {
         const data = await casesRes.json();
         setCases(data.map((c: any) => ({
           ...c,
+          title: c.company_name, // fallback for legacy display logic
+          category: c.industry,  // fallback for legacy display logic
           media: typeof c.media === 'string' ? JSON.parse(c.media) : (c.media || [])
         })));
       }
@@ -278,15 +282,19 @@ export default function ClientsAdmin() {
   // --- CASE STUDY CRUD ---
   const handleOpenNewCase = () => {
     setEditingCase({
-      title: "",
-      category: "Tecnología",
-      description: "",
-      image_url: "",
-      video_url: "",
-      media: [],
       client_name: "",
-      status: "Finalizado",
-      version: "1.0"
+      company_name: "",
+      industry: "Tecnología",
+      year: "2024",
+      website_url: "",
+      logo_url: "",
+      description: "",
+      testimonial: "",
+      media: [],
+      services: "[]",
+      timeline: "[]",
+      metrics: "[]",
+      results: "{}"
     });
     setIsCaseModalOpen(true);
   };
@@ -299,7 +307,7 @@ export default function ClientsAdmin() {
   const handleDeleteCase = async (id: number) => {
     if (!confirm("¿Eliminar este Caso de Éxito?")) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/proyectos/${id}`, { method: "DELETE" });
+      const res = await fetch(`http://localhost:8000/api/casos-exito/${id}`, { method: "DELETE" });
       if (res.ok) {
         await loadData();
       }
@@ -312,18 +320,17 @@ export default function ClientsAdmin() {
     if (!editingCase) return;
     try {
       const isNew = !editingCase.id;
-      const endpoint = isNew ? "http://localhost:8000/api/proyectos" : `http://localhost:8000/api/proyectos/${editingCase.id}`;
+      const endpoint = isNew ? "http://localhost:8000/api/casos-exito" : `http://localhost:8000/api/casos-exito/${editingCase.id}`;
       const method = isNew ? "POST" : "PUT";
 
       // Prepare payload
       const payload = {
         ...editingCase,
         media: JSON.stringify(editingCase.media),
-        results: editingCase.results || "{}",
-        year: editingCase.year || "2024",
-        stack: "[]", // Required by backend
-        demo_url: "#",
-        repo_url: "#"
+        services: editingCase.services || "[]",
+        timeline: editingCase.timeline || "[]",
+        metrics: editingCase.metrics || "[]",
+        results: editingCase.results || "{}"
       };
       if (isNew) delete (payload as any).id;
 
@@ -383,26 +390,29 @@ export default function ClientsAdmin() {
           </div>
 
           <div className="p-8 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cases.map((c) => (
-              <div key={c.id} className="bg-black/40 border border-white/10 rounded-3xl p-6 group hover:border-emerald-500/50 transition-all">
-                <div className="aspect-video rounded-2xl overflow-hidden mb-6 bg-white/5 relative">
-                  {c.image_url ? (
-                    <img src={c.image_url} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white/20 text-[10px] font-black uppercase">Sin Imagen</div>
-                  )}
-                  <div className="absolute top-4 right-4 flex gap-2">
-                    <button onClick={() => handleEditCase(c)} className="p-3 bg-black/60 text-white/50 hover:text-emerald-400 rounded-xl border border-white/10"><FaEdit /></button>
-                    <button onClick={() => handleDeleteCase(c.id!)} className="p-3 bg-black/60 text-white/50 hover:text-red-500 rounded-xl border border-white/10"><FaTrash /></button>
+            {cases.map((c) => {
+              const coverImage = c.media?.find(m => m.type === "image")?.url || c.logo_url;
+              return (
+                <div key={c.id} className="bg-black/40 border border-white/10 rounded-3xl p-6 group hover:border-emerald-500/50 transition-all">
+                  <div className="aspect-video rounded-2xl overflow-hidden mb-6 bg-white/5 relative">
+                    {coverImage ? (
+                      <img src={coverImage} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white/20 text-[10px] font-black uppercase">Sin Imagen</div>
+                    )}
+                    <div className="absolute top-4 right-4 flex gap-2">
+                      <button onClick={() => handleEditCase(c)} className="p-3 bg-black/60 text-white/50 hover:text-emerald-400 rounded-xl border border-white/10"><FaEdit /></button>
+                      <button onClick={() => handleDeleteCase(c.id!)} className="p-3 bg-black/60 text-white/50 hover:text-red-500 rounded-xl border border-white/10"><FaTrash /></button>
+                    </div>
+                  </div>
+                  <h4 className="text-white font-black uppercase text-lg tracking-tight mb-2">{c.company_name}</h4>
+                  <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+                    <span>{c.industry}</span>
+                    <span className="text-white/20">{c.media?.length || 0} Assets</span>
                   </div>
                 </div>
-                <h4 className="text-white font-black uppercase text-lg tracking-tight mb-2">{c.title}</h4>
-                <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-emerald-400">
-                  <span>{c.category}</span>
-                  <span className="text-white/20">{c.media?.length || 0} Assets</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       ) : (
@@ -608,9 +618,11 @@ function CaseModal({ item, onClose, onSave, onChange }: {
       const data = await res.json();
 
       if (target === "hero") {
-        onChange({ ...item, image_url: data.url });
+        onChange({ ...item, logo_url: data.url });
       } else if (target === "hero-video") {
-        onChange({ ...item, video_url: data.url });
+        // En CasoExito no hay hero-video separado, se mete en gallery
+        const newMedia: GalleryItem[] = [{ type: "video", url: data.url }, ...item.media];
+        onChange({ ...item, media: newMedia });
       } else {
         const type = (file.type.startsWith("video/") ? "video" : "image") as MediaType;
         const newMedia: GalleryItem[] = [...item.media, { type, url: data.url }];
@@ -645,36 +657,56 @@ function CaseModal({ item, onClose, onSave, onChange }: {
 
           <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Nombre del Cliente</label>
-              <input value={item.title} onChange={(e) => onChange({ ...item, title: e.target.value })} className="w-full bg-white/5 border border-white/10 p-5 rounded-none text-white outline-none focus:border-emerald-500" placeholder="E.g. GreenEnergy Solutions" />
+              <label className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Nombre de la Empresa</label>
+              <input value={item.company_name} onChange={(e) => onChange({ ...item, company_name: e.target.value })} className="w-full bg-white/5 border border-white/10 p-5 rounded-none text-white outline-none focus:border-emerald-500" placeholder="E.g. TechCorp Global" />
             </div>
             <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Industria</label>
-              <input value={item.category} onChange={(e) => onChange({ ...item, category: e.target.value })} className="w-full bg-white/5 border border-white/10 p-5 rounded-none text-white outline-none focus:border-emerald-500" placeholder="E.g. Energía / Tecnología" />
+              <label className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Nombre del Contacto/Cliente</label>
+              <input value={item.client_name} onChange={(e) => onChange({ ...item, client_name: e.target.value })} className="w-full bg-white/5 border border-white/10 p-5 rounded-none text-white outline-none focus:border-emerald-500" placeholder="E.g. Juan Pérez" />
             </div>
           </div>
 
-          {/* HERO MEDIA SETUP */}
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="space-y-3">
+              <label className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Industria</label>
+              <input value={item.industry} onChange={(e) => onChange({ ...item, industry: e.target.value })} className="w-full bg-white/5 border border-white/10 p-5 rounded-none text-white outline-none focus:border-emerald-500" placeholder="E.g. Finanzas" />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Año</label>
+              <input value={item.year} onChange={(e) => onChange({ ...item, year: e.target.value })} className="w-full bg-white/5 border border-white/10 p-5 rounded-none text-white outline-none focus:border-emerald-500" placeholder="2024" />
+            </div>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black uppercase tracking-widest text-[#0ea5e9]">URL Web Desplegada</label>
+              <input value={item.website_url} onChange={(e) => onChange({ ...item, website_url: e.target.value })} className="w-full bg-white/5 border border-white/10 p-5 rounded-none text-white outline-none focus:border-emerald-500" placeholder="https://..." />
+            </div>
+          </div>
+
+          {/* TESTIMONIAL */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-black uppercase tracking-widest text-fuchsia-400">Testimonio del Cliente</label>
+            <textarea value={item.testimonial} onChange={(e) => onChange({ ...item, testimonial: e.target.value })} className="w-full bg-white/5 border border-white/10 p-6 rounded-none text-white outline-none focus:border-fuchsia-500 min-h-[80px] resize-none" placeholder="Cita directa del cliente..." />
+          </div>
+
           <div className="grid md:grid-cols-2 gap-10">
-            {/* HERO IMAGE */}
+            {/* LOGO IMAGE */}
             <div className="space-y-5">
               <label className="text-[10px] font-black uppercase tracking-widest text-emerald-400 flex justify-between items-center">
-                Imagen Hero (Portada)
-                {item.image_url && <span className="text-white/20 text-[8px]">SUBIDO</span>}
+                Logo del Cliente
+                {item.logo_url && <span className="text-white/20 text-[8px]">SUBIDO</span>}
               </label>
               <div className="aspect-video bg-black/40 border border-white/10 rounded-none overflow-hidden relative group">
-                {item.image_url ? (
+                {item.logo_url ? (
                   <>
-                    <img src={item.image_url} className="w-full h-full object-cover group-hover:opacity-40 transition-all" />
+                    <img src={item.logo_url} className="w-full h-full object-contain p-4 group-hover:opacity-40 transition-all" />
                     <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all bg-black/40">
-                      <label className="p-4 bg-emerald-600 text-white rounded-full cursor-pointer hover:bg-emerald-500 shadow-xl" title="Cambiar Foto">
+                      <label className="p-4 bg-emerald-600 text-white rounded-full cursor-pointer hover:bg-emerald-500 shadow-xl" title="Cambiar Logo">
                         <FaUpload size={16} />
                         <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, "hero")} />
                       </label>
                       <button
-                        onClick={() => onChange({ ...item, image_url: "" })}
+                        onClick={() => onChange({ ...item, logo_url: "" })}
                         className="p-4 bg-red-600 text-white rounded-full hover:bg-red-500 shadow-xl"
-                        title="Eliminar Foto"
+                        title="Eliminar Logo"
                       >
                         <FaTrash size={16} />
                       </button>
@@ -683,43 +715,26 @@ function CaseModal({ item, onClose, onSave, onChange }: {
                 ) : (
                   <label className="w-full h-full flex flex-col items-center justify-center text-white/10 hover:text-emerald-400 hover:bg-white/[0.02] cursor-pointer transition-all gap-3">
                     <FaUpload className="text-2xl" />
-                    <span className="font-black uppercase text-[10px] tracking-widest">Subir Foto Portada</span>
+                    <span className="font-black uppercase text-[10px] tracking-widest">Subir Logo Cliente</span>
                     <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, "hero")} />
                   </label>
                 )}
               </div>
             </div>
 
-            {/* HERO VIDEO (OPTIONAL) */}
+            {/* PREVIEW OF FIRST GALLERY IMAGE AS COVER */}
             <div className="space-y-5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-[#0ea5e9] flex justify-between items-center">
-                Video Hero (Opcional)
-                {item.video_url && <span className="text-white/20 text-[8px]">SUBIDO</span>}
+              <label className="text-[10px] font-black uppercase tracking-widest text-cyan-400 flex justify-between items-center">
+                Portada (Primera imagen de Galería)
               </label>
-              <div className="aspect-video bg-black/40 border border-white/10 rounded-none overflow-hidden relative group">
-                {item.video_url ? (
-                  <>
-                    <video src={item.video_url} className="w-full h-full object-cover group-hover:opacity-40 transition-all" muted loop autoPlay />
-                    <div className="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all bg-black/40">
-                      <label className="p-4 bg-blue-600 text-white rounded-full cursor-pointer hover:bg-blue-500 shadow-xl" title="Cambiar Video">
-                        <FaUpload size={16} />
-                        <input type="file" className="hidden" accept="video/*" onChange={(e) => handleFileUpload(e, "hero-video")} />
-                      </label>
-                      <button
-                        onClick={() => onChange({ ...item, video_url: "" })}
-                        className="p-4 bg-red-600 text-white rounded-full hover:bg-red-500 shadow-xl"
-                        title="Eliminar Video"
-                      >
-                        <FaTrash size={16} />
-                      </button>
-                    </div>
-                  </>
+              <div className="aspect-video bg-black/40 border border-white/10 rounded-none overflow-hidden relative">
+                {item.media.find(m => m.type === "image") ? (
+                  <img src={item.media.find(m => m.type === "image")!.url} className="w-full h-full object-cover" />
                 ) : (
-                  <label className="w-full h-full flex flex-col items-center justify-center text-white/10 hover:text-blue-400 hover:bg-white/[0.02] cursor-pointer transition-all gap-3">
-                    <FaVideo className="text-2xl" />
-                    <span className="font-black uppercase text-[10px] tracking-widest">Subir Video Portada</span>
-                    <input type="file" className="hidden" accept="video/*" onChange={(e) => handleFileUpload(e, "hero-video")} />
-                  </label>
+                  <div className="w-full h-full flex flex-col items-center justify-center text-white/5 gap-3">
+                    <FaImages className="text-2xl" />
+                    <span className="font-black uppercase text-[10px] tracking-widest text-center px-4">Sube imágenes en la sección de galería abajo</span>
+                  </div>
                 )}
               </div>
             </div>

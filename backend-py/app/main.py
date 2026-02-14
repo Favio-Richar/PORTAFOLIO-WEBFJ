@@ -9,7 +9,7 @@ from app.api import (
     profile, experience,
     proyectos, contact, media, timeline,
     certifications, education, blog,
-    services_page, enviar_cotizacion
+    services_page, enviar_cotizacion, casos_exito
 )
 
 
@@ -61,6 +61,7 @@ app.include_router(media.router, prefix="/api/media", tags=["media"])
 app.include_router(timeline.router, prefix="/api/timeline", tags=["timeline"])
 app.include_router(services_page.router, prefix="/api/services-page", tags=["services-page"])
 app.include_router(enviar_cotizacion.router, prefix="/api/enviar-cotizacion", tags=["enviar-cotizacion"])
+app.include_router(casos_exito.router, prefix="/api", tags=["casos-exito"])
 
 
 

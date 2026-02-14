@@ -9,6 +9,7 @@ import "../styles/contact-elite.scss";
 import "../styles/clients-elite.scss";
 import "../styles/projects-elite.scss";
 import "../styles/logo-elite.scss";
+import "../styles/home-elite.scss";
 
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";

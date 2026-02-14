@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, memo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaArrowRight,
@@ -47,6 +47,270 @@ import {
 /* ================= EXACT DATA FROM HTML ================= */
 
 const INDUSTRIES = ['todos', 'tecnología', 'finanzas', 'salud', 'retail', 'educación', 'construcción'];
+
+/* ================= COMPONENTS ================= */
+
+function FadeInUp({ children, delay = 0 }: any) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, delay, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Componente para el modal de detalle para evitar re-renders globales
+// Memorizado para no re-renderizar si el padre cambia (ej. el fondo del hero)
+const ClientDetailModal = memo(({ selectedClient, onClose }: { selectedClient: any, onClose: () => void }) => {
+  const [activeMediaIdx, setActiveMediaIdx] = useState(0);
+
+  // Reset idx when client changes
+  useEffect(() => {
+    setActiveMediaIdx(0);
+  }, [selectedClient?.id]);
+
+  if (!selectedClient) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-0 md:p-10"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: "100%", opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: "100%", opacity: 0 }}
+        transition={{ type: "spring", damping: 30, stiffness: 200 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-[#050a18] w-full h-full relative flex flex-col"
+      >
+        {/* Sticky Header inside Modal */}
+        <div className="p-8 md:p-12 border-b border-white/5 flex justify-between items-center bg-[#050a18]/80 backdrop-blur-md sticky top-0 z-10">
+          <div className="flex items-center gap-8">
+            <div
+              className="text-5xl md:text-6xl filter drop-shadow-[0_0_20px_rgba(14,165,233,0.3)] bg-white/5 w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center border border-white/10"
+              style={{ color: selectedClient.logoColor || 'white' }}
+            >
+              {selectedClient.logo}
+            </div>
+            <div>
+              <h2 className="text-3xl md:text-5xl text-white font-[950] uppercase tracking-tight mb-2 leading-none">{selectedClient.name}</h2>
+              <div className="flex gap-3">
+                <span className="bg-sky-500/10 text-sky-400 px-4 py-1.5 rounded-full text-[10px] font-900 uppercase tracking-widest border border-sky-500/20">{selectedClient.industry}</span>
+                <span className="bg-white/5 text-white/40 px-4 py-1.5 rounded-full text-[10px] font-900 uppercase tracking-widest border border-white/10">Proyecto {selectedClient.year}</span>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all text-xl border border-white/10"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Scrollable Content - Dashboard Grid */}
+        <div className="flex-1 overflow-y-auto p-12 md:p-20">
+          <div className="max-w-[1600px] mx-auto">
+            <div className="modal-dashboard-grid">
+              {/* FEATURED MEDIA (PASARELA) - SIDE BY SIDE ON DESKTOP */}
+              <div className="hero-cell media-pasarela">
+                <div className="main-media-viewer">
+                  {(() => {
+                    const currentMedia = (selectedClient.media && selectedClient.media.length > 0)
+                      ? selectedClient.media[activeMediaIdx]
+                      : { url: selectedClient.image, type: 'image' };
+
+                    if (currentMedia?.type === 'video') {
+                      return (
+                        <video key={currentMedia.url} autoPlay muted loop playsInline className="w-full h-full object-cover">
+                          <source src={currentMedia.url} type="video/mp4" />
+                        </video>
+                      );
+                    }
+                    return <img key={currentMedia?.url} src={currentMedia?.url} alt={selectedClient.name} className="w-full h-full object-cover" />;
+                  })()}
+
+                  {/* Media Navigation Overlay */}
+                  {selectedClient.media && selectedClient.media.length > 1 && (
+                    <div className="media-nav-overlay">
+                      <button
+                        onClick={() => setActiveMediaIdx(prev => (prev - 1 + selectedClient.media.length) % selectedClient.media.length)}
+                        className="nav-btn prev"
+                      >
+                        <FaArrowLeft />
+                      </button>
+                      <button
+                        onClick={() => setActiveMediaIdx(prev => (prev + 1) % selectedClient.media.length)}
+                        className="nav-btn next"
+                      >
+                        <FaArrowRight />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Mini Thumbnail Strip */}
+                {selectedClient.media && selectedClient.media.length > 1 && (
+                  <div className="media-thumbnail-strip">
+                    {selectedClient.media.map((m: any, idx: number) => (
+                      <div
+                        key={idx}
+                        className={`mini-thumb ${idx === activeMediaIdx ? 'active' : ''}`}
+                        onClick={() => setActiveMediaIdx(idx)}
+                      >
+                        {m.type === 'video' ? (
+                          <video
+                            src={m.url}
+                            className="w-full h-full object-cover"
+                            preload="metadata"
+                            muted
+                          />
+                        ) : (
+                          <img
+                            src={m.url}
+                            alt={`thumbnail-${idx}`}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=200&h=150&fit=crop';
+                            }}
+                          />
+                        )}
+                        {m.type === 'video' && <div className="video-badge"><FaPlayCircle /></div>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* PROJECT VISION CELL - BOX-LESS (MINIMALIST) */}
+              <div className="vision-cell minimalist-detail">
+                <div className="cell-header">
+                  <span className="cell-title">Visión del Proyecto</span>
+                  <div className="cell-line" />
+                </div>
+                <p className="text-white text-3xl md:text-5xl leading-[1.2] font-900 mb-12 tracking-tighter">
+                  "{selectedClient.testimonial}"
+                </p>
+                <div className="flex items-center gap-6 p-8 bg-white/5 rounded-[2rem] border border-white/10 backdrop-blur-xl">
+                  <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-5xl border border-white/10 shadow-2xl" style={{ color: selectedClient.logoColor }}>
+                    {selectedClient.logo}
+                  </div>
+                  <div>
+                    <div className="text-lg font-900 text-white uppercase tracking-[0.2em] mb-1">{selectedClient.author}</div>
+                    <div className="text-sm font-bold text-sky-400 uppercase tracking-[0.3em] opacity-80">{selectedClient.role}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* METRICS CELL - VISUAL FLUID DESIGN (NO TABLES) */}
+            <div className="metrics-cell minimalist-section">
+              <div className="cell-header">
+                <span className="cell-title">Impacto en Negocio</span>
+                <div className="cell-line" />
+              </div>
+              <div className="flex flex-wrap gap-8 justify-center">
+                {selectedClient.metrics.map((m: any, idx: number) => (
+                  <div key={idx} className="flex-1 min-w-[280px] max-w-[350px]">
+                    {/* Circular Badge with Gradient */}
+                    <div className="relative group">
+                      <div className="absolute inset-0 bg-gradient-to-br from-sky-500/20 to-purple-500/20 rounded-[2rem] blur-xl group-hover:blur-2xl transition-all" />
+                      <div className="relative p-8 rounded-[2rem] bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm border border-white/10 hover:border-sky-500/30 transition-all">
+                        {/* Metric Label */}
+                        <div className="flex items-center justify-between mb-6">
+                          <span className="text-xs font-black text-white/50 uppercase tracking-[0.2em]">{m.label}</span>
+                          <div className="px-4 py-1.5 rounded-full bg-gradient-to-r from-sky-500/20 to-purple-500/20 border border-sky-500/30">
+                            <span className="text-xs font-black text-sky-400">+{m.improvement}%</span>
+                          </div>
+                        </div>
+
+                        {/* Before/After Visual Flow */}
+                        <div className="flex items-center gap-6">
+                          {/* Before Value */}
+                          <div className="flex-1 text-center">
+                            <div className="text-[10px] font-black text-white/30 uppercase tracking-widest mb-2">Antes</div>
+                            <div className="text-xl font-bold text-white/40 line-through">{m.before}</div>
+                          </div>
+
+                          {/* Arrow Indicator */}
+                          <div className="flex-shrink-0">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-500 to-purple-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+                              <FaArrowRight className="text-white text-sm" />
+                            </div>
+                          </div>
+
+                          {/* After Value - HIGHLIGHTED */}
+                          <div className="flex-1 text-center">
+                            <div className="text-[10px] font-black text-sky-400 uppercase tracking-widest mb-2">Ahora</div>
+                            <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-purple-400">
+                              {m.after}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* SOLUTIONS CELL - MINIMALIST */}
+            <div className="solutions-cell minimalist-section">
+              <div className="cell-header">
+                <span className="cell-title">Soluciones Aplicadas</span>
+                <div className="cell-line" />
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                {selectedClient.services.map((s: any) => (
+                  <div key={s} className="flex items-center gap-4 p-5 bg-white/2 rounded-2xl border border-white/5 hover:border-sky-500/30 transition-all">
+                    <FaCheckCircle className="text-sky-500 text-xl" />
+                    <span className="text-white/90 font-800 uppercase tracking-widest text-xs">{s}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* MULTIMEDIA GALLERY (Hidden as it's in pasarela) */}
+            <div className="gallery-cell" />
+
+            {/* TIMELINE CELL - MINIMALIST */}
+            <div className="timeline-cell minimalist-section">
+              <div className="cell-header">
+                <span className="cell-title">Technical Timeline</span>
+                <div className="cell-line" />
+              </div>
+              <div className="space-y-8">
+                {selectedClient.timeline.map((step: any, idx: number) => (
+                  <div key={idx} className="flex justify-between items-center p-4 bg-white/2 rounded-2xl border border-white/5">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-2 h-2 rounded-full ${step.status === 'completed' ? 'bg-sky-500' : 'bg-purple-500 animate-pulse'}`} />
+                      <div>
+                        <div className="text-xs font-900 text-white uppercase tracking-widest mb-1">{step.phase}</div>
+                        <div className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">{step.duration}</div>
+                      </div>
+                    </div>
+                    <span className={`text-[8px] font-900 uppercase px-3 py-1 rounded-full border ${step.status === 'completed' ? 'border-sky-500/30 text-sky-400 bg-sky-500/5' : 'border-purple-500/30 text-purple-400 bg-purple-500/5'}`}>
+                      {step.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+});
+
+ClientDetailModal.displayName = "ClientDetailModal";
 
 export default function ClientesPage() {
 
@@ -191,35 +455,31 @@ export default function ClientesPage() {
     { icon: <FaBuilding />, color: "#22C55E", glow: "rgba(34,197,94,0.36)", label: "Enterprise" },
   ];
 
-  /* ================= COMPONENTS ================= */
 
-  function FadeInUp({ children, delay = 0 }: any) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, delay, ease: "easeOut" }}
-      >
-        {children}
-      </motion.div>
-    );
-  }
 
   const [filter, setFilter] = useState("todos");
   const [selectedClient, setSelectedClient] = useState<any>(null);
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedClient(null);
+  }, []);
+
+  const handleSelectClient = useCallback((client: any) => {
+    setSelectedClient(client);
+  }, []);
   const [liveClients, setLiveClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(0);
   const [heroMediaIdx, setHeroMediaIdx] = useState(0);
   const [heroBackgroundMedia, setHeroBackgroundMedia] = useState(HERO_BACKGROUND_FALLBACK);
   const [reviewSummary, setReviewSummary] = useState({ average: 4.9, total: 50 });
-  const [activeMediaIdx, setActiveMediaIdx] = useState(0); // For modal carousel
+  const [currentPage, setCurrentPage] = useState(1); // Paginación
+  const ITEMS_PER_PAGE = 6; // 2 filas x 3 columnas
 
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const res = await fetch("http://localhost:8000/api/proyectos");
+        const res = await fetch("http://localhost:8000/api/casos-exito");
         if (res.ok) {
           const data = await res.json();
           const normalized = data.map((c: any) => {
@@ -253,26 +513,50 @@ export default function ClientesPage() {
               }
             });
 
+            // Parse structured JSON fields
+            const rawMetrics = typeof c.metrics === 'string' ? JSON.parse(c.metrics) : (c.metrics || []);
+            const rawServices = typeof c.services === 'string' ? JSON.parse(c.services) : (c.services || []);
+            const rawTimeline = typeof c.timeline === 'string' ? JSON.parse(c.timeline) : (c.timeline || []);
+
+            // First image from allMedia for the card thumbnail
+            const cardThumb = allMedia.find(m => m.type === 'image')?.url;
+
             return {
               ...c,
-              name: c.title || c.name || "Sin título",
+              name: c.company_name || c.title || c.name || "Sin título",
               industry,
-              image: c.image_url || "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop",
+              image: cardThumb || c.image_url || c.logo_url || "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop",
               logo: icon,
               logoColor: color,
               results: typeof c.results === 'string' ? JSON.parse(c.results) : (c.results || { revenue: "+100%", users: "10K+", satisfaction: "99%" }),
-              testimonial: (c.description || "Caso de éxito completado con excelencia.").replace(/["']/g, ""),
+              metrics: rawMetrics.length > 0 ? rawMetrics : [
+                { label: "Eficiencia Operativa", before: "45%", after: "95%", improvement: 111 },
+                { label: "Tiempo de Respuesta", before: "5 min", after: "30 seg", improvement: 90 },
+                { label: "Satisfacción Usuario", before: "72%", after: "98%", improvement: 36 }
+              ],
+              // Consolidate Testimonial
+              testimonial: (c.testimonial || c.description || "Desarrollamos una solución tecnológica integral que transformó digitalmente las operaciones del negocio.").replace(/["']/g, ""),
               media: allMedia,
               author: (c.client_name || c.name || "Client"),
               role: "Partner",
               year: c.year || "2024",
-              services: c.services || ["Consultoría", "Desarrollo", "Optimización"],
-              timeline: c.timeline || [
-                { phase: "Planeación", duration: "1 mes", status: "completed" },
-                { phase: "Ejecución", duration: "3 meses", status: "completed" }
-              ],
-              metrics: c.metrics || [
-                { label: "Eficiencia", before: "0%", after: "100%", improvement: 100 }
+              services: rawServices.length > 0 ? rawServices : (() => {
+                const industryServices: Record<string, string[]> = {
+                  finanzas: ["Desarrollo Web Bancario", "Arquitectura Cloud", "Seguridad Financiera", "APIs de Pago"],
+                  salud: ["Telemedicina", "Historia Clínica Digital", "Cumplimiento HIPAA", "Analytics Médico"],
+                  retail: ["E-commerce Enterprise", "App Móvil Nativa", "Integración ERP/CRM", "Marketing Automation"],
+                  educación: ["Plataforma LMS", "Aulas Virtuales", "Gamificación Educativa", "Certificaciones Digitales"],
+                  construcción: ["BIM Web", "Gestión de Proyectos", "IoT Construcción", "Realidad Aumentada"],
+                  tecnología: ["Desarrollo Full-Stack", "Cloud Computing", "DevOps & CI/CD", "Machine Learning"]
+                };
+                return industryServices[industry] || ["Desarrollo Web", "Arquitectura Cloud", "Consultoría Tech", "Optimización"];
+              })(),
+              timeline: rawTimeline.length > 0 ? rawTimeline : [
+                { phase: "Análisis y Diseño UX/UI", duration: "2 semanas", status: "completed" },
+                { phase: "Desarrollo Backend & APIs", duration: "4 semanas", status: "completed" },
+                { phase: "Desarrollo Frontend", duration: "4 semanas", status: "completed" },
+                { phase: "Testing y QA", duration: "2 semanas", status: "completed" },
+                { phase: "Deployment y Capacitación", duration: "1 semana", status: "completed" }
               ]
             };
           });
@@ -287,7 +571,19 @@ export default function ClientesPage() {
     fetchProjects();
   }, []);
 
-  const displayClients = (liveClients || []).filter(c => filter === "todos" || c.industry === filter);
+  // Filtrar clientes según la industria seleccionada
+  const filteredClients = (liveClients || []).filter(c => filter === "todos" || c.industry === filter);
+
+  // Calcular paginación
+  const totalPages = Math.ceil(filteredClients.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const displayClients = filteredClients.slice(startIndex, endIndex);
+
+  // Resetear a página 1 cuando cambia el filtro
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
 
   useEffect(() => {
     const loadHeroMedia = async () => {
@@ -376,8 +672,7 @@ export default function ClientesPage() {
               )}
             </motion.div>
           </AnimatePresence>
-          <div className="absolute inset-0 bg-gradient-to-b from-[#040816]/90 via-[#060e22]/82 to-[#040816]/92" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(14,165,233,0.16),transparent_48%)]" />
+          {/* Overlays removed - background images/videos should be fully visible */}
         </div>
         <div className="max-w-7xl mx-auto relative z-10 text-center">
           <FadeInUp>
@@ -491,10 +786,6 @@ export default function ClientesPage() {
                 optimizar procesos y crecer de manera sostenible. Cada colaboración refleja soluciones prácticas,
                 diseñadas a la medida de pequeñas y medianas empresas que buscan profesionalizar y potenciar su operación.
               </p>
-              <div className="section-divider" style={{ marginBottom: '2rem' }} />
-              <p className="section-subtitle">
-                Selecciona un sector y revisa resultados reales con métricas de negocio. Tecnología de punta aplicada a desafíos complejos de la industria.
-              </p>
             </FadeInUp>
           </div>
 
@@ -532,54 +823,50 @@ export default function ClientesPage() {
                 >
                   <div
                     className="case-card group cursor-pointer"
-                    onClick={() => setSelectedClient(client)}
+                    onClick={() => handleSelectClient(client)}
                     style={{ '--brand-color': client.logoColor } as any}
                   >
-                    {/* Card Image Wrapper */}
-                    <div className="card-image">
-                      <img
-                        src={client.image}
-                        alt={client.name}
-                        loading="lazy"
-                      />
-                      <div className="image-overlay" />
-                      <div className="category-chip">
-                        {client.industry}
+                    {/* Card Image Banner */}
+                    <div className="card-image-bg">
+                      <img src={client.image} alt={client.name} className="impact-image" />
+                      <div className="card-overlay" />
+
+                      <div className="logo-badge">
+                        {client.logo_url ? (
+                          <img src={client.logo_url} alt={client.name} />
+                        ) : (
+                          <span style={{ color: client.logoColor }}>{client.logo}</span>
+                        )}
                       </div>
 
-                      {/* Technical Logo Overlay */}
-                      <div
-                        className="absolute top-4 left-4 w-11 h-11 bg-black/60 backdrop-blur-xl rounded-xl border border-white/10 flex items-center justify-center text-xl z-10 shadow-2xl"
-                        style={{ color: (client as any).logoColor || 'white' }}
-                      >
-                        {(client as any).logo}
+                      <div className="industry-tag">
+                        {client.industry}
                       </div>
                     </div>
 
                     {/* Card Body */}
                     <div className="card-content">
-                      <div className="card-header">
-                        <h3 className="client-name">{client.name}</h3>
-                        <div className="meta-info">Proyecto {client.year}</div>
+                      <div className="card-info">
+                        <h3 className="client-name">{client.company_name || client.name}</h3>
+                        <div className="success-badge">CASO DE ÉXITO • {client.year}</div>
                       </div>
 
-                      <p className="card-quote">
-                        {client.description}
+                      <p className="corporate-description">
+                        {client.testimonial || client.description}
                       </p>
 
-                      {/* Micro Metrics Grid */}
-                      <div className="metrics-grid">
-                        {Object.entries(client.results).slice(0, 3).map(([key, value]: any) => (
-                          <div key={key} className="metric-item">
-                            <div className="metric-value">{value}</div>
-                            <div className="metric-label">{key}</div>
+                      <div className="results-grid">
+                        {Object.entries(client.results).map(([key, value]: any) => (
+                          <div key={key} className="result-stat">
+                            <div className="stat-val">{value}</div>
+                            <div className="stat-key">{key}</div>
                           </div>
                         ))}
                       </div>
 
-                      <div className="card-footer">
-                        <button className="view-detail-btn">
-                          Ver detalle
+                      <div className="card-action">
+                        <button className="elite-view-btn">
+                          VER DETALLE DEL CASO
                           <FaArrowRight />
                         </button>
                       </div>
@@ -590,18 +877,40 @@ export default function ClientesPage() {
             </AnimatePresence>
           </div>
 
-          {/* Pagination Counter */}
+
+          {/* Pagination Counter - Functional */}
           <FadeInUp delay={0.3}>
             <div className="pagination-container">
               <div className="page-counter">
                 <div className="counter-label">
-                  Página <span>1</span> DE 1
+                  Página <span>{currentPage}</span> DE {totalPages || 1}
                 </div>
                 <div className="counter-nav">
-                  <div className="nav-dot active" />
-                  <div className="nav-dot" />
-                  <div className="nav-dot" />
+                  {Array.from({ length: Math.min(5, totalPages) }).map((_, idx) => (
+                    <div
+                      key={idx}
+                      className={`nav-dot ${idx === currentPage - 1 ? 'active' : ''}`}
+                      onClick={() => setCurrentPage(idx + 1)}
+                      style={{ cursor: 'pointer' }}
+                    />
+                  ))}
                 </div>
+              </div>
+              <div className="pagination-buttons">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="elite-nav-btn prev-btn"
+                >
+                  <span className="btn-icon">←</span> Anterior
+                </button>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="elite-nav-btn next-btn"
+                >
+                  Siguiente <span className="btn-icon">→</span>
+                </button>
               </div>
             </div>
           </FadeInUp>
@@ -683,43 +992,139 @@ export default function ClientesPage() {
         </div>
       </section>
 
-      {/* 7. COMPARISON SECTION */}
+      {/* 7. COMPARISON SECTION - MODERN TWO-COLUMN LAYOUT */}
       <section className="py-32 px-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <FadeInUp>
-              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 uppercase">Por Que Elegirnos</h2>
-              <p className="text-slate-400">Comparacion directa de performance, calidad y soporte.</p>
+              <div className="inline-block px-6 py-2 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-2 border-cyan-400 rounded-full mb-8 shadow-lg shadow-cyan-500/30">
+                <span className="text-[10px] font-black tracking-[0.4em] uppercase text-cyan-300">💎 VENTAJA COMPETITIVA</span>
+              </div>
+              <h2 className="text-6xl font-black tracking-tighter mb-6 uppercase" style={{ color: '#22d3ee' }}>Más que un Servicio, un Aliado Digital</h2>
+              <p className="text-2xl font-bold max-w-4xl mx-auto leading-relaxed" style={{ color: '#e2e8f0' }}>Acompañamos a empresas y emprendedores a construir una presencia profesional que inspire confianza y genere oportunidades reales.</p>
             </FadeInUp>
           </div>
-          <FadeInUp>
-            <div className="p-8 md:p-12 rounded-[2.5rem] border border-cyan-400/15 bg-[linear-gradient(160deg,rgba(7,12,24,0.96),rgba(15,25,48,0.84))] relative overflow-hidden shadow-[0_24px_40px_rgba(0,0,0,0.35)]">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 items-center text-center">
-                <span className="text-white/30 font-black uppercase text-xs tracking-[0.28em]">Otros proveedores</span>
-                <div className="hidden md:block h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
-                <span className="text-cyan-300 font-black uppercase text-xs tracking-[0.28em]">Nuestra solucion</span>
-              </div>
-              <div className="space-y-3">
-                {COMPARISONS.map((comp, i) => (
-                  <div key={i} className="comparison-card group">
-                    <div className="text-3xl w-12 flex justify-center">{comp.icon}</div>
-                    <div className="flex-1 grid grid-cols-3 items-center gap-4">
-                      <span className="text-right text-white/20 line-through text-[11px] font-bold uppercase tracking-wider">{comp.before}</span>
-                      <div className="flex justify-center">
-                        <FaArrowRight className="text-cyan-400/50 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all duration-300" />
+
+          {/* TWO COLUMN GRID */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+
+            {/* LEFT: COMPARISON TABLE */}
+            <FadeInUp>
+              <div className="p-10 md:p-12 rounded-[3rem] border-2 border-cyan-400/40 bg-gradient-to-br from-[#0a0f1e]/95 to-[#0f1829]/90 backdrop-blur-xl relative overflow-hidden shadow-2xl shadow-cyan-500/20">
+                {/* Header */}
+
+                {/* Header */}
+                <div className="relative grid grid-cols-3 gap-6 mb-10 items-center text-center">
+                  <span className="text-white/50 font-black uppercase text-xs tracking-[0.25em]">OTROS</span>
+                  <div className="h-1 bg-gradient-to-r from-cyan-400 via-blue-400 to-orange-400 rounded-full" />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 font-black uppercase text-xs tracking-[0.25em]">NOSOTROS</span>
+                </div>
+
+                {/* Comparison Items */}
+                <div className="relative space-y-4">
+                  {COMPARISONS.map((comp, i) => (
+                    <div key={i} className="comparison-card group p-5 rounded-2xl bg-gradient-to-r from-cyan-500/5 to-blue-500/5 border-2 border-cyan-500/20 hover:border-cyan-400/60 hover:bg-gradient-to-r hover:from-cyan-500/10 hover:to-blue-500/10 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/30">
+                      <div className="flex items-center gap-4">
+                        {/* Icon */}
+                        <div className="text-3xl w-12 flex justify-center text-cyan-400 group-hover:text-cyan-300 group-hover:scale-110 transition-all drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]">
+                          {comp.icon}
+                        </div>
+
+                        {/* Before/After */}
+                        <div className="flex-1 grid grid-cols-3 items-center gap-3">
+                          <span className="text-right text-white/40 line-through text-xs font-bold uppercase tracking-wide">
+                            {comp.before}
+                          </span>
+                          <div className="flex justify-center">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-orange-500 flex items-center justify-center group-hover:scale-125 transition-transform shadow-lg shadow-cyan-500/50">
+                              <FaArrowRight className="text-white text-xs" />
+                            </div>
+                          </div>
+                          <span className="text-left text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-300 font-black text-sm uppercase tracking-tight drop-shadow-[0_0_10px_rgba(0,240,255,0.3)]">
+                            {comp.after}
+                          </span>
+                        </div>
+
+                        {/* Label */}
+                        <div className="w-32 text-right">
+                          <span className="text-[9px] font-black uppercase tracking-[0.2em] text-orange-400/70 group-hover:text-orange-300 transition-colors drop-shadow-[0_0_8px_rgba(255,107,0,0.4)]">
+                            {comp.label}
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-left text-white font-black text-base uppercase tracking-tight">{comp.after}</span>
                     </div>
-                    <div className="w-40 text-right">
-                      <span className="text-[9px] font-black uppercase tracking-[0.2em] text-cyan-400/40 group-hover:text-cyan-400 transition-colors">{comp.label}</span>
+                  ))}
+                </div>
+              </div>
+            </FadeInUp>
+
+            {/* RIGHT: DESCRIPTIVE TEXT BOX */}
+            <FadeInUp delay={0.2}>
+              <div className="h-full flex flex-col gap-6">
+                {/* Main Description Card */}
+                <div className="p-10 rounded-[3rem] bg-gradient-to-br from-blue-500/5 via-transparent to-orange-500/5 border-2 border-blue-400/20 backdrop-blur-sm relative overflow-hidden">
+                  <div className="relative">
+                    <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-blue-300 to-orange-300 mb-6 uppercase tracking-tight">Excelencia Garantizada</h3>
+                    <p className="text-lg text-white/90 leading-relaxed mb-8">
+                      No somos solo otro proveedor de tecnología. Somos tu <span className="text-cyan-300 font-black drop-shadow-[0_0_10px_rgba(0,240,255,0.6)]">socio estratégico</span> en transformación digital, comprometidos con resultados medibles y soluciones que escalan con tu negocio.
+                    </p>
+
+                    {/* Key Benefits */}
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/30 to-cyan-600/30 flex items-center justify-center flex-shrink-0 border-2 border-cyan-400/60 shadow-lg shadow-cyan-500/40">
+                          <FaCheckCircle className="text-cyan-300 text-lg drop-shadow-[0_0_8px_rgba(0,240,255,0.8)]" />
+                        </div>
+                        <div>
+                          <h4 className="text-white font-black mb-1">Arquitectura Enterprise</h4>
+                          <p className="text-sm text-white/70">Soluciones escalables diseñadas para crecer con tu empresa</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/30 to-blue-600/30 flex items-center justify-center flex-shrink-0 border-2 border-blue-400/60 shadow-lg shadow-blue-500/40">
+                          <FaCheckCircle className="text-blue-300 text-lg drop-shadow-[0_0_8px_rgba(0,0,255,0.8)]" />
+                        </div>
+                        <div>
+                          <h4 className="text-white font-black mb-1">Soporte 24/7 Dedicado</h4>
+                          <p className="text-sm text-white/70">Equipo técnico siempre disponible para resolver cualquier incidencia</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/30 to-orange-600/30 flex items-center justify-center flex-shrink-0 border-2 border-orange-400/60 shadow-lg shadow-orange-500/40">
+                          <FaCheckCircle className="text-orange-300 text-lg drop-shadow-[0_0_8px_rgba(255,107,0,0.8)]" />
+                        </div>
+                        <div>
+                          <h4 className="text-white font-black mb-1">Resultados que se Notan</h4>
+                          <p className="text-sm text-white/70">Estrategia, diseño y tecnología alineados para posicionar tu marca, generar confianza y convertir visitantes en clientes.</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                ))}
+                </div>
+
+                {/* Stats Card */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="p-6 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-cyan-600/10 border-2 border-cyan-400/40 text-center backdrop-blur-sm shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all">
+                    <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-400 mb-2">99.9%</div>
+                    <div className="text-xs font-bold text-cyan-300/80 uppercase tracking-wider">Uptime</div>
+                  </div>
+                  <div className="p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-600/10 border-2 border-blue-400/40 text-center backdrop-blur-sm shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all">
+                    <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-blue-400 mb-2">200+</div>
+                    <div className="text-xs font-bold text-blue-300/80 uppercase tracking-wider">Proyectos</div>
+                  </div>
+                  <div className="p-6 rounded-2xl bg-[#0a0f1e]/80 border-2 border-orange-400/40 text-center backdrop-blur-sm shadow-lg shadow-orange-500/10 hover:shadow-orange-500/30 transition-all">
+                    <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-orange-400 mb-2">4.9★</div>
+                    <div className="text-xs font-bold text-orange-300/80 uppercase tracking-wider">Rating</div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </FadeInUp>
+            </FadeInUp>
+          </div>
         </div>
       </section>
+
       {/* 8. GALLERY SECTION */}
       <section className="py-32 px-6 bg-white/[0.01]">
         <div className="max-w-7xl mx-auto">
@@ -734,20 +1139,16 @@ export default function ClientesPage() {
               <FadeInUp key={i} delay={i * 0.1}>
                 <div className="gallery-item group">
                   <img src={proj.image} alt={proj.title} />
-                  <div className="gallery-overlay">
-                    <span className="text-indigo-400 text-[10px] font-black tracking-widest uppercase mb-2">{proj.category}</span>
-                    <h3 className="text-2xl font-bold text-white mb-1">{proj.title}</h3>
-                    <p className="text-white/50 text-xs font-bold uppercase">{proj.client}</p>
-                  </div>
+                  {/* gallery-overlay removed - images should be fully visible */}
                 </div>
               </FadeInUp>
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* 9. AWARDS SECTION */}
-      <section className="py-32 px-6">
+      < section className="py-32 px-6" >
         <div className="max-w-7xl mx-auto text-center">
           <FadeInUp>
             <h2 className="text-5xl font-bold text-white tracking-tighter mb-24 uppercase">Reconocidos Globalmente</h2>
@@ -763,10 +1164,10 @@ export default function ClientesPage() {
             </div>
           </FadeInUp>
         </div>
-      </section>
+      </section >
 
       {/* 10. TESTIMONIALS SECTION (VOCES DE ÉXITO) */}
-      <section className="py-32 px-6 bg-white/[0.02] border-y border-white/5">
+      < section className="py-32 px-6 bg-white/[0.02] border-y border-white/5" >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-24">
             <FadeInUp>
@@ -796,10 +1197,10 @@ export default function ClientesPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* 11. VIDEO TESTIMONIALS SECTION */}
-      <section className="py-32 px-6 bg-indigo-500/[0.03]">
+      < section className="py-32 px-6 bg-indigo-500/[0.03]" >
         <div className="max-w-7xl mx-auto text-center">
           <FadeInUp>
             <div className="inline-block px-6 py-2 bg-indigo-500/10 border border-indigo-500/50 rounded-full mb-8">
@@ -841,10 +1242,10 @@ export default function ClientesPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* 13. CONTACT FORM SECTION (HABLEMOS) */}
-      <section className="py-40 px-6">
+      < section className="py-40 px-6" >
         <div className="max-w-4xl mx-auto">
           <FadeInUp>
             <div className="text-center mb-16">
@@ -887,10 +1288,10 @@ export default function ClientesPage() {
             </form>
           </FadeInUp>
         </div>
-      </section>
+      </section >
 
       {/* 14. REVIEW FORM SECTION (COMPARTE EXPERIENCIA) */}
-      <section className="py-32 px-6 bg-indigo-500/[0.05]">
+      < section className="py-32 px-6 bg-indigo-500/[0.05]" >
         <div className="max-w-4xl mx-auto">
           <FadeInUp>
             <div className="text-center mb-16">
@@ -919,10 +1320,10 @@ export default function ClientesPage() {
             </div>
           </FadeInUp>
         </div>
-      </section>
+      </section >
 
       {/* 15. CTA SECTION (ESTO ES LA CTA FINAL ELITE 2.0) */}
-      <section className="py-40 px-6 bg-indigo-600 relative overflow-hidden">
+      < section className="py-40 px-6 bg-indigo-600 relative overflow-hidden" >
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30" />
         <div className="max-w-5xl mx-auto text-center relative z-10 text-white">
           <FadeInUp>
@@ -934,217 +1335,20 @@ export default function ClientesPage() {
             </button>
           </FadeInUp>
         </div>
-      </section>
+      </section >
 
-      {/* MODAL DETALLES (ESTUDIO DE CASO) */}
+      {/* 5. MODAL DETAIL - CLIENT */}
       <AnimatePresence>
-        {selectedClient && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-[#050a18] z-[2000] flex flex-col overflow-hidden"
-            onClick={() => setSelectedClient(null)}
-          >
-            <motion.div
-              initial={{ y: "100%", opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: "100%", opacity: 0 }}
-              transition={{ type: "spring", damping: 30, stiffness: 200 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-[#050a18] w-full h-full relative flex flex-col"
-            >
-              {/* Sticky Header inside Modal */}
-              <div className="p-8 md:p-12 border-b border-white/5 flex justify-between items-center bg-[#050a18]/80 backdrop-blur-md sticky top-0 z-10">
-                <div className="flex items-center gap-8">
-                  <div
-                    className="text-5xl md:text-6xl filter drop-shadow-[0_0_20px_rgba(14,165,233,0.3)] bg-white/5 w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center border border-white/10"
-                    style={{ color: selectedClient.logoColor || 'white' }}
-                  >
-                    {selectedClient.logo}
-                  </div>
-                  <div>
-                    <h2 className="text-3xl md:text-5xl text-white font-900 uppercase tracking-tight mb-2 leading-none">{selectedClient.name}</h2>
-                    <div className="flex gap-3">
-                      <span className="bg-sky-500/10 text-sky-400 px-4 py-1.5 rounded-full text-[10px] font-900 uppercase tracking-widest border border-sky-500/20">{selectedClient.industry}</span>
-                      <span className="bg-white/5 text-white/40 px-4 py-1.5 rounded-full text-[10px] font-900 uppercase tracking-widest border border-white/10">Proyecto {selectedClient.year}</span>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectedClient(null)}
-                  className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all text-xl border border-white/10"
-                >
-                  ✕
-                </button>
-              </div>
+        {
+          selectedClient && (
+            <ClientDetailModal
+              selectedClient={selectedClient}
+              onClose={handleCloseModal}
+            />
+          )
+        }
+      </AnimatePresence >
 
-              {/* Scrollable Content - Dashboard Grid */}
-              <div className="flex-1 overflow-y-auto p-12 md:p-20">
-                <div className="max-w-[1600px] mx-auto">
-                  <div className="modal-dashboard-grid">
-                    {/* FEATURED MEDIA (PASARELA) - SIDE BY SIDE ON DESKTOP */}
-                    <div className="hero-cell media-pasarela">
-                      <div className="main-media-viewer">
-                        {(() => {
-                          const currentMedia = (selectedClient.media && selectedClient.media.length > 0)
-                            ? selectedClient.media[activeMediaIdx]
-                            : { url: selectedClient.image, type: 'image' };
-
-                          if (currentMedia?.type === 'video') {
-                            return (
-                              <video key={currentMedia.url} autoPlay muted loop playsInline className="w-full h-full object-cover">
-                                <source src={currentMedia.url} type="video/mp4" />
-                              </video>
-                            );
-                          }
-                          return <img key={currentMedia?.url} src={currentMedia?.url} alt={selectedClient.name} className="w-full h-full object-cover" />;
-                        })()}
-
-                        {/* Media Navigation Overlay */}
-                        {selectedClient.media && selectedClient.media.length > 1 && (
-                          <div className="media-nav-overlay">
-                            <button
-                              onClick={() => setActiveMediaIdx(prev => (prev - 1 + selectedClient.media.length) % selectedClient.media.length)}
-                              className="nav-btn prev"
-                            >
-                              <FaArrowLeft />
-                            </button>
-                            <button
-                              onClick={() => setActiveMediaIdx(prev => (prev + 1) % selectedClient.media.length)}
-                              className="nav-btn next"
-                            >
-                              <FaArrowRight />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Mini Thumbnail Strip */}
-                      {selectedClient.media && selectedClient.media.length > 1 && (
-                        <div className="media-thumbnail-strip">
-                          {selectedClient.media.map((m: any, idx: number) => (
-                            <div
-                              key={idx}
-                              className={`mini-thumb ${idx === activeMediaIdx ? 'active' : ''}`}
-                              onClick={() => setActiveMediaIdx(idx)}
-                            >
-                              {m.type === 'video' ? (
-                                <video
-                                  src={m.url}
-                                  className="w-full h-full object-cover"
-                                  preload="metadata"
-                                  muted
-                                />
-                              ) : (
-                                <img
-                                  src={m.url}
-                                  alt={`thumbnail-${idx}`}
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=200&h=150&fit=crop';
-                                  }}
-                                />
-                              )}
-                              {m.type === 'video' && <div className="video-badge"><FaPlayCircle /></div>}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* PROJECT VISION CELL - BOX-LESS (MINIMALIST) */}
-                    <div className="vision-cell minimalist-detail">
-                      <div className="cell-header">
-                        <span className="cell-title">Visión del Proyecto</span>
-                        <div className="cell-line" />
-                      </div>
-                      <p className="text-white text-3xl md:text-5xl leading-[1.2] font-900 mb-12 tracking-tighter">
-                        "{selectedClient.testimonial}"
-                      </p>
-                      <div className="flex items-center gap-6 p-8 bg-white/5 rounded-[2rem] border border-white/10 backdrop-blur-xl">
-                        <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center text-5xl border border-white/10 shadow-2xl" style={{ color: selectedClient.logoColor }}>
-                          {selectedClient.logo}
-                        </div>
-                        <div>
-                          <div className="text-lg font-900 text-white uppercase tracking-[0.2em] mb-1">{selectedClient.author}</div>
-                          <div className="text-sm font-bold text-sky-400 uppercase tracking-[0.3em] opacity-80">{selectedClient.role}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* METRICS CELL - MINIMALIST */}
-                  <div className="metrics-cell minimalist-section">
-                    <div className="cell-header">
-                      <span className="cell-title">Impacto en Negocio</span>
-                      <div className="cell-line" />
-                    </div>
-                    <div className="space-y-6">
-                      {selectedClient.metrics.map((m: any, idx: number) => (
-                        <div key={idx} className="p-6 bg-white/3 rounded-2xl border border-white/5 hover:border-sky-500/20 transition-all">
-                          <div className="flex justify-between items-center mb-4">
-                            <span className="text-[10px] font-900 text-white/40 uppercase tracking-widest">{m.label}</span>
-                            <span className="text-xs font-900 text-sky-400 bg-sky-500/10 px-3 py-1 rounded-full">+{m.improvement}%</span>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <span className="text-white/30 text-xs line-through">{m.before}</span>
-                            <FaArrowRight className="text-[10px] text-white/20" />
-                            <span className="text-2xl font-bold text-white uppercase tracking-tighter">{m.after}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* SOLUTIONS CELL - MINIMALIST */}
-                  <div className="solutions-cell minimalist-section">
-                    <div className="cell-header">
-                      <span className="cell-title">Soluciones Aplicadas</span>
-                      <div className="cell-line" />
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {selectedClient.services.map((s: any) => (
-                        <div key={s} className="flex items-center gap-4 p-5 bg-white/2 rounded-2xl border border-white/5 hover:border-sky-500/30 transition-all">
-                          <FaCheckCircle className="text-sky-500 text-xl" />
-                          <span className="text-white/90 font-800 uppercase tracking-widest text-xs">{s}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* MULTIMEDIA GALLERY (Hidden as it's in pasarela) */}
-                  <div className="gallery-cell" />
-
-                  {/* TIMELINE CELL - MINIMALIST */}
-                  <div className="timeline-cell minimalist-section">
-                    <div className="cell-header">
-                      <span className="cell-title">Technical Timeline</span>
-                      <div className="cell-line" />
-                    </div>
-                    <div className="space-y-8">
-                      {selectedClient.timeline.map((step: any, idx: number) => (
-                        <div key={idx} className="flex justify-between items-center p-4 bg-white/2 rounded-2xl border border-white/5">
-                          <div className="flex items-center gap-4">
-                            <div className={`w-2 h-2 rounded-full ${step.status === 'completed' ? 'bg-sky-500' : 'bg-purple-500 animate-pulse'}`} />
-                            <div>
-                              <div className="text-xs font-900 text-white uppercase tracking-widest mb-1">{step.phase}</div>
-                              <div className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">{step.duration}</div>
-                            </div>
-                          </div>
-                          <span className={`text-[8px] font-900 uppercase px-3 py-1 rounded-full border ${step.status === 'completed' ? 'border-sky-500/30 text-sky-400 bg-sky-500/5' : 'border-purple-500/30 text-purple-400 bg-purple-500/5'}`}>
-                            {step.status}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-    </div>
+    </div >
   );
 }
