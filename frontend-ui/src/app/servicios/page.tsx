@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import "@/styles/services-elite.scss";
+import PageReviewsWall from "@/components/reviews/PageReviewsWall";
 
 // --- TYPES ---
 
@@ -66,14 +67,6 @@ interface ProcessStep {
   description: string;
   duration: string;
   icon: React.ReactNode;
-}
-
-interface Testimonial {
-  author: string;
-  role: string;
-  quote: string;
-  rating: number;
-  image?: string;
 }
 
 // --- DATA DEFINITIONS ---
@@ -356,12 +349,6 @@ const processSteps: ProcessStep[] = [
   { id: 4, title: "Lanzamiento", description: "Configuración de hosting, dominio y puesta en marcha.", duration: "Final", icon: <FaRocket /> }
 ];
 
-const testimonials: Testimonial[] = [
-  { author: "Pedro", role: "Empresario", quote: "Excelente trabajo, mi landing page duplicó mis ventas en un mes.", rating: 5 },
-  { author: "María", role: "Psicóloga", quote: "Muy profesional y rápido. Mi sitio web quedó increíble.", rating: 5 },
-  { author: "Juan", role: "Dueño de Tienda", quote: "La automatización de WhatsApp me ahorró horas de trabajo.", rating: 5 }
-];
-
 const calculatorOptions = {
   type: [
     { id: 'landing', name: 'Landing Page', price: 120000, desc: 'Página única de conversión' },
@@ -382,7 +369,6 @@ const calculatorOptions = {
 export default function ServicesPage() {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-  const [reviewAverage, setReviewAverage] = useState(4.9);
 
   // Calculator State
   const [selectedType, setSelectedType] = useState('landing');
@@ -403,29 +389,6 @@ export default function ServicesPage() {
     }, 0);
     setTotalPrice(typePrice + featuresPrice);
   }, [selectedType, selectedFeatures]);
-
-  useEffect(() => {
-    const loadReviewAverage = async () => {
-      try {
-        const res = await fetch("http://localhost:8000/api/services-page/reviews");
-        if (!res.ok) return;
-        const reviews = await res.json();
-        if (!Array.isArray(reviews) || reviews.length === 0) return;
-
-        const ratings = reviews
-          .map((review: any) => Number(review.rating))
-          .filter((value: number) => !Number.isNaN(value) && value > 0);
-        if (ratings.length === 0) return;
-
-        const average = ratings.reduce((sum: number, value: number) => sum + value, 0) / ratings.length;
-        setReviewAverage(Number(average.toFixed(1)));
-      } catch (error) {
-        console.error("Error loading services review average:", error);
-      }
-    };
-
-    loadReviewAverage();
-  }, []);
 
   const toggleFeature = (id: string) => {
     setSelectedFeatures(prev =>
@@ -792,81 +755,39 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* 10. TESTIMONIALS & 12. TEAM */}
+            {/* 10. REVIEWS WALL (MISMO BLOQUE QUE CLIENTES) */}
       <section className="section-block bg-slate-950">
         <div className="container-elite">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
-            <div>
-              <h2 className="text-4xl font-black mb-16 text-white flex items-center gap-6">
-                <span className="w-16 h-1.5 bg-indigo-500 rounded-full" /> Testimonios
-              </h2>
-              <div className="space-y-8">
-                {testimonials.map((test, i) => (
-                  <div key={i} className="bg-white/5 p-12 rounded-[3rem] border border-white/10 relative group hover:bg-white/[0.08] transition-all backdrop-blur-md">
-                    <div className="flex gap-1.5 text-amber-400 mb-8 text-sm">
-                      {[...Array(test.rating)].map((_, r) => <FaStar key={r} />)}
-                    </div>
-                    <p className="text-slate-300 text-xl italic mb-10 leading-relaxed font-medium">"{test.quote}"</p>
-                    <div className="flex items-center gap-6">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center font-black text-white text-2xl shadow-xl ring-8 ring-indigo-500/5">
-                        {test.author.charAt(0)}
-                      </div>
-                      <div>
-                        <div className="font-black text-white text-xl tracking-tight">{test.author}</div>
-                        <div className="text-indigo-400 font-bold text-xs uppercase tracking-[0.2em] mt-1">{test.role}</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <PageReviewsWall pageContext="servicios" title="What our customers say" />
+        </div>
+      </section>
 
-            {/* 11. RATINGS BREAKDOWN */}
-            <div className="lg:col-span-2 mt-24">
-              <div className="bg-indigo-600/5 rounded-[4rem] p-12 border border-white/5 backdrop-blur-sm">
-                <h3 className="text-xl font-black text-slate-500 mb-12 text-center uppercase tracking-[0.4em]">Métricas de Calidad</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                  {[
-                    { label: "Diseño UI", val: 5, color: "text-indigo-400" },
-                    { label: "Velocidad", val: 5, color: "text-emerald-400" },
-                    { label: "Soporte", val: reviewAverage, color: "text-indigo-400" },
-                    { label: "Conversión", val: 5, color: "text-pink-400" }
-                  ].map((rate, i) => (
-                    <div key={i} className="bg-black/40 p-10 rounded-3xl text-center border border-white/5">
-                      <div className={`text-4xl font-black mb-3 ${rate.color}`}>{rate.val}/5</div>
-                      <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{rate.label}</div>
-                    </div>
-                  ))}
+      {/* 11. TEAM */}
+      <section className="section-block bg-slate-950 pt-0">
+        <div className="container-elite">
+          <h2 className="text-4xl font-black mb-16 text-white flex items-center gap-6">
+            <span className="w-16 h-1.5 bg-indigo-500 rounded-full" /> Expertos a Cargo
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {team.map((member, i) => (
+              <div key={i} className="bg-white/5 p-12 rounded-[3.5rem] border border-white/10 flex flex-col items-center md:items-start group hover:bg-white/[0.08] transition-all backdrop-blur-md">
+                <div className="w-36 h-36 rounded-3xl bg-indigo-600/10 flex-shrink-0 flex items-center justify-center text-6xl font-black text-indigo-400 border border-indigo-500/20 shadow-inner group-hover:scale-105 transition-all duration-500 mb-8">
+                  {member.name.charAt(0)}
+                </div>
+                <div className="text-center md:text-left">
+                  <h3 className="text-3xl font-black text-white mb-2 leading-tight">{member.name}</h3>
+                  <div className="text-indigo-400 font-bold mb-8 text-xs uppercase tracking-[0.2em]">{member.role}</div>
+                  <p className="text-slate-400 text-lg mb-10 leading-relaxed font-medium">"{member.bio}"</p>
+                  <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                    {member.skills.map((skill, si) => (
+                      <span key={si} className="px-5 py-2.5 bg-indigo-500/10 rounded-xl text-[10px] font-black text-indigo-300 border border-indigo-500/20 uppercase tracking-[0.15em] group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="lg:col-span-2 mt-24">
-              <h2 className="text-4xl font-black mb-16 text-white flex items-center gap-6">
-                <span className="w-16 h-1.5 bg-indigo-500 rounded-full" /> Expertos a Cargo
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {team.map((member, i) => (
-                  <div key={i} className="bg-white/5 p-12 rounded-[3.5rem] border border-white/10 flex flex-col items-center md:items-start group hover:bg-white/[0.08] transition-all backdrop-blur-md">
-                    <div className="w-36 h-36 rounded-3xl bg-indigo-600/10 flex-shrink-0 flex items-center justify-center text-6xl font-black text-indigo-400 border border-indigo-500/20 shadow-inner group-hover:scale-105 transition-all duration-500 mb-8">
-                      {member.name.charAt(0)}
-                    </div>
-                    <div className="text-center md:text-left">
-                      <h3 className="text-3xl font-black text-white mb-2 leading-tight">{member.name}</h3>
-                      <div className="text-indigo-400 font-bold mb-8 text-xs uppercase tracking-[0.2em]">{member.role}</div>
-                      <p className="text-slate-400 text-lg mb-10 leading-relaxed font-medium">"{member.bio}"</p>
-                      <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                        {member.skills.map((skill, si) => (
-                          <span key={si} className="px-5 py-2.5 bg-indigo-500/10 rounded-xl text-[10px] font-black text-indigo-300 border border-indigo-500/20 uppercase tracking-[0.15em] group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -1074,3 +995,4 @@ export default function ServicesPage() {
     </div >
   );
 }
+

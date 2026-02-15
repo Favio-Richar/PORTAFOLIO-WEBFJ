@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { FaCheck, FaClock, FaStar, FaTimes, FaTrash } from "react-icons/fa";
+import { FaCheck, FaClock, FaEdit, FaStar, FaTimes, FaTrash } from "react-icons/fa";
 
 type ReviewStatus = "pending" | "approved" | "rejected";
 
@@ -18,12 +18,48 @@ interface ReviewItem {
 }
 
 const API_BASE = "http://localhost:8000/api/services-page/reviews";
+const KNOWN_REVIEW_ORIGINS = ["blog", "clientes", "servicios", "proyectos"] as const;
+
+function normalizePageContext(value?: string | null) {
+  const raw = (value || "general").toLowerCase().trim();
+  if (raw === "cliente") return "clientes";
+  if (raw === "servicio") return "servicios";
+  if (raw === "proyecto") return "proyectos";
+  return raw || "general";
+}
+
+function getOriginLabel(origin: string) {
+  const normalized = normalizePageContext(origin);
+  const labels: Record<string, string> = {
+    blog: "Blog",
+    clientes: "Cliente",
+    servicios: "Servicio",
+    proyectos: "Proyecto",
+    general: "General",
+  };
+  return labels[normalized] || normalized;
+}
+
+function formatReviewDate(value?: string | null) {
+  if (!value) return "Sin fecha";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "Sin fecha";
+  return parsed.toLocaleString("es-CL", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
 export default function TestimonialsAdmin() {
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [savingId, setSavingId] = useState<number | null>(null);
   const [error, setError] = useState("");
+  const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
+  const [draftContentById, setDraftContentById] = useState<Record<number, string>>({});
 
   const [statusFilter, setStatusFilter] = useState<"all" | ReviewStatus>("all");
   const [sourceFilter, setSourceFilter] = useState("all");
@@ -57,19 +93,19 @@ export default function TestimonialsAdmin() {
   }, [reviews]);
 
   const sources = useMemo(() => {
-    return Array.from(
-      new Set(
-        reviews
-          .map((r) => (r.page_context || "general").toLowerCase().trim())
-          .filter(Boolean)
-      )
-    ).sort();
+    const dynamic = Array.from(
+      new Set(reviews.map((r) => normalizePageContext(r.page_context)).filter(Boolean))
+    );
+
+    const knownOrigins = KNOWN_REVIEW_ORIGINS as readonly string[];
+    const extras = dynamic.filter((src) => !knownOrigins.includes(src)).sort();
+    return [...KNOWN_REVIEW_ORIGINS, ...extras];
   }, [reviews]);
 
   const filteredReviews = useMemo(() => {
     const q = search.trim().toLowerCase();
     return reviews.filter((r) => {
-      const source = (r.page_context || "general").toLowerCase().trim();
+      const source = normalizePageContext(r.page_context);
       const byStatus = statusFilter === "all" ? true : r.status === statusFilter;
       const bySource = sourceFilter === "all" ? true : source === sourceFilter;
       const bySearch = !q
@@ -92,11 +128,47 @@ export default function TestimonialsAdmin() {
       if (!res.ok) throw new Error("No se pudo actualizar");
       const updated = await res.json();
       setReviews((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+      return updated as ReviewItem;
     } catch (err) {
       console.error(err);
       setError("No se pudo actualizar la review.");
+      return null;
     } finally {
       setSavingId(null);
+    }
+  }
+
+  function startEditing(review: ReviewItem) {
+    setEditingReviewId(review.id);
+    setDraftContentById((prev) => ({
+      ...prev,
+      [review.id]: review.content || "",
+    }));
+  }
+
+  function cancelEditing(reviewId: number) {
+    setEditingReviewId((prev) => (prev === reviewId ? null : prev));
+    setDraftContentById((prev) => {
+      const next = { ...prev };
+      delete next[reviewId];
+      return next;
+    });
+  }
+
+  async function saveEditedContent(review: ReviewItem) {
+    const draft = (draftContentById[review.id] ?? "").trim();
+    if (!draft) {
+      setError("El comentario no puede quedar vacio.");
+      return;
+    }
+
+    const updated = await updateReview(review, {
+      content: draft,
+      status: review.status,
+    });
+
+    if (updated) {
+      cancelEditing(review.id);
     }
   }
 
@@ -175,10 +247,9 @@ export default function TestimonialsAdmin() {
             className="bg-black/30 border border-white/15 text-white px-4 py-3 outline-none"
           >
             <option value="all" className="bg-slate-900">Todos los origenes</option>
-            <option value="blog" className="bg-slate-900">blog</option>
             {sources.map((src) => (
               <option key={src} value={src} className="bg-slate-900">
-                {src}
+                {getOriginLabel(src)}
               </option>
             ))}
           </select>
@@ -203,34 +274,45 @@ export default function TestimonialsAdmin() {
                       {review.author_role || "Sin cargo"}
                       {review.author_company ? ` • ${review.author_company}` : ""}
                     </p>
+                    <p className="text-white/35 text-xs mt-1">
+                      Fecha: {formatReviewDate(review.created_at)}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <StatusPill status={review.status} />
                   </div>
                 </div>
 
+                {(() => {
+                  const isEditing = editingReviewId === review.id;
+                  const draftValue = isEditing
+                    ? draftContentById[review.id] ?? review.content
+                    : review.content;
+
+                  return (
                 <textarea
-                  value={review.content}
+                  value={draftValue}
+                  readOnly={!isEditing}
                   onChange={(e) =>
-                    setReviews((prev) => prev.map((r) => (r.id === review.id ? { ...r, content: e.target.value } : r)))
+                    setDraftContentById((prev) => ({
+                      ...prev,
+                      [review.id]: e.target.value,
+                    }))
                   }
-                  className="w-full min-h-[100px] bg-black/30 border border-white/15 text-white p-3 outline-none"
+                  className={`w-full min-h-[100px] border p-3 outline-none transition-colors ${
+                    isEditing
+                      ? "bg-black/30 border-blue-500/40 text-white"
+                      : "bg-black/20 border-white/10 text-white/80 cursor-not-allowed"
+                  }`}
                 />
+                  );
+                })()}
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="bg-black/30 border border-white/15 p-3">
                     <p className="text-white/50 text-[10px] uppercase tracking-widest mb-2">Calificacion</p>
-                    <select
-                      value={review.rating}
-                      onChange={(e) => updateReview(review, { rating: Number(e.target.value) })}
-                      className="w-full bg-transparent text-white outline-none"
-                    >
-                      {[1, 2, 3, 4, 5].map((v) => (
-                        <option key={v} value={v} className="bg-slate-900">
-                          {v}
-                        </option>
-                      ))}
-                    </select>
+                    <p className="text-white font-bold">{Math.max(1, Math.min(5, review.rating || 0))} / 5</p>
+                    <p className="text-white/40 text-[10px] uppercase tracking-widest mt-1">Solo lectura</p>
                   </div>
 
                   <div className="bg-black/30 border border-white/15 p-3">
@@ -248,7 +330,7 @@ export default function TestimonialsAdmin() {
 
                   <div className="bg-black/30 border border-white/15 p-3">
                     <p className="text-white/50 text-[10px] uppercase tracking-widest mb-2">Origen</p>
-                    <p className="text-white/80 text-sm">{(review.page_context || "general").toLowerCase()}</p>
+                    <p className="text-white/80 text-sm">{getOriginLabel(normalizePageContext(review.page_context))}</p>
                   </div>
                 </div>
 
@@ -260,19 +342,32 @@ export default function TestimonialsAdmin() {
                   </div>
 
                   <div className="flex gap-2">
-                    <button
-                      disabled={savingId === review.id}
-                      onClick={() =>
-                        updateReview(review, {
-                          content: review.content,
-                          status: review.status,
-                          rating: review.rating,
-                        })
-                      }
-                      className="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-50"
-                    >
-                      Guardar
-                    </button>
+                    {editingReviewId === review.id ? (
+                      <>
+                        <button
+                          disabled={savingId === review.id}
+                          onClick={() => saveEditedContent(review)}
+                          className="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-50"
+                        >
+                          Guardar
+                        </button>
+                        <button
+                          disabled={savingId === review.id}
+                          onClick={() => cancelEditing(review.id)}
+                          className="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] bg-slate-700 text-white hover:bg-slate-600 disabled:opacity-50"
+                        >
+                          Cancelar
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        disabled={savingId === review.id}
+                        onClick={() => startEditing(review)}
+                        className="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] bg-blue-700 text-white hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
+                      >
+                        <FaEdit /> Editar
+                      </button>
+                    )}
                     <button
                       disabled={savingId === review.id}
                       onClick={() => deleteReview(review.id)}
@@ -314,4 +409,3 @@ function StatusPill({ status }: { status: ReviewStatus }) {
     </span>
   );
 }
-

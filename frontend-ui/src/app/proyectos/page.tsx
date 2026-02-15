@@ -120,7 +120,7 @@ export default function ProyectosElitePage() {
   useEffect(() => {
     const loadReviewSummary = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/services-page/reviews");
+        const res = await fetch("http://localhost:8000/api/services-page/reviews?page_context=proyectos");
         if (!res.ok) return;
         const reviews = await res.json();
         if (!Array.isArray(reviews) || reviews.length === 0) return;

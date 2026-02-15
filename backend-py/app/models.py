@@ -7,6 +7,10 @@ class User(SQLModel, table=True):
     email: str = Field(index=True, unique=True)
     hashed_password: str
     full_name: Optional[str] = None
+    name: Optional[str] = None
+    provider: str = Field(default="local", index=True)
+    provider_id: Optional[str] = Field(default=None, index=True, unique=True)
+    avatar_url: Optional[str] = None
     role: str = Field(default="admin")
     is_active: bool = Field(default=True)
     created_at: Optional[str] = None
@@ -90,6 +94,53 @@ class CasoExito(SQLModel, table=True):
     results: Optional[str] = "{}"  # JSON object: resultados resumidos (revenue, users, etc)
     media: Optional[str] = "[]"  # JSON array: fotos y videos
     
+    # Metadata
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = None
+
+
+# ========== CASOS DE ÉXITO COMPLETOS (CLIENTES) ==========
+
+class CasoExitoCompleto(SQLModel, table=True):
+    """Casos completos para /clientes/casos-completos y gestión avanzada en admin."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    # Identidad y contexto
+    slug: str = Field(index=True, unique=True)
+    company_name: str
+    client_name: str
+    client_role: Optional[str] = None
+    industry: str
+    year: str = Field(default="2026")
+    country: Optional[str] = None
+    website_url: Optional[str] = None
+
+    # Branding y portada
+    logo_url: Optional[str] = None
+    cover_image_url: Optional[str] = None
+    cover_video_url: Optional[str] = None
+
+    # Narrativa del caso
+    headline: str
+    summary: str
+    challenge: Optional[str] = None
+    solution: Optional[str] = None
+    impact: Optional[str] = None
+    testimonial: Optional[str] = None
+
+    # Estructura avanzada (JSON serializado)
+    services: Optional[str] = "[]"
+    technologies: Optional[str] = "[]"
+    kpis: Optional[str] = "[]"
+    timeline: Optional[str] = "[]"
+    gallery: Optional[str] = "[]"
+    extra_links: Optional[str] = "[]"
+
+    # Estado de publicación
+    order_index: int = Field(default=0, index=True)
+    is_featured: bool = Field(default=False, index=True)
+    is_published: bool = Field(default=True, index=True)
+
     # Metadata
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = None
@@ -219,11 +270,16 @@ class TeamMember(SQLModel, table=True):
 
 class Review(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: Optional[int] = Field(default=None, foreign_key="user.id", index=True)
+    display_name: Optional[str] = None
+    reviewer_email: Optional[str] = None
     author_name: str
     author_role: Optional[str] = None
     author_company: Optional[str] = None
+    comment: Optional[str] = None
     content: str
     rating: int = Field(default=5)
+    is_verified: bool = Field(default=False)
     page_context: Optional[str] = None
     status: str = Field(default="pending") # approved, pending, rejected
     created_at: Optional[str] = None

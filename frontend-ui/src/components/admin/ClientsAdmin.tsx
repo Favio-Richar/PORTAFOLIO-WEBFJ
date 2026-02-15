@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { FaSave, FaTrash, FaUpload, FaImage, FaVideo, FaPlus, FaEdit, FaTimes, FaLayerGroup, FaImages, FaPlayCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import ClientFullCasesAdmin from "./ClientFullCasesAdmin";
 
 type MediaType = "image" | "video";
 
@@ -79,7 +80,7 @@ function byOrder(a: MediaItem, b: MediaItem) {
 }
 
 export default function ClientsAdmin() {
-  const [activeTab, setActiveTab] = useState<"hero" | "cases">("cases");
+  const [activeTab, setActiveTab] = useState<"hero" | "cases" | "fullCases">("cases");
 
   // HERO PASSAGE STATE
   const [items, setItems] = useState<MediaItem[]>([]);
@@ -370,6 +371,12 @@ export default function ClientsAdmin() {
           <FaLayerGroup className="inline mr-2" /> Casos de Éxito
         </button>
         <button
+          onClick={() => setActiveTab("fullCases")}
+          className={`px-8 py-4 font-black uppercase text-[10px] tracking-widest transition-all ${activeTab === "fullCases" ? "bg-amber-600 text-black" : "bg-white/5 text-white/40 hover:bg-white/10"}`}
+        >
+          <FaImages className="inline mr-2" /> Casos Completos
+        </button>
+        <button
           onClick={() => setActiveTab("hero")}
           className={`px-8 py-4 font-black uppercase text-[10px] tracking-widest transition-all ${activeTab === "hero" ? "bg-blue-600 text-white" : "bg-white/5 text-white/40 hover:bg-white/10"}`}
         >
@@ -415,6 +422,8 @@ export default function ClientsAdmin() {
             })}
           </div>
         </section>
+      ) : activeTab === "fullCases" ? (
+        <ClientFullCasesAdmin />
       ) : (
         /* BACKGROUND MEDIA MANAGEMENT */
         <div className="bg-[#0a1120]/90 border border-white/10 rounded-none overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.35)]">

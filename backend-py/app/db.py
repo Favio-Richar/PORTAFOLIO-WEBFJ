@@ -3,7 +3,7 @@ from sqlmodel import SQLModel, create_engine
 
 # IMPORTANTE: Importar todos los modelos para que SQLModel los registre
 from app.models import (
-    User, Ad, Profile, Experience, Proyecto, CasoExito,
+    User, Ad, Profile, Experience, Proyecto, CasoExito, CasoExitoCompleto,
     Contact, Timeline, Certification, Education, Blog,
     ProfessionalPlan, AdditionalService, Faq, TeamMember, Review
 )

@@ -9,7 +9,7 @@ from app.api import (
     profile, experience,
     proyectos, contact, media, timeline,
     certifications, education, blog,
-    services_page, enviar_cotizacion, casos_exito
+    services_page, enviar_cotizacion, casos_exito, casos_completos, reviews
 )
 
 
@@ -62,6 +62,8 @@ app.include_router(timeline.router, prefix="/api/timeline", tags=["timeline"])
 app.include_router(services_page.router, prefix="/api/services-page", tags=["services-page"])
 app.include_router(enviar_cotizacion.router, prefix="/api/enviar-cotizacion", tags=["enviar-cotizacion"])
 app.include_router(casos_exito.router, prefix="/api", tags=["casos-exito"])
+app.include_router(casos_completos.router, prefix="/api", tags=["casos-completos"])
+app.include_router(reviews.router, prefix="/api", tags=["reviews"])
 
 
 

@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, memo, useCallback } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaArrowRight,
   FaCheckCircle,
   FaStar,
-  FaPlus,
   FaGlobeAmericas,
   FaChartLine,
   FaShieldAlt,
@@ -21,9 +21,6 @@ import {
   FaBuilding,
   FaTools,
   FaBullseye,
-  FaTrophy,
-  FaLightbulb,
-  FaPalette,
   FaHardHat,
   FaImages,
   FaPlayCircle,
@@ -112,7 +109,7 @@ const ClientDetailModal = memo(({ selectedClient, onClose }: { selectedClient: a
             onClick={onClose}
             className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all text-xl border border-white/10"
           >
-            ✕
+            &times;
           </button>
         </div>
 
@@ -398,31 +395,129 @@ export default function ClientesPage() {
     { label: "Escalabilidad", before: "Limitada", after: "Ilimitada", icon: "📈" }
   ];
 
-  const PROJECT_GALLERY = [
-    { title: "Dashboard Analytics", category: "UI/UX", client: "TechCorp", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" },
-    { title: "Mobile Banking App", category: "FinTech", client: "FinanceHub", image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&h=400&fit=crop" },
-    { title: "E-commerce Platform", category: "Retail", client: "RetailMax", image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop" },
-    { title: "Healthcare Portal", category: "HealthTech", client: "HealthCare Plus", image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&h=400&fit=crop" },
-    { title: "Learning Platform", category: "EdTech", client: "EduLearn", image: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&h=400&fit=crop" },
-    { title: "IoT Dashboard", category: "Technology", client: "GreenEnergy", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop" }
+  const CLIENT_ONBOARDING = [
+    {
+      title: "Kickoff Estrategico",
+      description: "Alineamos objetivos, alcance y KPIs para arrancar con foco de negocio.",
+      deliverable: "Brief validado + roadmap inicial",
+      timing: "Primeras 48h",
+      icon: <FaComments className="text-amber-300" />
+    },
+    {
+      title: "Diagnostico de tu Presencia",
+      description: "Auditamos web, procesos y conversion para detectar mejoras de mayor impacto.",
+      deliverable: "Informe de hallazgos priorizados",
+      timing: "Semana 1",
+      icon: <FaSearch className="text-orange-300" />
+    },
+    {
+      title: "Plan de Ejecucion",
+      description: "Definimos sprints, entregables y fechas para que siempre sepas que sigue.",
+      deliverable: "Cronograma de trabajo por fases",
+      timing: "Semana 1",
+      icon: <FaPencilRuler className="text-amber-200" />
+    },
+    {
+      title: "Produccion y QA",
+      description: "Construimos, probamos y lanzamos iteraciones sin perder calidad ni control.",
+      deliverable: "Entregas funcionales + reporte QA",
+      timing: "Semanas 2+",
+      icon: <FaCogs className="text-emerald-300" />
+    }
   ];
 
-  const AWARDS = [
-    { title: "Best Digital Agency 2023", organization: "Tech Awards Global", icon: <FaTrophy className="text-yellow-400" />, year: "2023" },
-    { title: "Innovation Excellence", organization: "Digital Innovation Summit", icon: <FaLightbulb className="text-orange-400" />, year: "2023" },
-    { title: "Top 10 Development Firms", organization: "Industry Leaders Magazine", icon: <FaStar className="text-sky-400" />, year: "2023" },
-    { title: "Customer Satisfaction Award", organization: "Client Success Institute", icon: <FaBullseye className="text-emerald-400" />, year: "2023" },
-    { title: "Excellence in Design", organization: "UX Design Awards", icon: <FaPalette className="text-purple-400" />, year: "2022" },
-    { title: "Best Fintech Solution", organization: "Financial Technology Forum", icon: <FaGem className="text-cyan-400" />, year: "2022" }
+  const CLIENT_PROMISES = [
+    {
+      label: "Canal directo de comunicacion con nuestro equipo",
+      icon: <FaHeadset className="text-amber-300 text-lg mt-0.5 flex-shrink-0" />
+    },
+    {
+      label: "Reporte semanal con avance real del proyecto",
+      icon: <FaChartLine className="text-emerald-300 text-lg mt-0.5 flex-shrink-0" />
+    },
+    {
+      label: "Visibilidad de tareas, prioridades y fechas",
+      icon: <FaBullseye className="text-orange-300 text-lg mt-0.5 flex-shrink-0" />
+    },
+    {
+      label: "Soporte post-lanzamiento con acompanamiento",
+      icon: <FaShieldAlt className="text-emerald-300 text-lg mt-0.5 flex-shrink-0" />
+    }
   ];
 
-  const VIDEO_TESTIMONIALS = [
-    { company: "TechCorp Global", author: "Sarah Johnson", role: "CTO, TechCorp", logo: <FaRocket className="text-sky-400" />, quote: "La transformación digital que necesitábamos", url: "https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0" },
-    { company: "FinanceHub Pro", author: "Michael Chen", role: "CEO, FinanceHub", logo: <FaUniversity className="text-emerald-400" />, quote: "Crecimiento exponencial con AI", url: "https://www.youtube.com/embed/jNQXAC9IVRw?rel=0" },
-    { company: "HealthCare Plus", author: "Dr. Emma Williams", role: "Director Médico", logo: <FaHospital className="text-red-400" />, quote: "Mejorando la experiencia del paciente", url: "https://www.youtube.com/embed/9bZkp7q19f0?rel=0" },
-    { company: "RetailMax", author: "Laura Martinez", role: "VP Marketing", logo: <FaShoppingBag className="text-orange-400" />, quote: "E-commerce que vende 24/7", url: "https://www.youtube.com/embed/OPf0YbXqDm0?rel=0" },
-    { company: "EduLearn Academy", author: "Prof. David R.", role: "Director Académico", logo: <FaGraduationCap className="text-purple-400" />, quote: "Educación gamificada y personalizada", url: "https://www.youtube.com/embed/xfzgJ5dRJl4?rel=0" },
-    { company: "GreenEnergy Solutions", author: "Ana Fernández", role: "CTO, GreenEnergy", logo: <FaBolt className="text-yellow-400" />, quote: "IoT para energía sostenible", url: "https://www.youtube.com/embed/FrXWUjD7uZ4?rel=0" }
+  const CLIENT_EVOLUTION_STAGES = [
+    {
+      phase: "Primeros 90 dias",
+      title: "Orden Operativo y Direccion Clara",
+      context: "Convertimos objetivos difusos en un plan ejecutable con responsables, prioridades y seguimiento.",
+      before: "Procesos sueltos, tareas sin visibilidad y decisiones reactivas.",
+      after: "Roadmap activo, tablero de control y cadencia semanal de avances.",
+      metric: "+31% velocidad de ejecucion",
+      icon: FaBullseye,
+      iconColor: "#EF4444",
+      iconBorder: "rgba(239,68,68,0.5)",
+      iconBg: "rgba(239,68,68,0.14)",
+      iconGlow: "rgba(239,68,68,0.3)"
+    },
+    {
+      phase: "Mes 6",
+      title: "Resultados Comerciales Consistentes",
+      context: "Con optimizacion continua, el sistema empieza a sostener crecimiento real.",
+      before: "Captacion irregular y baja conversion en canales principales.",
+      after: "Funnel estabilizado con mejor conversion y mayor ticket promedio.",
+      metric: "+46% conversion calificada",
+      icon: FaChartLine,
+      iconColor: "#22C55E",
+      iconBorder: "rgba(34,197,94,0.5)",
+      iconBg: "rgba(34,197,94,0.14)",
+      iconGlow: "rgba(34,197,94,0.3)"
+    },
+    {
+      phase: "Mes 12",
+      title: "Escala y Relacion de Largo Plazo",
+      context: "El cliente pasa de ejecutar proyectos aislados a operar con una base digital escalable.",
+      before: "Dependencia de acciones puntuales y alto esfuerzo operativo.",
+      after: "Operacion estandarizada, decisiones por datos y crecimiento sostenido.",
+      metric: "2.3 proyectos por cliente activo",
+      icon: FaShieldAlt,
+      iconColor: "#3B82F6",
+      iconBorder: "rgba(59,130,246,0.5)",
+      iconBg: "rgba(59,130,246,0.14)",
+      iconGlow: "rgba(59,130,246,0.3)"
+    }
+  ];
+
+  const CLIENT_RELATIONSHIP_STATS = [
+    {
+      label: "Retencion de clientes",
+      value: "92%",
+      detail: "La mayoria continua trabajando con nosotros despues del primer proyecto.",
+      icon: FaShieldAlt,
+      iconColor: "#22C55E",
+      iconBorder: "rgba(34,197,94,0.5)",
+      iconBg: "rgba(34,197,94,0.14)",
+      iconGlow: "rgba(34,197,94,0.28)"
+    },
+    {
+      label: "Relacion promedio",
+      value: "4.2 años",
+      detail: "Acompanamiento real y evolucion constante del negocio.",
+      icon: FaHeadset,
+      iconColor: "#F59E0B",
+      iconBorder: "rgba(245,158,11,0.5)",
+      iconBg: "rgba(245,158,11,0.14)",
+      iconGlow: "rgba(245,158,11,0.28)"
+    },
+    {
+      label: "Referidos directos",
+      value: "38%",
+      detail: "Nuevos clientes que llegan por recomendacion de clientes actuales.",
+      icon: FaGlobeAmericas,
+      iconColor: "#0EA5E9",
+      iconBorder: "rgba(14,165,233,0.5)",
+      iconBg: "rgba(14,165,233,0.14)",
+      iconGlow: "rgba(14,165,233,0.28)"
+    }
   ];
 
   const HERO_BACKGROUND_FALLBACK = [
@@ -469,12 +564,85 @@ export default function ClientesPage() {
   }, []);
   const [liveClients, setLiveClients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [rating, setRating] = useState(0);
   const [heroMediaIdx, setHeroMediaIdx] = useState(0);
   const [heroBackgroundMedia, setHeroBackgroundMedia] = useState(HERO_BACKGROUND_FALLBACK);
   const [reviewSummary, setReviewSummary] = useState({ average: 4.9, total: 50 });
+  const [approvedReviews, setApprovedReviews] = useState<any[]>([]);
+  const [visibleReviewCount, setVisibleReviewCount] = useState(7);
+  const [expandedReviewKeys, setExpandedReviewKeys] = useState<string[]>([]);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showReviewVerifyModal, setShowReviewVerifyModal] = useState(false);
+  const [reviewFormSubmitting, setReviewFormSubmitting] = useState(false);
+  const [reviewPublishMode, setReviewPublishMode] = useState<"idle" | "google" | "guest">("idle");
+  const [googleSdkReady, setGoogleSdkReady] = useState(false);
+  const [pendingReviewPayload, setPendingReviewPayload] = useState<any>(null);
+  const [reviewFormMessage, setReviewFormMessage] = useState("");
+  const [reviewToast, setReviewToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [reviewForm, setReviewForm] = useState({
+    author_name: "",
+    author_company: "",
+    author_email: "",
+    content: "",
+    rating: 5,
+  });
   const [currentPage, setCurrentPage] = useState(1); // Paginación
   const ITEMS_PER_PAGE = 6; // 2 filas x 3 columnas
+  const REVIEW_BATCH = 4;
+  const REVIEW_PREVIEW_CHARS = 138;
+
+  const ensureGoogleSdkLoaded = useCallback(async () => {
+    if (typeof window === "undefined") return false;
+    if ((window as any).google?.accounts?.id) {
+      setGoogleSdkReady(true);
+      return true;
+    }
+
+    return await new Promise<boolean>((resolve) => {
+      const existingScript = document.querySelector('script[data-google-gsi=\"true\"]') as HTMLScriptElement | null;
+      if (existingScript) {
+        if ((window as any).google?.accounts?.id) {
+          setGoogleSdkReady(true);
+          resolve(true);
+          return;
+        }
+
+        existingScript.addEventListener(
+          "load",
+          () => {
+            const ok = Boolean((window as any).google?.accounts?.id);
+            setGoogleSdkReady(ok);
+            resolve(ok);
+          },
+          { once: true }
+        );
+        existingScript.addEventListener(
+          "error",
+          () => {
+            setGoogleSdkReady(false);
+            resolve(false);
+          },
+          { once: true }
+        );
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.dataset.googleGsi = "true";
+      script.onload = () => {
+        const ok = Boolean((window as any).google?.accounts?.id);
+        setGoogleSdkReady(ok);
+        resolve(ok);
+      };
+      script.onerror = () => {
+        setGoogleSdkReady(false);
+        resolve(false);
+      };
+      document.head.appendChild(script);
+    });
+  }, []);
 
   useEffect(() => {
     async function fetchProjects() {
@@ -499,17 +667,20 @@ export default function ClientesPage() {
             const allMedia = [];
 
             // 1. Add Hero Video if exists
-            if (c.video_url) {
-              allMedia.push({ type: 'video', url: c.video_url });
+            const safeVideoUrl = sanitizeAssetUrl(c.video_url);
+            if (safeVideoUrl) {
+              allMedia.push({ type: 'video', url: safeVideoUrl });
             }
             // 2. Add Hero Image if exists
-            if (c.image_url) {
-              allMedia.push({ type: 'image', url: c.image_url });
+            const safeImageUrl = sanitizeAssetUrl(c.image_url);
+            if (safeImageUrl) {
+              allMedia.push({ type: 'image', url: safeImageUrl });
             }
             // 3. Add Gallery items, avoiding duplicates with hero items
             gallery.forEach((item: any) => {
-              if (item.url !== c.image_url && item.url !== c.video_url) {
-                allMedia.push(item);
+              const mediaUrl = sanitizeAssetUrl(item?.url);
+              if (mediaUrl && mediaUrl !== safeImageUrl && mediaUrl !== safeVideoUrl) {
+                allMedia.push({ ...item, url: mediaUrl });
               }
             });
 
@@ -519,13 +690,15 @@ export default function ClientesPage() {
             const rawTimeline = typeof c.timeline === 'string' ? JSON.parse(c.timeline) : (c.timeline || []);
 
             // First image from allMedia for the card thumbnail
-            const cardThumb = allMedia.find(m => m.type === 'image')?.url;
+            const cardThumb = sanitizeAssetUrl(allMedia.find(m => m.type === 'image')?.url);
+            const safeLogoUrl = sanitizeAssetUrl(c.logo_url);
 
             return {
               ...c,
               name: c.company_name || c.title || c.name || "Sin título",
               industry,
-              image: cardThumb || c.image_url || c.logo_url || "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop",
+              image: cardThumb || safeImageUrl || safeLogoUrl || "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=600&fit=crop",
+              logo_url: safeLogoUrl,
               logo: icon,
               logoColor: color,
               results: typeof c.results === 'string' ? JSON.parse(c.results) : (c.results || { revenue: "+100%", users: "10K+", satisfaction: "99%" }),
@@ -545,11 +718,20 @@ export default function ClientesPage() {
                   finanzas: ["Desarrollo Web Bancario", "Arquitectura Cloud", "Seguridad Financiera", "APIs de Pago"],
                   salud: ["Telemedicina", "Historia Clínica Digital", "Cumplimiento HIPAA", "Analytics Médico"],
                   retail: ["E-commerce Enterprise", "App Móvil Nativa", "Integración ERP/CRM", "Marketing Automation"],
-                  educación: ["Plataforma LMS", "Aulas Virtuales", "Gamificación Educativa", "Certificaciones Digitales"],
-                  construcción: ["BIM Web", "Gestión de Proyectos", "IoT Construcción", "Realidad Aumentada"],
-                  tecnología: ["Desarrollo Full-Stack", "Cloud Computing", "DevOps & CI/CD", "Machine Learning"]
+                  educacion: ["Plataforma LMS", "Aulas Virtuales", "Gamificación Educativa", "Certificaciones Digitales"],
+                  construccion: ["BIM Web", "Gestión de Proyectos", "IoT Construcción", "Realidad Aumentada"],
+                  tecnologia: ["Desarrollo Full-Stack", "Cloud Computing", "DevOps & CI/CD", "Machine Learning"]
                 };
-                return industryServices[industry] || ["Desarrollo Web", "Arquitectura Cloud", "Consultoría Tech", "Optimización"];
+                const industryKey = String(industry || "")
+                  .toLowerCase()
+                  .replace(/á|á/g, "a")
+                  .replace(/é|é/g, "e")
+                  .replace(/í|í/g, "i")
+                  .replace(/ó|ó/g, "o")
+                  .replace(/ú|ú/g, "u")
+                  .replace(/ñ|ñ/g, "n");
+
+                return industryServices[industryKey] || ["Desarrollo Web", "Arquitectura Cloud", "Consultoría Tech", "Optimización"];
               })(),
               timeline: rawTimeline.length > 0 ? rawTimeline : [
                 { phase: "Análisis y Diseño UX/UI", duration: "2 semanas", status: "completed" },
@@ -621,31 +803,344 @@ export default function ClientesPage() {
   }, [heroBackgroundMedia.length]);
 
   useEffect(() => {
-    const loadReviewSummary = async () => {
+    const loadReviews = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/services-page/reviews");
+        const res = await fetch("http://localhost:8000/api/reviews?page=1&page_size=40&page_context=clientes");
         if (!res.ok) return;
-        const reviews = await res.json();
-        if (!Array.isArray(reviews) || reviews.length === 0) return;
+        const payload = await res.json();
+        const reviews = Array.isArray(payload?.items) ? payload.items : [];
+
+        if (reviews.length === 0) {
+          setApprovedReviews([]);
+          return;
+        }
 
         const ratings = reviews
           .map((review: any) => Number(review.rating))
           .filter((value: number) => !Number.isNaN(value) && value > 0);
 
-        if (ratings.length === 0) return;
+        if (ratings.length > 0) {
+          const average = ratings.reduce((sum: number, value: number) => sum + value, 0) / ratings.length;
+          setReviewSummary({ average, total: ratings.length });
+        }
 
-        const average = ratings.reduce((sum: number, value: number) => sum + value, 0) / ratings.length;
-        setReviewSummary({ average, total: ratings.length });
+        setApprovedReviews(reviews.map((item: any) => ({
+          ...item,
+          comment: String(item?.comment || item?.content || "").trim(),
+          content: String(item?.comment || item?.content || "").trim(),
+          display_name: item?.user?.name || item?.display_name || item?.author_name || "Invitado",
+          author_image: sanitizeReviewAvatar(item?.user?.avatar_url || item?.author_image || null),
+        })));
+        setVisibleReviewCount(7);
       } catch (error) {
-        console.error("Error loading review summary:", error);
+        console.error("Error loading reviews:", error);
       }
     };
 
-    loadReviewSummary();
+    loadReviews();
   }, []);
+
+  useEffect(() => {
+    ensureGoogleSdkLoaded().then((ok) => {
+      if (!ok) {
+        console.error("No se pudo cargar Google Identity Services.");
+      }
+    });
+  }, [ensureGoogleSdkLoaded]);
+
+  useEffect(() => {
+    if (!reviewToast) return;
+    const timer = setTimeout(() => setReviewToast(null), 3000);
+    return () => clearTimeout(timer);
+  }, [reviewToast]);
+
+  const toggleReviewExpanded = useCallback((reviewKey: string) => {
+    setExpandedReviewKeys((prev) =>
+      prev.includes(reviewKey) ? prev.filter((key) => key !== reviewKey) : [...prev, reviewKey]
+    );
+  }, []);
+
+  const getReviewDateLabel = (rawDate?: string) => {
+    if (!rawDate) return "Recently";
+    const parsed = new Date(rawDate);
+    if (Number.isNaN(parsed.getTime())) return "Recently";
+    return parsed.toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const getReviewInitials = (review: any) => {
+    if (review.initials && String(review.initials).trim()) return String(review.initials).trim().slice(0, 2).toUpperCase();
+    const name = String(review?.user?.name || review.display_name || review.author_name || "").trim();
+    if (!name) return "U";
+    const tokens = name.split(" ").filter(Boolean);
+    if (tokens.length === 1) return tokens[0].slice(0, 1).toUpperCase();
+    return `${tokens[0][0]}${tokens[1][0]}`.toUpperCase();
+  };
+
+  const sanitizeAssetUrl = (rawValue?: string | null) => {
+    const value = String(rawValue || "").trim();
+    if (!value) return null;
+    const lower = value.toLowerCase();
+    if (lower.includes("via.placeholder.com") || lower.includes("placehold.co")) return null;
+    if (
+      lower.startsWith("http://") ||
+      lower.startsWith("https://") ||
+      lower.startsWith("data:image/") ||
+      lower.startsWith("/uploads/")
+    ) {
+      return value;
+    }
+    return null;
+  };
+
+  const sanitizeReviewAvatar = (rawValue?: string | null) => {
+    const value = String(rawValue || "").trim();
+    if (!value) return null;
+    const lower = value.toLowerCase();
+    if (lower.includes("via.placeholder.com") || lower.includes("placehold.co")) return null;
+    if (
+      lower.startsWith("http://") ||
+      lower.startsWith("https://") ||
+      lower.startsWith("data:image/")
+    ) {
+      return value;
+    }
+    return null;
+  };
+
+  const normalizeReview = (review: any) => {
+    const normalizedName = review?.user?.name || review?.display_name || review?.author_name || "Invitado";
+    const normalizedComment = String(review?.comment || review?.content || "").trim();
+    const normalizedAvatar = sanitizeReviewAvatar(review?.user?.avatar_url || review?.author_image || null);
+    return {
+      ...review,
+      display_name: normalizedName,
+      author_name: normalizedName,
+      comment: normalizedComment,
+      content: normalizedComment,
+      author_image: normalizedAvatar,
+      is_verified: Boolean(review?.is_verified),
+      created_at: review?.created_at || new Date().toISOString(),
+    };
+  };
+
+  const reviewInsightBullets = [
+    `${reviewSummary.total} customer reviews`,
+    `${reviewSummary.average.toFixed(1)} average rating across projects`,
+    "Clients highlight delivery quality, communication and measurable impact",
+  ];
+
+  const visibleReviews = approvedReviews.slice(0, visibleReviewCount);
+  const hasMoreReviews = visibleReviewCount < approvedReviews.length;
+  const reviewFormIsError = Boolean(reviewFormMessage);
+
+  const handleReviewInputChange = (field: string, value: string | number) => {
+    setReviewForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const pushReviewToTop = (review: any) => {
+    const normalized = normalizeReview(review);
+    setApprovedReviews((prev) => [normalized, ...prev]);
+    setVisibleReviewCount((prev) => Math.max(prev, 8));
+    setReviewSummary((prev) => {
+      const previousTotal = Number(prev.total || 0);
+      const previousAverage = Number(prev.average || 0);
+      const nextTotal = previousTotal + 1;
+      const nextAverage = ((previousAverage * previousTotal) + Number(normalized.rating || 0)) / nextTotal;
+      return { average: nextAverage, total: nextTotal };
+    });
+  };
+
+  const publishToast = (message: string, type: "success" | "error" = "success") => {
+    setReviewToast({ type, message });
+  };
+
+  const sendReview = async (authMode: "google" | "guest", googleIdToken?: string) => {
+    if (!pendingReviewPayload) return;
+    setReviewPublishMode(authMode);
+    setReviewFormSubmitting(true);
+    setReviewFormMessage("");
+
+    try {
+      const response = await fetch("http://localhost:8000/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rating: pendingReviewPayload.rating,
+          comment: pendingReviewPayload.comment,
+          authMode,
+          googleIdToken: googleIdToken || undefined,
+          display_name: pendingReviewPayload.display_name,
+          company: pendingReviewPayload.company,
+          email: pendingReviewPayload.email,
+          page_context: "clientes",
+        }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload?.detail || payload?.message || "No se pudo publicar la reseña.");
+      }
+
+      const newItem = normalizeReview(payload?.item || payload);
+      if (newItem?.id) {
+        pushReviewToTop(newItem);
+      }
+
+      const status = String(newItem?.status || "").toLowerCase();
+      if (status === "pending") {
+        publishToast("Reseña enviada. Quedó en revisión.", "success");
+      } else {
+        publishToast(authMode === "google" ? "Reseña publicada" : "Reseña enviada", "success");
+      }
+
+      setShowReviewVerifyModal(false);
+      setShowReviewForm(false);
+      setPendingReviewPayload(null);
+      setReviewForm({
+        author_name: "",
+        author_company: "",
+        author_email: "",
+        content: "",
+        rating: 5,
+      });
+    } catch (error: any) {
+      const message = error?.message || "Ocurrió un problema al publicar la reseña.";
+      setReviewFormMessage(message);
+      publishToast(message, "error");
+      console.error("Error publishing review:", error);
+    } finally {
+      setReviewPublishMode("idle");
+      setReviewFormSubmitting(false);
+    }
+  };
+
+  const handleGooglePublish = async () => {
+    if (!pendingReviewPayload) return;
+    const googleClientId = String(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "").trim();
+    if (!googleClientId) {
+      const msg = "Falta NEXT_PUBLIC_GOOGLE_CLIENT_ID en el frontend.";
+      setReviewFormMessage(msg);
+      publishToast(msg, "error");
+      return;
+    }
+
+    console.info("GSI runtime debug:", {
+      origin: typeof window !== "undefined" ? window.location.origin : "unknown",
+      clientIdPreview: `${googleClientId.slice(0, 18)}...${googleClientId.slice(-12)}`,
+    });
+
+    const sdkReady = await ensureGoogleSdkLoaded();
+    const google = (window as any)?.google;
+    if (!google?.accounts?.id || !sdkReady) {
+      const msg = "No se pudo conectar con Google. Revisa bloqueadores/extensiones y permite accounts.google.com.";
+      setReviewFormMessage(msg);
+      publishToast(msg, "error");
+      return;
+    }
+
+    setReviewPublishMode("google");
+    let receivedCredential = false;
+    google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: async (response: any) => {
+        const idToken = response?.credential;
+        if (!idToken) {
+          setReviewPublishMode("idle");
+          setReviewFormMessage("No se recibió token de Google.");
+          return;
+        }
+        receivedCredential = true;
+        await sendReview("google", idToken);
+      },
+      ux_mode: "popup",
+      auto_select: false,
+      cancel_on_tap_outside: true,
+    });
+
+    google.accounts.id.prompt((notification: any) => {
+      const notDisplayedReason = notification?.getNotDisplayedReason?.();
+      const skippedReason = notification?.getSkippedReason?.();
+      const dismissedReason = notification?.getDismissedReason?.();
+
+      if (
+        notification?.isNotDisplayed?.() ||
+        notification?.isSkippedMoment?.() ||
+        notification?.isDismissedMoment?.()
+      ) {
+        if (dismissedReason === "credential_returned" || receivedCredential) {
+          return;
+        }
+        setReviewPublishMode("idle");
+        const rawReason = notDisplayedReason || skippedReason || dismissedReason;
+        const reason = rawReason ? ` (${rawReason})` : "";
+        const message = `No fue posible completar Google${reason}. Puedes publicar sin validar.`;
+        setReviewFormMessage(message);
+        publishToast(message, "error");
+        console.error("Google Identity prompt blocked:", {
+          notDisplayedReason,
+          skippedReason,
+          dismissedReason,
+        });
+      }
+    });
+  };
+
+  const handleReviewSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setReviewFormMessage("");
+
+    const authorName = reviewForm.author_name.trim();
+    const authorCompany = reviewForm.author_company.trim();
+    const authorEmail = reviewForm.author_email.trim();
+    const content = reviewForm.content.trim();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!authorName || !authorCompany || !authorEmail || content.length < 20) {
+      setReviewFormMessage("Completa nombre, empresa, correo y una reseña de al menos 20 caracteres.");
+      return;
+    }
+
+    if (!emailPattern.test(authorEmail)) {
+      setReviewFormMessage("Ingresa un correo válido (ejemplo@dominio.com).");
+      return;
+    }
+
+    setPendingReviewPayload({
+      display_name: authorName,
+      company: authorCompany,
+      email: authorEmail,
+      rating: Math.max(1, Math.min(5, Number(reviewForm.rating) || 5)),
+      comment: content,
+    });
+    setShowReviewVerifyModal(true);
+  };
 
   return (
     <div className="clients-elite-wrapper">
+      <AnimatePresence>
+        {reviewToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.98 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            className="fixed top-6 right-6 z-[160] max-w-sm"
+          >
+            <div
+              className={`rounded-2xl border px-4 py-3 backdrop-blur-xl shadow-[0_20px_45px_rgba(0,0,0,0.45)] ${
+                reviewToast.type === "success"
+                  ? "border-emerald-500/35 bg-emerald-900/35 text-emerald-100"
+                  : "border-rose-500/35 bg-rose-900/35 text-rose-100"
+              }`}
+            >
+              <p className="text-sm font-semibold leading-relaxed">{reviewToast.message}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 1. HERO SECTION */}
       <header className="hero-gradient pt-40 pb-32 px-6 relative overflow-hidden">
@@ -848,7 +1343,7 @@ export default function ClientesPage() {
                     <div className="card-content">
                       <div className="card-info">
                         <h3 className="client-name">{client.company_name || client.name}</h3>
-                        <div className="success-badge">CASO DE ÉXITO • {client.year}</div>
+                        <div className="success-badge">CASO DE EXITO - {client.year}</div>
                       </div>
 
                       <p className="corporate-description">
@@ -902,14 +1397,14 @@ export default function ClientesPage() {
                   disabled={currentPage === 1}
                   className="elite-nav-btn prev-btn"
                 >
-                  <span className="btn-icon">←</span> Anterior
+                  <span className="btn-icon">&larr;</span> Anterior
                 </button>
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
                   className="elite-nav-btn next-btn"
                 >
-                  Siguiente <span className="btn-icon">→</span>
+                  Siguiente <span className="btn-icon">&rarr;</span>
                 </button>
               </div>
             </div>
@@ -1115,7 +1610,7 @@ export default function ClientesPage() {
                     <div className="text-xs font-bold text-blue-300/80 uppercase tracking-wider">Proyectos</div>
                   </div>
                   <div className="p-6 rounded-2xl bg-[#0a0f1e]/80 border-2 border-orange-400/40 text-center backdrop-blur-sm shadow-lg shadow-orange-500/10 hover:shadow-orange-500/30 transition-all">
-                    <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-orange-400 mb-2">4.9★</div>
+                    <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-orange-400 mb-2">4.9˜…</div>
                     <div className="text-xs font-bold text-orange-300/80 uppercase tracking-wider">Rating</div>
                   </div>
                 </div>
@@ -1125,202 +1620,483 @@ export default function ClientesPage() {
         </div>
       </section>
 
-      {/* 8. GALLERY SECTION */}
-      <section className="py-32 px-6 bg-white/[0.01]">
+      {/* 8. CLIENT ONBOARDING SECTION */}
+      <section className="py-32 px-6 bg-[radial-gradient(circle_at_top,_rgba(180,83,9,0.18),_rgba(10,10,14,0.95)_45%,_rgba(9,9,11,1)_100%)]">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-24">
+          <div className="text-center mb-20">
             <FadeInUp>
-              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 uppercase">Nuestro Trabajo en Acción</h2>
-              <p className="text-gray-500">Explora una selección de nuestros proyectos más destacados.</p>
+              <h2 className="text-5xl font-black text-amber-100 tracking-tighter mb-4 uppercase">Onboarding de Clientes</h2>
+              <p className="text-stone-400 max-w-3xl mx-auto leading-relaxed">
+                Conoce el flujo operativo y los entregables que recibes en cada etapa para iniciar el proyecto con control y claridad.
+              </p>
             </FadeInUp>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {PROJECT_GALLERY.map((proj, i) => (
-              <FadeInUp key={i} delay={i * 0.1}>
-                <div className="gallery-item group">
-                  <img src={proj.image} alt={proj.title} />
-                  {/* gallery-overlay removed - images should be fully visible */}
-                </div>
-              </FadeInUp>
-            ))}
-          </div>
-        </div>
-      </section >
 
-      {/* 9. AWARDS SECTION */}
-      < section className="py-32 px-6" >
-        <div className="max-w-7xl mx-auto text-center">
-          <FadeInUp>
-            <h2 className="text-5xl font-bold text-white tracking-tighter mb-24 uppercase">Reconocidos Globalmente</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-              {AWARDS.map((award, i) => (
-                <div key={i} className="glass-effect p-10 rounded-[2.5rem] border border-white/5 transition-all hover:translate-y-[-10px] hover:border-indigo-500/30 flex flex-col items-center justify-center">
-                  <div className="text-6xl mb-6">{award.icon}</div>
-                  <h4 className="text-[10px] font-black text-white uppercase mb-2 leading-tight tracking-widest">{award.title}</h4>
-                  <p className="text-[9px] text-gray-500 font-bold uppercase mb-4">{award.organization}</p>
-                  <span className="text-indigo-400 text-[10px] font-black bg-indigo-500/10 px-4 py-1 rounded-full uppercase">{award.year}</span>
-                </div>
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div className="xl:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {CLIENT_ONBOARDING.map((step, i) => (
+                <FadeInUp key={step.title} delay={i * 0.08}>
+                  <div className="h-full p-8 rounded-[2.2rem] border border-amber-900/45 bg-[#121217]/90 backdrop-blur-xl shadow-[0_24px_60px_rgba(0,0,0,0.45)] hover:border-amber-600/45 hover:-translate-y-1 transition-all duration-300">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="w-14 h-14 rounded-2xl bg-amber-950/40 border border-amber-700/40 flex items-center justify-center text-2xl">
+                        {step.icon}
+                      </div>
+                      <span className="text-[10px] font-black tracking-[0.25em] uppercase text-amber-300/90">
+                        {step.timing}
+                      </span>
+                    </div>
+                    <h3 className="text-2xl font-black text-amber-50 mb-3">{step.title}</h3>
+                    <p className="text-sm text-stone-300/85 leading-relaxed mb-5">{step.description}</p>
+                    <div className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-300/90">
+                      {step.deliverable}
+                    </div>
+                  </div>
+                </FadeInUp>
               ))}
             </div>
-          </FadeInUp>
-        </div>
-      </section >
 
-      {/* 10. TESTIMONIALS SECTION (VOCES DE ÉXITO) */}
-      < section className="py-32 px-6 bg-white/[0.02] border-y border-white/5" >
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-24">
-            <FadeInUp>
-              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 uppercase">Voces de Éxito</h2>
-              <div className="w-24 h-1 bg-indigo-500 mx-auto rounded-full" />
+            <FadeInUp delay={0.2}>
+              <div className="h-full p-10 rounded-[2.5rem] border border-amber-900/50 bg-[linear-gradient(160deg,rgba(120,53,15,0.28),rgba(18,18,24,0.92)_45%,rgba(9,9,12,0.98))] backdrop-blur-xl shadow-[0_26px_70px_rgba(0,0,0,0.45)]">
+                <div className="inline-block px-4 py-2 rounded-full bg-amber-950/45 border border-amber-700/45 mb-6">
+                  <span className="text-[10px] font-black tracking-[0.25em] uppercase text-amber-300">Para Nuevos Clientes</span>
+                </div>
+                <h3 className="text-3xl font-black text-amber-100 leading-tight mb-6">Que recibes desde el dia uno</h3>
+                <div className="space-y-4 mb-8">
+                  {CLIENT_PROMISES.map((promise) => (
+                    <div key={promise.label} className="flex items-start gap-3 p-4 rounded-2xl border border-[#3b3224] bg-[#141419]/85">
+                      {promise.icon}
+                      <span className="text-sm text-stone-300/95 leading-relaxed">{promise.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="p-5 rounded-2xl border border-[#4a3a26] bg-[#0f0f13]/95">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-300/90 mb-2">
+                    Objetivo del bloque
+                  </p>
+                  <p className="text-sm text-stone-400">
+                    Reducir dudas y mostrar confianza antes de que el cliente llegue al formulario.
+                  </p>
+                </div>
+              </div>
             </FadeInUp>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {displayClients.slice(0, 3).map((client: any, i) => (
-              <FadeInUp key={i} delay={i * 0.15}>
-                <div className="glass-effect p-16 rounded-[4rem] border border-white/10 relative group hover:border-indigo-500/30 transition-all">
-                  <div className="text-7xl text-indigo-500/20 absolute top-10 right-10 leading-none">"</div>
-                  <p className="text-xl text-white/90 font-medium leading-relaxed mb-12 relative z-10">
-                    {client.testimonial}
+        </div>
+      </section >
+
+      {/* 11. CLIENT EVOLUTION SECTION */}
+      < section className="py-32 px-6 bg-[linear-gradient(180deg,#0e1015_0%,#12151d_48%,#0d1016_100%)]" >
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <FadeInUp>
+              <div className="inline-block px-6 py-2 rounded-full border border-amber-700/40 bg-amber-950/30 mb-7">
+                <span className="text-[10px] font-black tracking-[0.35em] uppercase text-amber-300">Evolucion Real</span>
+              </div>
+              <h2 className="text-5xl font-black text-stone-100 tracking-tight mb-5 uppercase">
+                Como Crecen Nuestros Clientes
+              </h2>
+              <p className="text-stone-400 max-w-3xl mx-auto leading-relaxed">
+                Este bloque muestra progreso real en el tiempo: orden operativo, crecimiento comercial y consolidacion de largo plazo.
+              </p>
+            </FadeInUp>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div className="xl:col-span-2 space-y-6">
+              {CLIENT_EVOLUTION_STAGES.map((stage, i) => {
+                const StageIcon = stage.icon;
+                return (
+                  <FadeInUp key={stage.phase} delay={i * 0.1}>
+                    <div className="group relative overflow-hidden rounded-[2.4rem] border border-[#3f3426] bg-[linear-gradient(160deg,rgba(31,24,17,0.26),rgba(21,24,31,0.92)_50%,rgba(11,14,19,0.98))] p-8 shadow-[0_24px_60px_rgba(0,0,0,0.45)] transition-all duration-500 hover:-translate-y-1.5 hover:border-amber-500/55 hover:shadow-[0_34px_90px_rgba(0,0,0,0.6)]">
+                      <div className="pointer-events-none absolute -top-28 -left-24 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl opacity-60 transition-all duration-500 group-hover:scale-125 group-hover:opacity-95" />
+                      <div className="pointer-events-none absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl opacity-60 transition-all duration-500 group-hover:scale-125 group-hover:opacity-95" />
+                      <div className="pointer-events-none absolute inset-x-12 top-0 h-[1px] bg-gradient-to-r from-transparent via-amber-200/70 to-transparent opacity-70" />
+                      <div className="relative flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                          <div
+                            className="w-12 h-12 rounded-xl border flex items-center justify-center text-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3"
+                            style={{
+                              borderColor: stage.iconBorder,
+                              backgroundColor: stage.iconBg,
+                              boxShadow: `0 0 22px ${stage.iconGlow}`,
+                            }}
+                          >
+                            <StageIcon className="text-xl" style={{ color: stage.iconColor }} />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black tracking-[0.24em] uppercase text-amber-300/90 mb-2">{stage.phase}</p>
+                            <h3 className="text-2xl font-black text-stone-100 mb-2 transition-colors duration-300 group-hover:text-amber-100">{stage.title}</h3>
+                            <p className="text-sm text-stone-400 leading-relaxed">{stage.context}</p>
+                          </div>
+                        </div>
+                        <div className="inline-flex px-4 py-2 rounded-full border border-emerald-700/35 bg-emerald-900/20 text-[10px] font-black tracking-[0.17em] uppercase text-emerald-300 transition-all duration-500 group-hover:border-emerald-500/60 group-hover:bg-emerald-900/35 group-hover:shadow-[0_0_28px_rgba(16,185,129,0.22)]">
+                          {stage.metric}
+                        </div>
+                      </div>
+
+                      <div className="relative mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-4 rounded-2xl border border-[#3b3329] bg-[#12141a]/95 transition-all duration-300 hover:-translate-y-1 hover:border-amber-600/45 hover:bg-[#161821]">
+                          <p className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black tracking-[0.18em] uppercase text-rose-300 border border-rose-500/45 bg-rose-900/25 mb-2">
+                            Antes
+                          </p>
+                          <p className="text-sm text-stone-300/90 leading-relaxed">{stage.before}</p>
+                        </div>
+                        <div className="p-4 rounded-2xl border border-emerald-900/35 bg-[#121a16]/95 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/45 hover:bg-[#14201a]">
+                          <p className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black tracking-[0.18em] uppercase text-emerald-200 border border-emerald-500/45 bg-emerald-900/25 mb-2">
+                            Despues
+                          </p>
+                          <p className="text-sm text-stone-200/90 leading-relaxed">{stage.after}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </FadeInUp>
+                );
+              })}
+            </div>
+
+            <FadeInUp delay={0.2}>
+              <div className="group relative overflow-hidden rounded-[2.4rem] border border-[#433625] bg-[linear-gradient(170deg,rgba(99,55,21,0.26),rgba(21,24,31,0.92)_45%,rgba(14,16,22,0.98))] p-8 h-full shadow-[0_26px_70px_rgba(0,0,0,0.45)] transition-all duration-500 hover:-translate-y-1.5 hover:border-amber-500/55 hover:shadow-[0_34px_90px_rgba(0,0,0,0.6)]">
+                <div className="pointer-events-none absolute -top-24 -right-20 h-64 w-64 rounded-full bg-amber-500/15 blur-3xl opacity-70 transition-all duration-500 group-hover:scale-125 group-hover:opacity-100" />
+                <div className="pointer-events-none absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-emerald-500/12 blur-3xl opacity-55 transition-all duration-500 group-hover:scale-125 group-hover:opacity-90" />
+                <div className="relative">
+                  <h3 className="text-3xl font-black text-amber-100 leading-tight mb-3">Clientes que se Quedan</h3>
+                  <p className="text-sm text-stone-400 leading-relaxed mb-8">
+                    Mas alla de un proyecto puntual, construimos relaciones de trabajo estables y medibles en el tiempo.
                   </p>
-                  <div className="flex items-center gap-6 border-t border-white/5 pt-10">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-3xl shadow-lg shadow-indigo-500/20">
-                      {client.logo}
-                    </div>
-                    <div>
-                      <div className="text-lg font-bold text-white">{client.author}</div>
-                      <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{client.role}</div>
-                    </div>
+
+                  <div className="space-y-4 mb-8">
+                    {CLIENT_RELATIONSHIP_STATS.map((stat) => {
+                      const StatIcon = stat.icon;
+                      return (
+                        <div key={stat.label} className="group p-4 rounded-2xl border border-[#4a3b2a] bg-[#121419]/90 transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/55 hover:bg-[#171b25] hover:shadow-[0_18px_45px_rgba(0,0,0,0.45)]">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div
+                              className="w-10 h-10 rounded-xl border flex items-center justify-center text-lg transition-all duration-300 group-hover:scale-110"
+                              style={{
+                                borderColor: stat.iconBorder,
+                                backgroundColor: stat.iconBg,
+                                boxShadow: `0 0 18px ${stat.iconGlow}`,
+                              }}
+                            >
+                              <StatIcon style={{ color: stat.iconColor }} />
+                            </div>
+                            <p className="text-xs font-black uppercase tracking-[0.2em] text-stone-300">{stat.label}</p>
+                          </div>
+                          <p className="text-3xl font-black text-amber-200 mb-2 transition-colors duration-300 group-hover:text-amber-100">{stat.value}</p>
+                          <p className="text-xs text-stone-400 leading-relaxed">{stat.detail}</p>
+                        </div>
+                      );
+                    })}
                   </div>
+
+                  <Link
+                    href="/clientes/casos-completos"
+                    className="group inline-flex items-center justify-center gap-2 w-full py-4 rounded-full border border-amber-700/45 text-amber-200 font-black uppercase tracking-[0.18em] text-xs hover:bg-amber-900/25 hover:border-amber-500/70 transition-all duration-300"
+                  >
+                    Ver Casos Completos
+                    <FaArrowRight className="text-[11px] transition-transform duration-300 group-hover:translate-x-1" />
+                  </Link>
                 </div>
-              </FadeInUp>
-            ))}
+              </div>
+            </FadeInUp>
           </div>
         </div>
       </section >
 
-      {/* 11. VIDEO TESTIMONIALS SECTION */}
-      < section className="py-32 px-6 bg-indigo-500/[0.03]" >
-        <div className="max-w-7xl mx-auto text-center">
+      {/* 12. REVIEWS WALL */}
+      <section className="py-32 px-6 bg-[#050608] border-t border-white/[0.04]">
+        <div className="max-w-[1480px] mx-auto">
           <FadeInUp>
-            <div className="inline-block px-6 py-2 bg-indigo-500/10 border border-indigo-500/50 rounded-full mb-8">
-              <span className="text-[10px] font-black tracking-[0.4em] uppercase text-indigo-400">🎥 Historias de Éxito en Video</span>
-            </div>
-            <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 uppercase">Vea la Transformación en Realidad</h2>
-            <p className="text-gray-400 mb-20 max-w-2xl mx-auto">Escucha directamente de nuestros clientes cómo transformamos sus negocios.</p>
-          </FadeInUp>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {VIDEO_TESTIMONIALS.map((video, i) => (
-              <FadeInUp key={i} delay={i * 0.1}>
-                <div className="card-3d glass-effect rounded-[3rem] overflow-hidden border border-white/10 group">
-                  <div className="aspect-video relative overflow-hidden bg-black/50">
-                    <iframe
-                      src={video.url}
-                      title={video.author}
-                      className="w-full h-full opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-700"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center group-hover:hidden transition-all duration-300">
-                      <div className="w-24 h-24 bg-indigo-500 rounded-full flex items-center justify-center text-white scale-90 group-hover:scale-100 transition-all opacity-80 group-hover:opacity-100">
-                        <FaPlus className="text-4xl -rotate-45" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-10 text-left">
-                    <h3 className="text-xl font-bold text-white mb-2 uppercase">{video.company}</h3>
-                    <p className="text-gray-500 text-sm mb-8">"{video.quote}"</p>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-2xl border border-white/5">{video.logo}</div>
-                      <div>
-                        <div className="text-xs font-black text-white uppercase tracking-widest">{video.author}</div>
-                        <div className="text-[9px] font-bold text-indigo-400 uppercase tracking-[0.2em]">{video.role}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </FadeInUp>
-            ))}
-          </div>
-        </div>
-      </section >
-
-      {/* 13. CONTACT FORM SECTION (HABLEMOS) */}
-      < section className="py-40 px-6" >
-        <div className="max-w-4xl mx-auto">
-          <FadeInUp>
-            <div className="text-center mb-16">
-              <div className="text-6xl mb-8">💬</div>
-              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 uppercase">Hablemos de Tu Proyecto</h2>
-              <p className="text-gray-500">Cuéntanos tu visión y te mostraremos cómo hacerla realidad.</p>
-            </div>
-            <form className="glass-effect p-12 md:p-20 rounded-[4rem] border border-white/10 space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <label className="text-xs font-black uppercase tracking-widest text-indigo-400">Nombre Completo *</label>
-                  <input placeholder="Ej: Carlos Méndez" className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-indigo-500 transition-all font-bold placeholder-white/20" />
-                </div>
-                <div className="space-y-4">
-                  <label className="text-xs font-black uppercase tracking-widest text-indigo-400">Email Corporativo *</label>
-                  <input placeholder="carlos@empresa.com" className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-indigo-500 transition-all font-bold placeholder-white/20" />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <label className="text-xs font-black uppercase tracking-widest text-indigo-400">Empresa *</label>
-                  <input placeholder="Nombre de su empresa" className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-indigo-500 transition-all font-bold placeholder-white/20" />
-                </div>
-                <div className="space-y-4">
-                  <label className="text-xs font-black uppercase tracking-widest text-indigo-400">Tipo de Proyecto *</label>
-                  <select className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-indigo-500 transition-all font-bold appearance-none">
-                    <option className="bg-[#1a1a2e]">Desarrollo Web</option>
-                    <option className="bg-[#1a1a2e]">Aplicación Móvil</option>
-                    <option className="bg-[#1a1a2e]">IA Integration</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <label className="text-xs font-black uppercase tracking-widest text-indigo-400">Mensaje *</label>
-                <textarea rows={4} placeholder="Describe tu proyecto..." className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] px-8 py-8 text-white outline-none focus:border-indigo-500 transition-all font-bold placeholder-white/20 resize-none" />
-              </div>
-              <button className="btn-elite w-full py-8 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full font-black uppercase tracking-[0.5em] text-xs shadow-2xl shadow-indigo-500/50">
-                🚀 Enviar Consulta
+            <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-6 mb-10">
+              <h2 className="text-center md:text-left text-4xl md:text-5xl font-black text-white tracking-tight">
+                What our customers say
+              </h2>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowReviewForm((prev) => !prev);
+                    setReviewFormMessage("");
+                  }}
+                className={`group inline-flex items-center gap-2 px-6 py-3 rounded-full border font-black uppercase tracking-[0.12em] text-xs transition-all duration-300 transform-gpu hover:-translate-y-0.5 active:translate-y-px active:scale-95 ${showReviewForm
+                  ? "border-amber-400/70 bg-amber-900/20 text-amber-200 shadow-[0_0_0_1px_rgba(251,191,36,0.25),0_14px_28px_rgba(0,0,0,0.35)]"
+                  : "border-amber-500/45 text-amber-300 hover:bg-amber-900/20 hover:shadow-[0_12px_30px_rgba(0,0,0,0.35)]"}`}
+              >
+                <span className={`text-base leading-none transition-transform duration-300 ${showReviewForm ? "rotate-45" : "group-hover:scale-125"}`}>+</span>
+                {showReviewForm ? "Cerrar Formulario" : "Agregar Reseña"}
               </button>
-            </form>
-          </FadeInUp>
-        </div>
-      </section >
-
-      {/* 14. REVIEW FORM SECTION (COMPARTE EXPERIENCIA) */}
-      < section className="py-32 px-6 bg-indigo-500/[0.05]" >
-        <div className="max-w-4xl mx-auto">
-          <FadeInUp>
-            <div className="text-center mb-16">
-              <div className="text-5xl mb-8">⭐</div>
-              <h2 className="text-5xl font-bold text-white tracking-tighter mb-4 uppercase">Comparte Tu Experiencia</h2>
-              <p className="text-gray-500">Tu opinión nos ayuda a mejorar cada día.</p>
             </div>
-            <div className="glass-effect p-12 md:p-20 rounded-[4rem] border border-white/10 text-center">
-              <div className="flex justify-center gap-6 mb-12">
-                {[1, 2, 3, 4, 5].map(star => (
-                  <FaStar
-                    key={star}
-                    onClick={() => setRating(star)}
-                    className={`text-5xl cursor-pointer transition-all ${rating >= star ? "text-yellow-400 scale-125 filter drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]" : "text-white/10 hover:text-white/20"}`}
+          </FadeInUp>
+
+          {reviewFormMessage && (
+            <div className={`mb-8 rounded-2xl border px-5 py-4 text-sm ${reviewFormIsError
+              ? "border-red-700/30 bg-red-900/15 text-red-200"
+              : "border-emerald-700/30 bg-emerald-900/15 text-emerald-200"}`}>
+              {reviewFormMessage}
+            </div>
+          )}
+
+          {showReviewForm && (
+            <FadeInUp delay={0.05}>
+              <form
+                onSubmit={handleReviewSubmit}
+                className="mb-10 relative overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(145deg,#12151c,#0f1218)] p-6 md:p-8 shadow-[0_20px_45px_rgba(0,0,0,0.42)] transition-all duration-500 hover:border-amber-500/30"
+              >
+                <div className="pointer-events-none absolute -top-20 -right-12 h-44 w-44 rounded-full bg-amber-400/10 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-24 -left-16 h-52 w-52 rounded-full bg-cyan-400/8 blur-3xl" />
+                <div className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-amber-200/60 to-transparent" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <input
+                    value={reviewForm.author_name}
+                    onChange={(event) => handleReviewInputChange("author_name", event.target.value)}
+                    placeholder="Nombre completo *"
+                    className="relative w-full rounded-xl border border-white/10 bg-[#11151d] px-4 py-3 text-white placeholder:text-white/35 outline-none transition-all duration-300 hover:border-amber-400/35 focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400/20 focus:shadow-[0_0_0_1px_rgba(251,191,36,0.2)]"
+                    required
                   />
-                ))}
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <input placeholder="Nombre Completo" className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-indigo-500 transition-all font-bold placeholder-white/20" />
-                <input placeholder="Empresa / Cargo" className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-white outline-none focus:border-indigo-500 transition-all font-bold placeholder-white/20" />
-              </div>
-              <textarea rows={4} placeholder="Tu reseña..." className="w-full bg-white/5 border border-white/10 rounded-[2.5rem] px-8 py-8 text-white outline-none focus:border-indigo-500 transition-all font-bold placeholder-white/20 resize-none mb-10" />
-              <button className="btn-elite px-16 py-6 border-2 border-indigo-500 text-indigo-500 rounded-full font-black uppercase tracking-[0.3em] text-xs hover:bg-indigo-500 hover:text-white transition-all">
-                ✨ Publicar Reseña
-              </button>
+                  <input
+                    value={reviewForm.author_company}
+                    onChange={(event) => handleReviewInputChange("author_company", event.target.value)}
+                    placeholder="Empresa *"
+                    className="relative w-full rounded-xl border border-white/10 bg-[#11151d] px-4 py-3 text-white placeholder:text-white/35 outline-none transition-all duration-300 hover:border-amber-400/35 focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400/20 focus:shadow-[0_0_0_1px_rgba(251,191,36,0.2)]"
+                    required
+                  />
+                  <input
+                    type="email"
+                    value={reviewForm.author_email}
+                    onChange={(event) => handleReviewInputChange("author_email", event.target.value)}
+                    placeholder="Correo / Gmail *"
+                    className="relative w-full rounded-xl border border-white/10 bg-[#11151d] px-4 py-3 text-white placeholder:text-white/35 outline-none transition-all duration-300 hover:border-amber-400/35 focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400/20 focus:shadow-[0_0_0_1px_rgba(251,191,36,0.2)]"
+                    required
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-xs uppercase tracking-[0.14em] font-black text-white/60 mb-3">Calificación</p>
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={`review-form-star-${star}`}
+                        type="button"
+                        onClick={() => handleReviewInputChange("rating", star)}
+                        className="text-2xl transition-all duration-200 hover:scale-125 active:scale-90"
+                      >
+                        <FaStar className={Number(reviewForm.rating) >= star ? "text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.45)]" : "text-slate-600"} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <textarea
+                  value={reviewForm.content}
+                  onChange={(event) => handleReviewInputChange("content", event.target.value)}
+                  placeholder="Cuéntanos tu experiencia (mínimo 20 caracteres) *"
+                  rows={4}
+                  className="w-full rounded-2xl border border-white/10 bg-[#11151d] px-4 py-3 text-white placeholder:text-white/35 outline-none transition-all duration-300 hover:border-amber-400/35 focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400/20 focus:shadow-[0_0_0_1px_rgba(251,191,36,0.2)] resize-none"
+                  required
+                />
+
+                <div className="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <p className="text-xs text-white/45">
+                    La reseña quedará en estado pendiente hasta aprobación del equipo.
+                  </p>
+                  <button
+                    type="submit"
+                    disabled={reviewFormSubmitting || reviewPublishMode !== "idle"}
+                    className="px-6 py-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-[#0c1016] font-black uppercase tracking-[0.12em] text-xs transition-all duration-300 transform-gpu hover:scale-[1.03] hover:shadow-[0_12px_30px_rgba(245,158,11,0.3)] active:scale-95 active:translate-y-px active:shadow-[0_4px_12px_rgba(245,158,11,0.2)] disabled:opacity-60 disabled:hover:scale-100"
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      {reviewFormSubmitting && (
+                        <span className="h-3.5 w-3.5 rounded-full border-2 border-[#0c1016] border-t-transparent animate-spin" />
+                      )}
+                      {reviewFormSubmitting ? "Procesando..." : "Publicar Reseña"}
+                    </span>
+                  </button>
+                </div>
+              </form>
+            </FadeInUp>
+          )}
+
+          <AnimatePresence>
+            {showReviewVerifyModal && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[130] bg-black/80 backdrop-blur-md p-6 flex items-center justify-center"
+                onClick={() => {
+                  if (reviewPublishMode === "idle") {
+                    setShowReviewVerifyModal(false);
+                    setPendingReviewPayload(null);
+                  }
+                }}
+              >
+                <motion.div
+                  initial={{ y: 24, opacity: 0, scale: 0.98 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  exit={{ y: 16, opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.22, ease: "easeOut" }}
+                  className="w-full max-w-xl rounded-[2rem] border border-white/10 bg-[linear-gradient(145deg,#0d1220,#10162a)] p-7 md:p-8 shadow-[0_30px_80px_rgba(0,0,0,0.55)]"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <div className="inline-flex px-3 py-1.5 rounded-full border border-amber-500/40 bg-amber-900/15 text-[10px] tracking-[0.18em] font-black uppercase text-amber-300 mb-4">
+                    Verifica tu reseña
+                  </div>
+                  <h3 className="text-3xl font-black text-white mb-3">Publicación segura y confiable</h3>
+                  <p className="text-sm text-slate-300 leading-relaxed mb-6">
+                    Para mostrar tu foto real y proteger la calidad del feedback, valida tu reseña con Google.
+                    No almacenamos contraseñas.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={handleGooglePublish}
+                      disabled={reviewPublishMode !== "idle"}
+                      className="inline-flex justify-center items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-black uppercase tracking-[0.12em] text-xs transition-all duration-300 transform-gpu hover:scale-[1.02] hover:shadow-[0_12px_28px_rgba(37,99,235,0.36)] active:scale-95 active:translate-y-px disabled:opacity-60"
+                    >
+                      {reviewPublishMode === "google" && (
+                        <span className="h-3.5 w-3.5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                      )}
+                      {reviewPublishMode === "google" ? "Validando..." : "Validar con Google"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => sendReview("guest")}
+                      disabled={reviewPublishMode !== "idle"}
+                      className="inline-flex justify-center items-center gap-2 px-5 py-3 rounded-xl border border-white/20 text-white/90 font-black uppercase tracking-[0.12em] text-xs transition-all duration-300 transform-gpu hover:bg-white/10 hover:shadow-[0_10px_24px_rgba(0,0,0,0.34)] active:scale-95 active:translate-y-px disabled:opacity-60"
+                    >
+                      {reviewPublishMode === "guest" && (
+                        <span className="h-3.5 w-3.5 rounded-full border-2 border-white/90 border-t-transparent animate-spin" />
+                      )}
+                      {reviewPublishMode === "guest" ? "Publicando..." : "Publicar sin foto"}
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {approvedReviews.length === 0 ? (
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.02] p-10 text-center text-white/60">
+              <p>Aún no hay reseñas aprobadas para mostrar.</p>
             </div>
-          </FadeInUp>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+                <FadeInUp delay={0.02}>
+                  <article className="space-y-5">
+                    <div className="relative min-h-[250px] p-7 rounded-[2rem] border border-white/10 bg-[linear-gradient(145deg,#1a1d24,#15171c)] shadow-[0_22px_50px_rgba(0,0,0,0.45)]">
+                      <div className="absolute -bottom-2 left-8 w-5 h-5 rotate-45 border-r border-b border-white/10 bg-[#15171c]" />
+                      <div className="flex items-center gap-1 text-yellow-400 mb-5 text-lg">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <FaStar key={`summary-star-${star}`} />
+                        ))}
+                      </div>
+                      <ul className="space-y-4">
+                        {reviewInsightBullets.map((item, idx) => (
+                          <li key={`insight-${idx}`} className="flex items-start gap-3 text-white/90 leading-relaxed">
+                            <FaCheckCircle className="text-white/85 mt-1 text-sm flex-shrink-0" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-lg font-black border border-violet-300/25">
+                        ✨
+                      </div>
+                      <div>
+                        <p className="text-violet-400 font-black text-2xl leading-none">AI-Generated Summary</p>
+                        <p className="text-white/55 text-sm">Based on {reviewSummary.total} approved reviews</p>
+                      </div>
+                    </div>
+                  </article>
+                </FadeInUp>
+
+                {visibleReviews.map((review: any, idx: number) => {
+                  const reviewKey = String(review.id ?? `review-${idx}`);
+                  const isExpanded = expandedReviewKeys.includes(reviewKey);
+                  const content = String(review.comment || review.content || "").trim();
+                  const isLong = content.length > REVIEW_PREVIEW_CHARS;
+                  const displayContent = isExpanded || !isLong
+                    ? content
+                    : `${content.slice(0, REVIEW_PREVIEW_CHARS)}...`;
+                  const rating = Math.max(1, Math.min(5, Number(review.rating) || 5));
+                  const reviewerName = String(review?.user?.name || review.display_name || review.author_name || "Anonymous").trim();
+                  const reviewerAvatar = sanitizeReviewAvatar(review?.user?.avatar_url || review.author_image || null);
+
+                  return (
+                    <FadeInUp key={reviewKey} delay={0.06 + idx * 0.05}>
+                      <article className="space-y-5">
+                        <div className="relative min-h-[250px] p-7 rounded-[2rem] border border-white/10 bg-[linear-gradient(145deg,#1a1d24,#15171c)] shadow-[0_22px_50px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 hover:border-white/20">
+                          <div className="absolute -bottom-2 left-8 w-5 h-5 rotate-45 border-r border-b border-white/10 bg-[#15171c]" />
+                          <div className="flex items-center gap-1 text-yellow-400 mb-4 text-lg">
+                            {Array.from({ length: 5 }).map((_, starIndex) => (
+                              <FaStar key={`${reviewKey}-star-${starIndex}`} className={starIndex < rating ? "text-yellow-400" : "text-slate-700"} />
+                            ))}
+                          </div>
+                          <p className="text-white text-[1.08rem] md:text-[1.18rem] leading-relaxed break-words [overflow-wrap:anywhere]">
+                            {displayContent || "Great place to stay"}
+                          </p>
+                          {isLong && (
+                            <button
+                              type="button"
+                              onClick={() => toggleReviewExpanded(reviewKey)}
+                              className="mt-2 text-slate-400 hover:text-slate-200 transition-colors"
+                            >
+                              {isExpanded ? "Read less" : "Read more"}
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {reviewerAvatar ? (
+                            <img
+                              src={reviewerAvatar}
+                              alt={reviewerName || "Reviewer"}
+                              className="w-12 h-12 rounded-full object-cover border border-white/20"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-[#1b1f2a] border border-white/20 text-white font-black flex items-center justify-center">
+                              {getReviewInitials(review)}
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-amber-50 font-black text-xl leading-none">{reviewerName || "Anonymous"}</p>
+                            <p className="mt-1 text-xs text-white/55">
+                              {getReviewDateLabel(review.created_at)} on <span className="text-sky-400">Portfolio</span>
+                            </p>
+                            <div className="mt-2 flex items-center flex-wrap gap-2 text-xs">
+                              <span
+                                className={`inline-flex items-center px-2.5 py-1 rounded-full border font-black uppercase tracking-[0.1em] ${
+                                  review.is_verified
+                                    ? "border-emerald-500/45 bg-emerald-900/30 text-emerald-200"
+                                    : "border-white/15 bg-white/5 text-white/65"
+                                }`}
+                              >
+                                {review.is_verified ? "Verificada" : "No verificada"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    </FadeInUp>
+                  );
+                })}
+              </div>
+
+              {hasMoreReviews && (
+                <div className="mt-16 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setVisibleReviewCount((prev) => prev + REVIEW_BATCH)}
+                    className="min-w-[220px] px-8 py-3 rounded-xl bg-[#1b1f24] border border-white/10 text-white/90 font-bold transition-all duration-300 transform-gpu hover:bg-[#242933] hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(0,0,0,0.35)] active:scale-95 active:translate-y-px active:shadow-[0_6px_16px_rgba(0,0,0,0.3)]"
+                  >
+                    Load More
+                  </button>
+                </div>
+              )}
+            </>
+          )}
         </div>
-      </section >
+      </section>
 
       {/* 15. CTA SECTION (ESTO ES LA CTA FINAL ELITE 2.0) */}
       < section className="py-40 px-6 bg-indigo-600 relative overflow-hidden" >
@@ -1352,3 +2128,4 @@ export default function ClientesPage() {
     </div >
   );
 }
+

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 from typing import List
 from pydantic import BaseModel
@@ -20,7 +20,6 @@ class ReviewCreate(BaseModel):
 
 class ReviewUpdate(BaseModel):
     status: str | None = None
-    rating: int | None = None
     content: str | None = None
     author_name: str | None = None
     author_role: str | None = None
@@ -48,8 +47,15 @@ def get_team(session: Session = Depends(get_session)):
     return team
 
 @router.get("/reviews", response_model=List[Review])
-def get_reviews(session: Session = Depends(get_session)):
-    reviews = session.exec(select(Review).where(Review.status == "approved")).all()
+def get_reviews(
+    page_context: str | None = Query(default=None),
+    session: Session = Depends(get_session),
+):
+    query = select(Review).where(Review.status == "approved")
+    normalized_page_context = (page_context or "").strip().lower()
+    if normalized_page_context:
+        query = query.where(Review.page_context == normalized_page_context)
+    reviews = session.exec(query.order_by(Review.id.desc())).all()
     return reviews
 
 
@@ -68,7 +74,7 @@ def create_review(payload: ReviewCreate, session: Session = Depends(get_session)
         author_company=(payload.author_company or "").strip() or None,
         content=payload.content.strip(),
         rating=clean_rating,
-        page_context=(payload.page_context or "").strip() or None,
+        page_context=(payload.page_context or "").strip().lower() or None,
         status="pending",
         created_at=datetime.utcnow().isoformat(),
     )
@@ -90,9 +96,6 @@ def update_review(review_id: int, payload: ReviewUpdate, session: Session = Depe
             raise HTTPException(status_code=400, detail="Estado invalido")
         review.status = payload.status
 
-    if payload.rating is not None:
-        review.rating = max(1, min(int(payload.rating), 5))
-
     if payload.content is not None:
         review.content = payload.content.strip()
     if payload.author_name is not None:
@@ -102,7 +105,7 @@ def update_review(review_id: int, payload: ReviewUpdate, session: Session = Depe
     if payload.author_company is not None:
         review.author_company = payload.author_company.strip() or None
     if payload.page_context is not None:
-        review.page_context = payload.page_context.strip() or None
+        review.page_context = payload.page_context.strip().lower() or None
 
     session.add(review)
     session.commit()

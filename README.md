@@ -29,7 +29,7 @@ Para levantar todo el sistema (Frontend + Backend + DB) usando Docker (recomenda
     ```bash
     cd backend-py
     docker compose up --build -d
-    ```
+    ``uvicorn app.main:app --reload`
 
 3.  **Iniciar Frontend (Desarrollo):**
     ```bash
@@ -46,3 +46,6 @@ Visita:
 ---
 **Desarrollado por:** Favio Jiménez
 **Licencia:** Propietaria
+git add .
+git commit -m "mensaje claro del cambio"
+git push origin main
