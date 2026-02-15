@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,6 +23,62 @@ interface BlogPost {
   views: string;
   content?: string;
 }
+
+interface BlogHeroConfig {
+  media_type: "image" | "video";
+  background_image_url: string;
+  background_video_url: string;
+  card_kicker: string;
+  card_title: string;
+  card_description: string;
+  card_tags: string;
+}
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+const DEFAULT_HERO_CONFIG: BlogHeroConfig = {
+  media_type: "video",
+  background_image_url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1600",
+  background_video_url: "",
+  card_kicker: "Radar Tecnologico 2026",
+  card_title: "3 tendencias que estan cambiando el desarrollo",
+  card_description: "IA agentes, cloud eficiente y seguridad zero trust para productos reales.",
+  card_tags: '["LLM OPS","CLOUD NATIVE","ZERO TRUST"]',
+};
+
+const normalizeHeroConfig = (payload: Partial<BlogHeroConfig> | null | undefined): BlogHeroConfig => {
+  const raw = payload || {};
+  return {
+    ...DEFAULT_HERO_CONFIG,
+    ...raw,
+    media_type: raw.media_type === "image" ? "image" : "video",
+    background_image_url: raw.background_image_url || DEFAULT_HERO_CONFIG.background_image_url,
+    background_video_url: raw.background_video_url || "",
+    card_kicker: raw.card_kicker || DEFAULT_HERO_CONFIG.card_kicker,
+    card_title: raw.card_title || DEFAULT_HERO_CONFIG.card_title,
+    card_description: raw.card_description || DEFAULT_HERO_CONFIG.card_description,
+    card_tags: raw.card_tags || DEFAULT_HERO_CONFIG.card_tags,
+  };
+};
+
+const parseCardTags = (raw: string): string[] => {
+  const value = raw.trim();
+  if (!value) return [];
+  if (value.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        return parsed.map((item) => String(item).trim()).filter(Boolean);
+      }
+    } catch {
+      return [];
+    }
+  }
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
 
 // --- Mock Data (Based on requested template) ---
 const MOCK_POSTS: BlogPost[] = [
@@ -310,10 +366,37 @@ const INTEGRATIONS_DATA = {
 
 export default function BlogPage() {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+  const [heroConfig, setHeroConfig] = useState<BlogHeroConfig>(DEFAULT_HERO_CONFIG);
   const [activeTab, setActiveTab] = useState("Pasarelas");
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadHeroConfig = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/blog/hero`);
+        if (!response.ok) return;
+        const data = await response.json();
+        if (isMounted) setHeroConfig(normalizeHeroConfig(data));
+      } catch (error) {
+        console.error("Error loading blog hero config", error);
+      }
+    };
+
+    void loadHeroConfig();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const showHeroVideo = heroConfig.media_type === "video" && heroConfig.background_video_url.trim().length > 0;
+  const heroCardTags = useMemo(() => {
+    const tags = parseCardTags(heroConfig.card_tags || "");
+    return tags.length > 0 ? tags : parseCardTags(DEFAULT_HERO_CONFIG.card_tags);
+  }, [heroConfig.card_tags]);
   const postsPerPage = 6; // Ajustado para mejor visualización
 
   const filteredPosts = MOCK_POSTS.filter(post => {
@@ -332,44 +415,99 @@ export default function BlogPage() {
   return (
     <div className="blog-page-wrapper">
       {/* 1. HERO SECTION - FEATURED ARTICLE */}
-      <section className="hero-gradient pt-40 pb-20 relative overflow-hidden">
-        <div className="blog-container">
+      <section className="hero-gradient pt-40 pb-24 relative overflow-hidden">
+        {showHeroVideo ? (
+          <video
+            className="hero-bg-media"
+            src={heroConfig.background_video_url}
+            poster={heroConfig.background_image_url || DEFAULT_HERO_CONFIG.background_image_url}
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+        ) : (
+          <Image
+            src={heroConfig.background_image_url || DEFAULT_HERO_CONFIG.background_image_url}
+            alt="Blog hero background"
+            fill
+            priority
+            unoptimized
+            className="hero-bg-media"
+          />
+        )}
+        <div className="hero-bg-overlay" />
+        <div className="hero-grid-overlay" />
+
+        <div className="blog-container relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col lg:flex-row gap-16 items-center"
           >
-            <div className="lg:w-1/2">
-              <span className="inline-block px-4 py-1.5 bg-blue-500/20 border border-blue-500/30 rounded-full text-blue-400 text-xs font-bold uppercase tracking-widest mb-6">
-                Artículo Destacado
+            <div className="lg:w-1/2 hero-copy">
+              <span className="hero-badge">
+                ARTICULO DESTACADO
               </span>
               <h1 className="text-5xl lg:text-7xl font-bold mb-8 leading-tight">
-                El Futuro del <span className="gradient-text">Software Engineering</span> en la era de la IA
+                El Futuro del{" "}
+                <span className="gradient-text">Software Engineering</span>{" "}
+                en la era de la IA
               </h1>
-              <p className="text-slate-400 text-xl mb-10 leading-relaxed max-w-xl">
-                Análisis profundo sobre cómo los modelos fundacionales están redefiniendo el ciclo de vida de desarrollo.
+              <p className="text-slate-200/90 text-xl mb-10 leading-relaxed max-w-xl">
+                Analisis profundo sobre como los modelos fundacionales estan redefiniendo el ciclo de vida de desarrollo.
               </p>
-              <div className="flex items-center gap-6">
-                <button className="cta-button px-10 py-4 rounded-2xl text-white font-bold flex items-center gap-3">
+              <div className="flex items-center gap-6 flex-wrap">
+                <Link href="/blog" className="cta-button px-10 py-4 rounded-2xl text-white font-bold flex items-center gap-3">
                   Leer Ahora <FaChevronRight className="text-xs" />
-                </button>
-                <div className="flex items-center gap-3 text-slate-500 text-sm">
+                </Link>
+                <div className="flex items-center gap-3 text-slate-300/80 text-sm">
                   <FaClock /> 15 min de lectura
                 </div>
               </div>
             </div>
             <div className="lg:w-1/2 relative">
-              <div className="relative z-10 rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
-                <Image
-                  src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1200"
-                  alt="IA Future"
-                  width={800}
-                  height={500}
-                  className="object-cover hover:scale-105 transition-transform duration-700"
-                />
+              <div className="hero-media-shell">
+                {showHeroVideo ? (
+                  <video
+                    className="hero-media-content"
+                    src={heroConfig.background_video_url}
+                    poster={heroConfig.background_image_url || DEFAULT_HERO_CONFIG.background_image_url}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  <Image
+                    src={heroConfig.background_image_url || DEFAULT_HERO_CONFIG.background_image_url}
+                    alt="Hero media"
+                    fill
+                    unoptimized
+                    className="hero-media-content"
+                  />
+                )}
+                <div className="hero-media-vignette" />
               </div>
-              <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-purple-500/20 blur-[100px] rounded-full" />
-              <div className="absolute -top-10 -left-10 w-64 h-64 bg-blue-500/20 blur-[100px] rounded-full" />
+
+              <div className="hero-media-glow hero-media-glow--blue" />
+              <div className="hero-media-glow hero-media-glow--violet" />
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="hero-feature-card"
+              >
+                <p className="hero-feature-kicker">{heroConfig.card_kicker.toUpperCase()}</p>
+                <h3>{heroConfig.card_title}</h3>
+                <p>{heroConfig.card_description}</p>
+                <div className="hero-feature-tags">
+                  {heroCardTags.map((tag) => (
+                    <span key={tag}>{tag.toUpperCase()}</span>
+                  ))}
+                </div>
+              </motion.div>
             </div>
           </motion.div>
         </div>

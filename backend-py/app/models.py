@@ -218,6 +218,30 @@ class Blog(SQLModel, table=True):
 
 # ========== PROFESSIONAL SERVICES (PLANES Y MÁS) ==========
 
+class BlogHeroConfig(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    badge_text: str = Field(default="Articulo destacado")
+    headline_prefix: str = Field(default="El Futuro del")
+    headline_highlight: str = Field(default="Software Engineering")
+    headline_suffix: str = Field(default="en la era de la IA")
+    description: str = Field(
+        default="Analisis profundo sobre como los modelos fundacionales estan redefiniendo el ciclo de vida de desarrollo."
+    )
+    cta_text: str = Field(default="Leer Ahora")
+    cta_url: str = Field(default="/blog")
+    read_time_text: str = Field(default="15 min de lectura")
+    media_type: str = Field(default="video")
+    background_image_url: Optional[str] = None
+    background_video_url: Optional[str] = None
+    card_kicker: str = Field(default="Radar Tecnologico 2026")
+    card_title: str = Field(default="3 tendencias que estan cambiando el desarrollo")
+    card_description: str = Field(
+        default="IA agentes, cloud eficiente y seguridad zero trust para productos reales."
+    )
+    card_tags: Optional[str] = Field(default='["LLM Ops","Cloud Native","Zero Trust"]')
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
 class ProfessionalPlan(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str

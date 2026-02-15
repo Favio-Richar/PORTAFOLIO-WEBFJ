@@ -20,6 +20,7 @@ import AdsAdmin from "@/components/admin/AdsAdmin";
 import MediaAdmin from "@/components/admin/MediaAdmin";
 import ClientsAdmin from "@/components/admin/ClientsAdmin";
 import TestimonialsAdmin from "@/components/admin/TestimonialsAdmin";
+import BlogAdmin from "@/components/admin/BlogAdmin";
 
 // Data types (keep imports for type safety)
 import { defaultProfile, ProfileData } from "@/lib/data/profile";
@@ -164,6 +165,7 @@ export default function AdminPanel() {
         />
       );
       case 'projects': return <ProjectsAdmin projects={projects} onSave={saveProjects} />;
+      case 'blog': return <BlogAdmin />;
       case 'clients': return <ClientsAdmin />;
       case 'contact': return <ContactAdmin contact={contact} onSave={saveContact} />;
       case 'media': return <MediaAdmin />;
