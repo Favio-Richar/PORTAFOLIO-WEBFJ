@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
@@ -417,3 +417,4 @@ function InfoBox({ title, content }: { title: string; content?: string }) {
     </div>
   );
 }
+
