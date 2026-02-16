@@ -242,6 +242,23 @@ class BlogHeroConfig(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 
+class BlogHeroSlide(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    media_type: str = Field(default="image")
+    background_image_url: Optional[str] = None
+    background_video_url: Optional[str] = None
+    card_kicker: str = Field(default="Radar Tecnologico 2026")
+    card_title: str = Field(default="3 tendencias que estan cambiando el desarrollo")
+    card_description: str = Field(
+        default="IA agentes, cloud eficiente y seguridad zero trust para productos reales."
+    )
+    card_tags: Optional[str] = Field(default='["LLM OPS","CLOUD NATIVE","ZERO TRUST"]')
+    is_active: bool = Field(default=True, index=True)
+    order_index: int = Field(default=0, index=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
 class ProfessionalPlan(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str

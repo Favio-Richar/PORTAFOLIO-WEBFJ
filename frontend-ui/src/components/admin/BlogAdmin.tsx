@@ -1,505 +1,697 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import Image from "next/image";
-import { FaCloudUploadAlt, FaImage, FaPlayCircle, FaSave, FaVideo } from "react-icons/fa";
+import {
+  FaCloudUploadAlt,
+  FaEdit,
+  FaImage,
+  FaPlus,
+  FaRegEye,
+  FaRegEyeSlash,
+  FaSave,
+  FaTrash,
+  FaVideo,
+} from "react-icons/fa";
 
-type HeroMediaType = "image" | "video";
+type MediaType = "image" | "video";
 
-interface BlogHeroConfigData {
-  badge_text: string;
-  headline_prefix: string;
-  headline_highlight: string;
-  headline_suffix: string;
-  description: string;
-  cta_text: string;
-  cta_url: string;
-  read_time_text: string;
-  media_type: HeroMediaType;
+interface BlogHeroSlide {
+  id: number;
+  media_type: MediaType;
   background_image_url: string;
   background_video_url: string;
-  card_kicker: string;
-  card_title: string;
-  card_description: string;
-  card_tags: string;
+  is_active: boolean;
+  order_index: number;
+}
+
+interface BlogCard {
+  id: number;
+  title: string;
+  content: string;
+  author: string;
+  category: string;
+  tags: string;
+  is_published: boolean;
+  created_at: string;
+}
+
+interface BlogCardDraft {
+  title: string;
+  content: string;
+  author: string;
+  category: string;
+  tags: string;
+  is_published: boolean;
 }
 
 interface UploadResponse {
   url?: string;
 }
 
-type HeroMediaDraft = Pick<
-  BlogHeroConfigData,
-  "media_type" | "background_image_url" | "background_video_url" | "card_kicker" | "card_title" | "card_description" | "card_tags"
->;
-
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
-const DEFAULT_HERO_CONFIG: BlogHeroConfigData = {
-  badge_text: "Articulo destacado",
-  headline_prefix: "El Futuro del",
-  headline_highlight: "Software Engineering",
-  headline_suffix: "en la era de la IA",
-  description:
-    "Analisis profundo sobre como los modelos fundacionales estan redefiniendo el ciclo de vida de desarrollo.",
-  cta_text: "Leer Ahora",
-  cta_url: "/blog",
-  read_time_text: "15 min de lectura",
-  media_type: "video",
-  background_image_url: "",
-  background_video_url: "",
-  card_kicker: "Radar Tecnologico 2026",
-  card_title: "3 tendencias que estan cambiando el desarrollo",
-  card_description: "IA agentes, cloud eficiente y seguridad zero trust para productos reales.",
-  card_tags: '["LLM Ops","Cloud Native","Zero Trust"]',
+const INITIAL_CARD_FORM: BlogCardDraft = {
+  title: "",
+  content: "",
+  author: "Equipo Editorial",
+  category: "General",
+  tags: "",
+  is_published: true,
 };
 
-const FIXED_PREVIEW = {
-  badge: "ARTICULO DESTACADO",
-  headingPrefix: "El Futuro del",
-  headingHighlight: "Software Engineering",
-  headingSuffix: "en la era de la IA",
-  description: "Analisis profundo sobre como los modelos fundacionales estan redefiniendo el ciclo de vida de desarrollo.",
-  cta: "Leer Ahora",
-  readTime: "15 min de lectura",
-};
-
-const normalizeConfig = (payload: Partial<BlogHeroConfigData> | null | undefined): BlogHeroConfigData => {
-  const data = payload || {};
-  return {
-    ...DEFAULT_HERO_CONFIG,
-    ...data,
-    media_type: data.media_type === "image" ? "image" : "video",
-    background_image_url: data.background_image_url || "",
-    background_video_url: data.background_video_url || "",
-  };
-};
-
-const draftFromConfig = (config: BlogHeroConfigData): HeroMediaDraft => ({
-  media_type: config.media_type === "image" ? "image" : "video",
-  background_image_url: config.background_image_url || "",
-  background_video_url: config.background_video_url || "",
-  card_kicker: config.card_kicker || DEFAULT_HERO_CONFIG.card_kicker,
-  card_title: config.card_title || DEFAULT_HERO_CONFIG.card_title,
-  card_description: config.card_description || DEFAULT_HERO_CONFIG.card_description,
-  card_tags: config.card_tags || DEFAULT_HERO_CONFIG.card_tags,
+const normalizeSlide = (raw: Partial<BlogHeroSlide> | null | undefined): BlogHeroSlide => ({
+  id: Number(raw?.id || 0),
+  media_type: raw?.media_type === "video" ? "video" : "image",
+  background_image_url: raw?.background_image_url || "",
+  background_video_url: raw?.background_video_url || "",
+  is_active: typeof raw?.is_active === "boolean" ? raw.is_active : true,
+  order_index: Number(raw?.order_index || 0),
 });
 
-const parseTags = (raw: string): string[] => {
-  const value = raw.trim();
-  if (!value) return [];
-  if (value.startsWith("[")) {
-    try {
-      const parsed = JSON.parse(value);
-      if (Array.isArray(parsed)) {
-        return parsed.map((item) => String(item).trim()).filter(Boolean);
-      }
-    } catch {
-      return [];
-    }
-  }
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
+const normalizeCard = (raw: Partial<BlogCard> | null | undefined): BlogCard => ({
+  id: Number(raw?.id || 0),
+  title: (raw?.title || "Sin titulo").trim(),
+  content: raw?.content || "",
+  author: (raw?.author || "Equipo Editorial").trim(),
+  category: (raw?.category || "General").trim(),
+  tags: raw?.tags || "",
+  is_published: typeof raw?.is_published === "boolean" ? raw.is_published : true,
+  created_at: raw?.created_at || "",
+});
+
+const summarize = (text: string, max = 170): string => {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean || "Sin descripcion";
+  return `${clean.slice(0, max - 3)}...`;
+};
+
+const formatCreatedAt = (iso: string): string => {
+  if (!iso) return "Fecha no disponible";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "Fecha no disponible";
+  return date.toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" });
 };
 
 export default function BlogAdmin() {
-  const [config, setConfig] = useState<BlogHeroConfigData>(DEFAULT_HERO_CONFIG);
-  const [draft, setDraft] = useState<HeroMediaDraft>(draftFromConfig(DEFAULT_HERO_CONFIG));
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [uploadingField, setUploadingField] = useState<"" | "background_image_url" | "background_video_url">("");
+  const [slides, setSlides] = useState<BlogHeroSlide[]>([]);
+  const [isLoadingSlides, setIsLoadingSlides] = useState(true);
+  const [uploadingType, setUploadingType] = useState<"" | "image" | "video">("");
+  const [workingSlideId, setWorkingSlideId] = useState<number | null>(null);
 
-  const showVideoPreview = useMemo(
-    () => draft.media_type === "video" && draft.background_video_url.trim().length > 0,
-    [draft.media_type, draft.background_video_url]
+  const [cards, setCards] = useState<BlogCard[]>([]);
+  const [isLoadingCards, setIsLoadingCards] = useState(true);
+  const [workingCardId, setWorkingCardId] = useState<number | null>(null);
+  const [isSavingCard, setIsSavingCard] = useState(false);
+  const [editingCardId, setEditingCardId] = useState<number | null>(null);
+  const [isCardFormOpen, setIsCardFormOpen] = useState(false);
+  const [cardForm, setCardForm] = useState<BlogCardDraft>(INITIAL_CARD_FORM);
+
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const videoInputRef = useRef<HTMLInputElement | null>(null);
+
+  const orderedSlides = useMemo(
+    () => [...slides].sort((a, b) => a.order_index - b.order_index || a.id - b.id),
+    [slides]
   );
 
-  const showImagePreview = useMemo(
+  const orderedCards = useMemo(
     () =>
-      (draft.media_type === "image" && draft.background_image_url.trim().length > 0) ||
-      (!showVideoPreview && draft.background_image_url.trim().length > 0),
-    [draft.media_type, draft.background_image_url, showVideoPreview]
-  );
-  const previewTags = useMemo(() => {
-    const tags = parseTags(draft.card_tags);
-    return tags.length > 0 ? tags : ["LLM OPS", "CLOUD NATIVE", "ZERO TRUST"];
-  }, [draft.card_tags]);
+      [...cards].sort((a, b) => {
+        const aTime = Date.parse(a.created_at || "");
+        const bTime = Date.parse(b.created_at || "");
+        const aIsValid = Number.isFinite(aTime);
+        const bIsValid = Number.isFinite(bTime);
 
-  const loadConfig = async () => {
-    setIsLoading(true);
+        if (aIsValid && bIsValid && bTime !== aTime) return bTime - aTime;
+        if (bIsValid && !aIsValid) return 1;
+        if (aIsValid && !bIsValid) return -1;
+        return b.id - a.id;
+      }),
+    [cards]
+  );
+
+  const currentSlide = useMemo(() => {
+    if (orderedSlides.length === 0) return null;
+    return orderedSlides.find((item) => item.is_active) || orderedSlides[0];
+  }, [orderedSlides]);
+
+  const resetCardForm = () => {
+    setCardForm(INITIAL_CARD_FORM);
+    setEditingCardId(null);
+  };
+
+  const closeCardForm = () => {
+    setIsCardFormOpen(false);
+    resetCardForm();
+  };
+
+  const openNewCardForm = () => {
+    resetCardForm();
+    setIsCardFormOpen(true);
+  };
+
+  const loadSlides = async () => {
+    setIsLoadingSlides(true);
     try {
-      const response = await fetch(`${BACKEND_URL}/api/blog/hero`);
-      if (!response.ok) throw new Error("No se pudo cargar configuracion");
+      const response = await fetch(`${BACKEND_URL}/api/blog/hero/slides`);
+      if (!response.ok) throw new Error("No se pudieron cargar los medias");
       const data = await response.json();
-      const normalized = normalizeConfig(data);
-      setConfig(normalized);
-      setDraft(draftFromConfig(normalized));
+      const normalized = Array.isArray(data) ? data.map((item: Partial<BlogHeroSlide>) => normalizeSlide(item)) : [];
+      setSlides(normalized);
     } catch (error) {
       console.error(error);
-      const normalized = normalizeConfig(DEFAULT_HERO_CONFIG);
-      setConfig(normalized);
-      setDraft(draftFromConfig(normalized));
+      alert("No se pudo cargar la pasarela de fondo");
     } finally {
-      setIsLoading(false);
+      setIsLoadingSlides(false);
+    }
+  };
+
+  const loadCards = async () => {
+    setIsLoadingCards(true);
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/blog/`);
+      if (!response.ok) throw new Error("No se pudieron cargar las tarjetas");
+      const data = await response.json();
+      const normalized = Array.isArray(data) ? data.map((item: Partial<BlogCard>) => normalizeCard(item)) : [];
+      setCards(normalized);
+    } catch (error) {
+      console.error(error);
+      alert("No se pudieron cargar las tarjetas del blog");
+    } finally {
+      setIsLoadingCards(false);
     }
   };
 
   useEffect(() => {
-    void loadConfig();
+    void loadSlides();
+    void loadCards();
   }, []);
 
-  const updateDraft = <K extends keyof HeroMediaDraft>(field: K, value: HeroMediaDraft[K]) => {
-    setDraft((prev) => ({ ...prev, [field]: value }));
+  const setSlideActive = async (slideId: number, isActive: boolean) => {
+    await fetch(`${BACKEND_URL}/api/blog/hero/slides/${slideId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ is_active: isActive }),
+    });
   };
 
-  const handleUpload = async (
-    e: ChangeEvent<HTMLInputElement>,
-    targetField: "background_image_url" | "background_video_url"
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingField(targetField);
-    const formData = new FormData();
-    formData.append("file", file);
-
+  const uploadAndCreateSlide = async (file: File, mediaType: MediaType) => {
+    setUploadingType(mediaType);
     try {
-      const response = await fetch(`${BACKEND_URL}/api/upload`, {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadResponse = await fetch(`${BACKEND_URL}/api/upload`, {
         method: "POST",
         body: formData,
       });
-      if (!response.ok) throw new Error("No se pudo subir el archivo");
-      const data = (await response.json()) as UploadResponse;
-      if (!data.url) throw new Error("No se recibio URL de archivo");
+      if (!uploadResponse.ok) throw new Error("No se pudo subir el archivo");
 
-      setDraft((prev) => ({
-        ...prev,
-        [targetField]: data.url as string,
-        media_type: targetField === "background_video_url" ? "video" : prev.media_type,
-      }));
-    } catch (error) {
-      console.error(error);
-      alert("Error al subir archivo");
-    } finally {
-      setUploadingField("");
-      e.target.value = "";
-    }
-  };
+      const uploaded = (await uploadResponse.json()) as UploadResponse;
+      if (!uploaded.url) throw new Error("No se recibio URL del archivo");
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      const payload: BlogHeroConfigData = {
-        ...config,
-        ...draft,
+      const payload = {
+        media_type: mediaType,
+        background_image_url: mediaType === "image" ? uploaded.url : null,
+        background_video_url: mediaType === "video" ? uploaded.url : null,
+        is_active: true,
+        order_index: orderedSlides.length,
       };
 
-      const response = await fetch(`${BACKEND_URL}/api/blog/hero`, {
+      const createResponse = await fetch(`${BACKEND_URL}/api/blog/hero/slides`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      if (!createResponse.ok) throw new Error("No se pudo guardar el media");
 
-      if (!response.ok) throw new Error("No se pudo guardar");
-      const data = await response.json();
-      const normalized = normalizeConfig(data);
-      setConfig(normalized);
-      setDraft(draftFromConfig(normalized));
-      alert("Configuracion del hero actualizada");
+      const created = normalizeSlide(await createResponse.json());
+      const activeOthers = orderedSlides.filter((item) => item.is_active && item.id !== created.id);
+      if (activeOthers.length > 0) {
+        await Promise.all(activeOthers.map((item) => setSlideActive(item.id, false)));
+      }
+
+      await loadSlides();
+      alert(`${mediaType === "image" ? "Foto" : "Video"} subido y activado`);
     } catch (error) {
       console.error(error);
-      alert("Error guardando configuracion del hero");
+      alert("Error subiendo media");
     } finally {
-      setIsSaving(false);
+      setUploadingType("");
+    }
+  };
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>, mediaType: MediaType) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    await uploadAndCreateSlide(file, mediaType);
+    event.target.value = "";
+  };
+
+  const deleteSlide = async (slideId: number) => {
+    if (!confirm("Eliminar este fondo?")) return;
+    setWorkingSlideId(slideId);
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/blog/hero/slides/${slideId}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("No se pudo eliminar");
+      await loadSlides();
+    } catch (error) {
+      console.error(error);
+      alert("Error eliminando media");
+    } finally {
+      setWorkingSlideId(null);
+    }
+  };
+
+  const handleCardInput = (field: keyof BlogCardDraft, value: string | boolean) => {
+    setCardForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveCard = async () => {
+    if (!cardForm.title.trim() || !cardForm.content.trim()) {
+      alert("Titulo y descripcion son obligatorios.");
+      return;
+    }
+
+    setIsSavingCard(true);
+    try {
+      const payload = {
+        title: cardForm.title.trim(),
+        content: cardForm.content.trim(),
+        author: cardForm.author.trim() || "Equipo Editorial",
+        category: cardForm.category.trim() || "General",
+        tags: cardForm.tags.trim() || null,
+        is_published: cardForm.is_published,
+      };
+
+      const endpoint = editingCardId ? `${BACKEND_URL}/api/blog/${editingCardId}` : `${BACKEND_URL}/api/blog/`;
+      const method = editingCardId ? "PUT" : "POST";
+
+      const response = await fetch(endpoint, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error("No se pudo guardar la tarjeta");
+
+      await loadCards();
+      closeCardForm();
+    } catch (error) {
+      console.error(error);
+      alert("Error guardando tarjeta");
+    } finally {
+      setIsSavingCard(false);
+    }
+  };
+
+  const editCard = (card: BlogCard) => {
+    setEditingCardId(card.id);
+    setCardForm({
+      title: card.title,
+      content: card.content,
+      author: card.author || "Equipo Editorial",
+      category: card.category || "General",
+      tags: card.tags || "",
+      is_published: card.is_published,
+    });
+    setIsCardFormOpen(true);
+  };
+
+  const togglePublishCard = async (card: BlogCard) => {
+    setWorkingCardId(card.id);
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/blog/${card.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_published: !card.is_published }),
+      });
+      if (!response.ok) throw new Error("No se pudo actualizar estado");
+      await loadCards();
+    } catch (error) {
+      console.error(error);
+      alert("Error cambiando estado de publicacion");
+    } finally {
+      setWorkingCardId(null);
+    }
+  };
+
+  const deleteCard = async (cardId: number) => {
+    if (!confirm("Eliminar esta tarjeta del blog?")) return;
+
+    setWorkingCardId(cardId);
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/blog/${cardId}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("No se pudo eliminar");
+      await loadCards();
+      if (editingCardId === cardId) closeCardForm();
+    } catch (error) {
+      console.error(error);
+      alert("Error eliminando tarjeta");
+    } finally {
+      setWorkingCardId(null);
     }
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
-      <div className="border border-white/10 bg-slate-900/60 p-8 rounded-3xl">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+    <div className="max-w-7xl mx-auto space-y-8">
+      <div className="rounded-3xl border border-white/10 bg-slate-900/60 p-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-8">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-blue-300/80 font-bold mb-2">Blog Hero Admin</p>
-            <h2 className="text-3xl md:text-4xl font-black text-white">Fondo y tarjeta anuncio</h2>
-            <p className="text-slate-400 mt-2">
-              Aqui administras foto/video del bloque y el contenido de la tarjeta anuncio que aparece sobre la imagen.
-            </p>
+            <p className="text-xs uppercase tracking-[0.28em] font-bold text-amber-300/90 mb-2">Blog Hero Background</p>
+            <h2 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-amber-200 via-blue-200 to-blue-400 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)]">
+              Fondo del Hero
+            </h2>
+            <p className="text-slate-400 mt-2">Administra solo fotos y videos del fondo del bloque principal del blog.</p>
           </div>
-          <div className="flex gap-3">
+
+          <div className="flex flex-wrap gap-3">
             <button
-              onClick={handleSave}
               type="button"
-              disabled={isSaving || isLoading}
-              className="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-500 transition-all disabled:opacity-50 flex items-center gap-2"
+              onClick={() => imageInputRef.current?.click()}
+              disabled={uploadingType !== ""}
+              className="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold inline-flex items-center gap-2 transition-all disabled:opacity-60"
             >
-              <FaSave /> {isSaving ? "Guardando..." : "Guardar"}
+              <FaImage /> {uploadingType === "image" ? "Subiendo..." : "Subir foto"}
+            </button>
+            <button
+              type="button"
+              onClick={() => videoInputRef.current?.click()}
+              disabled={uploadingType !== ""}
+              className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold inline-flex items-center gap-2 transition-all disabled:opacity-60"
+            >
+              <FaVideo /> {uploadingType === "video" ? "Subiendo..." : "Subir video"}
             </button>
           </div>
         </div>
 
-        {isLoading ? (
-          <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-8 text-slate-300">Cargando configuracion...</div>
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/*"
+          onChange={(e) => void handleFileChange(e, "image")}
+          className="hidden"
+        />
+        <input
+          ref={videoInputRef}
+          type="file"
+          accept="video/*"
+          onChange={(e) => void handleFileChange(e, "video")}
+          className="hidden"
+        />
+
+        {isLoadingSlides ? (
+          <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-8 text-slate-300">Cargando fondo...</div>
         ) : (
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-6 space-y-4">
-                <h3 className="text-white text-lg font-semibold">Pasarela de fondo</h3>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => updateDraft("media_type", "image")}
-                    className={`py-3 rounded-xl border transition-all flex items-center justify-center gap-2 ${
-                      draft.media_type === "image"
-                        ? "bg-blue-500/20 border-blue-400 text-blue-100"
-                        : "bg-white/[0.03] border-white/10 text-slate-300"
-                    }`}
-                  >
-                    <FaImage /> Imagen
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => updateDraft("media_type", "video")}
-                    className={`py-3 rounded-xl border transition-all flex items-center justify-center gap-2 ${
-                      draft.media_type === "video"
-                        ? "bg-blue-500/20 border-blue-400 text-blue-100"
-                        : "bg-white/[0.03] border-white/10 text-slate-300"
-                    }`}
-                  >
-                    <FaVideo /> Video
-                  </button>
-                </div>
-
-                <TextInput
-                  label="URL imagen de fondo"
-                  value={draft.background_image_url}
-                  onChange={(value) => updateDraft("background_image_url", value)}
-                />
-                <UploadControl
-                  label="Subir imagen"
-                  accept="image/*"
-                  isUploading={uploadingField === "background_image_url"}
-                  onChange={(e) => handleUpload(e, "background_image_url")}
-                />
-
-                <TextInput
-                  label="URL video de fondo"
-                  value={draft.background_video_url}
-                  onChange={(value) => updateDraft("background_video_url", value)}
-                />
-                <UploadControl
-                  label="Subir video"
-                  accept="video/*"
-                  isUploading={uploadingField === "background_video_url"}
-                  onChange={(e) => handleUpload(e, "background_video_url")}
-                />
-              </div>
-
-              <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-6 space-y-4">
-                <h3 className="text-white text-lg font-semibold">Tarjeta anuncio</h3>
-                <TextInput
-                  label="Etiqueta superior"
-                  value={draft.card_kicker}
-                  onChange={(value) => updateDraft("card_kicker", value)}
-                />
-                <TextInput
-                  label="Titulo de la tarjeta"
-                  value={draft.card_title}
-                  onChange={(value) => updateDraft("card_title", value)}
-                />
-                <TextAreaInput
-                  label="Descripcion"
-                  value={draft.card_description}
-                  onChange={(value) => updateDraft("card_description", value)}
-                />
-                <TextInput
-                  label='Tags (usa coma o JSON: ["LLM OPS","CLOUD NATIVE"])'
-                  value={draft.card_tags}
-                  onChange={(value) => updateDraft("card_tags", value)}
-                />
-              </div>
-
-              <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-6 space-y-4">
-                <h3 className="text-white text-lg font-semibold">Media cargada</h3>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <MediaSnapshot label="Imagen actual" type="image" url={draft.background_image_url} />
-                  <MediaSnapshot label="Video actual" type="video" url={draft.background_video_url} />
-                </div>
+            <div className="rounded-2xl border border-blue-500/20 bg-slate-950/40 p-6">
+              <p className="text-[11px] uppercase tracking-[0.2em] font-bold text-amber-200/90 mb-4">Media en uso</p>
+              <div className="rounded-2xl overflow-hidden border border-white/10 bg-slate-900/60 min-h-[320px] relative">
+                {currentSlide ? (
+                  currentSlide.media_type === "video" && currentSlide.background_video_url ? (
+                    <video
+                      src={currentSlide.background_video_url}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      controls
+                    />
+                  ) : currentSlide.background_image_url ? (
+                    <Image
+                      src={currentSlide.background_image_url}
+                      alt={`Fondo activo ${currentSlide.id}`}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-slate-400">Sin media activa</div>
+                  )
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-slate-400">No hay media activo</div>
+                )}
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4 lg:p-6">
-              <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400 font-bold mb-4">Vista previa</p>
+            <div className="space-y-3">
+              <p className="text-[11px] uppercase tracking-[0.2em] font-bold text-blue-200/90">Lista de fondos</p>
+              {orderedSlides.length === 0 ? (
+                <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-8 text-slate-300">No hay medias.</div>
+              ) : (
+                orderedSlides.map((slide) => {
+                  const isCurrent = currentSlide?.id === slide.id;
 
-              <div className="relative rounded-[2rem] overflow-hidden border border-white/10 min-h-[520px]">
-                {showVideoPreview ? (
-                  <video
-                    src={draft.background_video_url}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                  />
-                ) : showImagePreview ? (
-                  <Image src={draft.background_image_url} alt="Blog hero preview" fill unoptimized className="object-cover" />
-                ) : (
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.25),transparent_40%),linear-gradient(130deg,#0b1220_0%,#0f172a_45%,#1e1b4b_100%)]" />
-                )}
+                  return (
+                    <div key={slide.id} className="rounded-2xl border border-white/10 bg-slate-950/40 p-4 hover:border-blue-400/30 transition-all">
+                      <div className="grid grid-cols-[100px_1fr] gap-4">
+                        <div className="relative rounded-xl overflow-hidden border border-white/10 bg-slate-900 aspect-[4/3]">
+                          {slide.media_type === "video" && slide.background_video_url ? (
+                            <video src={slide.background_video_url} className="w-full h-full object-cover" muted />
+                          ) : slide.background_image_url ? (
+                            <Image src={slide.background_image_url} alt={`Slide ${slide.id}`} fill unoptimized className="object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-500 text-xs">Sin media</div>
+                          )}
+                        </div>
 
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-950/80 via-slate-900/60 to-indigo-950/70" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(96,165,250,0.2),transparent_45%)]" />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <span className="text-[10px] px-2 py-1 rounded-full border border-blue-300/30 text-blue-200 bg-blue-500/10">
+                              {slide.media_type === "video" ? "VIDEO" : "FOTO"}
+                            </span>
+                            {isCurrent && (
+                              <span className="text-[10px] px-2 py-1 rounded-full border border-emerald-400/30 text-emerald-200 bg-emerald-500/10">
+                                EN USO
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-slate-200 text-sm font-semibold">Fondo #{slide.id}</p>
+                          <p className="text-slate-400 text-xs mt-1">Orden {slide.order_index + 1}</p>
 
-                <div className="relative z-10 p-6 md:p-8 flex flex-col h-full">
-                  <span className="inline-flex self-start px-4 py-1 rounded-full bg-blue-500/25 border border-blue-300/40 text-xs font-bold uppercase tracking-[0.18em] text-blue-100">
-                    {FIXED_PREVIEW.badge}
-                  </span>
-
-                  <h3 className="mt-6 text-3xl md:text-4xl font-black leading-tight text-white max-w-lg">
-                    {FIXED_PREVIEW.headingPrefix}{" "}
-                    <span className="bg-gradient-to-r from-cyan-300 to-violet-300 bg-clip-text text-transparent">
-                      {FIXED_PREVIEW.headingHighlight}
-                    </span>{" "}
-                    {FIXED_PREVIEW.headingSuffix}
-                  </h3>
-
-                  <p className="mt-4 text-slate-200/90 max-w-xl">{FIXED_PREVIEW.description}</p>
-
-                  <div className="mt-6 flex items-center gap-4">
-                    <button className="px-6 py-3 bg-blue-600 rounded-xl text-white font-semibold">
-                      {FIXED_PREVIEW.cta}
-                    </button>
-                    <span className="text-sm text-slate-300">{FIXED_PREVIEW.readTime}</span>
-                  </div>
-
-                  <div className="mt-auto ml-auto w-full max-w-sm rounded-2xl border border-white/20 bg-slate-900/55 backdrop-blur-md p-5 shadow-2xl">
-                    <p className="text-xs uppercase tracking-[0.2em] text-cyan-200 font-bold">
-                      {(draft.card_kicker || DEFAULT_HERO_CONFIG.card_kicker).toUpperCase()}
-                    </p>
-                    <h4 className="mt-2 text-white text-xl font-bold leading-tight">
-                      {draft.card_title || DEFAULT_HERO_CONFIG.card_title}
-                    </h4>
-                    <p className="mt-2 text-slate-300 text-sm">
-                      {draft.card_description || DEFAULT_HERO_CONFIG.card_description}
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {previewTags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[11px] px-3 py-1 rounded-full border border-cyan-300/40 bg-cyan-400/10 text-cyan-100"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                          <button
+                            type="button"
+                            onClick={() => deleteSlide(slide.id)}
+                            disabled={workingSlideId === slide.id}
+                            className="mt-3 px-3 py-2 rounded-lg text-xs font-semibold border border-rose-400/30 text-rose-200 hover:bg-rose-500/15 transition-all inline-flex items-center gap-2 disabled:opacity-50"
+                          >
+                            <FaTrash /> Eliminar
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-
-                <div className="absolute bottom-3 left-3 text-[10px] text-slate-400 bg-black/40 px-3 py-1 rounded-full border border-white/10">
-                  Modo fondo: {draft.media_type}
-                </div>
-
-                {showVideoPreview && (
-                  <div className="absolute top-3 right-3 text-[10px] text-cyan-100 bg-cyan-500/30 px-3 py-1 rounded-full border border-cyan-300/40 flex items-center gap-1">
-                    <FaPlayCircle /> Video activo
-                  </div>
-                )}
-              </div>
+                  );
+                })
+              )}
             </div>
           </div>
         )}
+
+        <div className="mt-6 rounded-xl border border-dashed border-blue-300/25 bg-blue-500/5 p-4 text-xs text-blue-100/80 inline-flex items-center gap-2">
+          <FaCloudUploadAlt />
+          Cuando subes una nueva foto/video se marca automaticamente como el media en uso.
+        </div>
       </div>
-    </div>
-  );
-}
 
-function TextInput({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="block space-y-2">
-      <span className="text-xs uppercase tracking-[0.15em] text-slate-400 font-semibold">{label}</span>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-400 transition-all"
-      />
-    </label>
-  );
-}
+      <div className="rounded-3xl border border-white/10 bg-slate-900/60 p-8">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-8">
+          <div>
+            <p className="text-xs uppercase tracking-[0.28em] font-bold text-amber-300/90 mb-2">Blog Cards Manager</p>
+            <h2 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-amber-200 via-blue-200 to-cyan-300 bg-clip-text text-transparent">
+              Tarjetas del Blog
+            </h2>
+            <p className="text-slate-400 mt-2">
+              Administra titulos, descripcion, categoria y estado de publicacion de cada tarjeta del blog.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={openNewCardForm}
+            className="px-5 py-3 rounded-xl border border-blue-400/35 bg-blue-500/10 text-blue-200 hover:bg-blue-500/20 font-semibold inline-flex items-center gap-2"
+          >
+            <FaPlus /> Nueva tarjeta
+          </button>
+        </div>
 
-function TextAreaInput({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="block space-y-2">
-      <span className="text-xs uppercase tracking-[0.15em] text-slate-400 font-semibold">{label}</span>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={3}
-        className="w-full bg-slate-900/80 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-blue-400 transition-all resize-none"
-      />
-    </label>
-  );
-}
+        <div className="grid grid-cols-1 xl:grid-cols-[1.35fr_1fr] gap-8">
+          <div className="space-y-3">
+            <p className="text-[11px] uppercase tracking-[0.2em] font-bold text-blue-200/90">Tarjetas registradas</p>
+            {isLoadingCards ? (
+              <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-8 text-slate-300">Cargando tarjetas...</div>
+            ) : orderedCards.length === 0 ? (
+              <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-8 text-slate-300">No hay tarjetas creadas.</div>
+            ) : (
+              orderedCards.map((card) => (
+                <article
+                  key={card.id}
+                  className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-950/70 to-slate-900/60 p-5 hover:border-cyan-400/35 transition-all"
+                >
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <span className="text-[10px] px-2 py-1 rounded-full border border-amber-300/30 text-amber-200 bg-amber-500/10 uppercase tracking-widest">
+                          {card.category || "General"}
+                        </span>
+                        <span
+                          className={`text-[10px] px-2 py-1 rounded-full border uppercase tracking-widest ${
+                            card.is_published
+                              ? "border-emerald-400/35 text-emerald-200 bg-emerald-500/10"
+                              : "border-slate-400/35 text-slate-300 bg-slate-500/10"
+                          }`}
+                        >
+                          {card.is_published ? "Publicado" : "Oculto"}
+                        </span>
+                      </div>
+                      <h3 className="text-lg md:text-xl font-black text-slate-100 leading-tight">{card.title}</h3>
+                    </div>
+                    <span className="text-[11px] text-slate-400 whitespace-nowrap">{formatCreatedAt(card.created_at)}</span>
+                  </div>
 
-function UploadControl({
-  label,
-  accept,
-  isUploading,
-  onChange,
-}: {
-  label: string;
-  accept: string;
-  isUploading: boolean;
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-}) {
-  return (
-    <label className="block">
-      <input type="file" accept={accept} onChange={onChange} className="hidden" />
-      <span className="w-full px-4 py-3 rounded-xl border border-dashed border-blue-300/40 bg-blue-500/5 text-blue-100 hover:bg-blue-500/10 transition-all inline-flex items-center justify-center gap-2 cursor-pointer">
-        <FaCloudUploadAlt />
-        {isUploading ? "Subiendo..." : label}
-      </span>
-    </label>
-  );
-}
+                  <p className="text-sm leading-relaxed text-slate-300">{summarize(card.content)}</p>
 
-function MediaSnapshot({
-  label,
-  type,
-  url,
-}: {
-  label: string;
-  type: "image" | "video";
-  url: string;
-}) {
-  return (
-    <div className="rounded-xl border border-white/10 bg-slate-900/50 p-3">
-      <p className="text-xs uppercase tracking-[0.14em] text-slate-400 font-semibold mb-2">{label}</p>
-      <div className="relative rounded-lg overflow-hidden bg-slate-950 border border-white/10 aspect-video">
-        {!url ? (
-          <div className="w-full h-full flex items-center justify-center text-slate-500 text-sm">Sin archivo</div>
-        ) : type === "video" ? (
-          <video src={url} className="w-full h-full object-cover" controls muted />
-        ) : (
-          <Image src={url} alt={label} fill unoptimized className="object-cover" />
-        )}
+                  <div className="mt-4 text-xs text-slate-400 flex items-center gap-3 flex-wrap">
+                    <span>Autor: {card.author || "Equipo Editorial"}</span>
+                    {card.tags ? <span className="text-blue-200/90">Tags: {card.tags}</span> : null}
+                  </div>
+
+                  <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => editCard(card)}
+                      className="px-3 py-2 rounded-lg text-xs font-semibold border border-blue-400/30 text-blue-200 hover:bg-blue-500/15 inline-flex items-center gap-2"
+                    >
+                      <FaEdit /> Editar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void togglePublishCard(card)}
+                      disabled={workingCardId === card.id}
+                      className="px-3 py-2 rounded-lg text-xs font-semibold border border-amber-400/30 text-amber-200 hover:bg-amber-500/15 inline-flex items-center gap-2 disabled:opacity-50"
+                    >
+                      {card.is_published ? <FaRegEyeSlash /> : <FaRegEye />}
+                      {card.is_published ? "Ocultar" : "Publicar"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void deleteCard(card.id)}
+                      disabled={workingCardId === card.id}
+                      className="px-3 py-2 rounded-lg text-xs font-semibold border border-rose-400/30 text-rose-200 hover:bg-rose-500/15 inline-flex items-center gap-2 disabled:opacity-50"
+                    >
+                      <FaTrash /> Eliminar
+                    </button>
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-blue-500/20 bg-slate-950/55 p-5">
+            {isCardFormOpen ? (
+              <>
+                <p className="text-[11px] uppercase tracking-[0.2em] font-bold text-amber-200/90 mb-4">
+                  {editingCardId ? `Editando tarjeta #${editingCardId}` : "Nueva tarjeta"}
+                </p>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-[0.12em] text-slate-300 mb-2">Titulo</label>
+                    <input
+                      value={cardForm.title}
+                      onChange={(event) => handleCardInput("title", event.target.value)}
+                      placeholder="Ej: Guia completa para escalar tu ecommerce"
+                      className="w-full rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-blue-400/50"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-[0.12em] text-slate-300 mb-2">Categoria</label>
+                      <input
+                        value={cardForm.category}
+                        onChange={(event) => handleCardInput("category", event.target.value)}
+                        placeholder="Ej: Guias practicas"
+                        className="w-full rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-blue-400/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-[0.12em] text-slate-300 mb-2">Autor</label>
+                      <input
+                        value={cardForm.author}
+                        onChange={(event) => handleCardInput("author", event.target.value)}
+                        placeholder="Equipo Editorial"
+                        className="w-full rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-blue-400/50"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-[0.12em] text-slate-300 mb-2">Tags</label>
+                    <input
+                      value={cardForm.tags}
+                      onChange={(event) => handleCardInput("tags", event.target.value)}
+                      placeholder="api, saas, arquitectura"
+                      className="w-full rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-blue-400/50"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-[0.12em] text-slate-300 mb-2">Descripcion</label>
+                    <textarea
+                      value={cardForm.content}
+                      onChange={(event) => handleCardInput("content", event.target.value)}
+                      rows={7}
+                      placeholder="Describe el valor del articulo en lenguaje claro para cliente."
+                      className="w-full rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none focus:border-blue-400/50 resize-none"
+                    />
+                  </div>
+
+                  <label className="flex items-center gap-2 text-sm text-slate-200">
+                    <input
+                      type="checkbox"
+                      checked={cardForm.is_published}
+                      onChange={(event) => handleCardInput("is_published", event.target.checked)}
+                      className="accent-blue-500"
+                    />
+                    Publicar tarjeta al guardar
+                  </label>
+
+                  <div className="pt-2 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void handleSaveCard()}
+                      disabled={isSavingCard}
+                      className="px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold inline-flex items-center gap-2 disabled:opacity-60"
+                    >
+                      <FaSave /> {isSavingCard ? "Guardando..." : editingCardId ? "Actualizar tarjeta" : "Crear tarjeta"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={closeCardForm}
+                      className="px-4 py-2.5 rounded-lg border border-white/15 text-slate-200 text-sm font-semibold hover:bg-white/5"
+                    >
+                      {editingCardId ? "Cancelar edicion" : "Cerrar formulario"}
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="h-full min-h-[260px] rounded-xl border border-dashed border-blue-300/20 bg-blue-500/5 flex flex-col items-center justify-center text-center p-6">
+                <p className="text-xs uppercase tracking-[0.2em] font-bold text-blue-200/90 mb-3">Formulario oculto</p>
+                <p className="text-slate-300 text-sm max-w-md mb-5">
+                  Pulsa <span className="font-semibold text-blue-200">Nueva tarjeta</span> para abrir el formulario de creacion.
+                </p>
+                <button
+                  type="button"
+                  onClick={openNewCardForm}
+                  className="px-4 py-2.5 rounded-lg border border-blue-400/35 bg-blue-500/15 text-blue-200 hover:bg-blue-500/25 text-sm font-semibold inline-flex items-center gap-2"
+                >
+                  <FaPlus /> Nueva tarjeta
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
