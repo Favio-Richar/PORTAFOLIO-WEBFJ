@@ -167,7 +167,7 @@ const formatPostDate = (iso?: string): string => {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "Reciente";
   return date
-    .toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })
+    .toLocaleDateString("es-CL", { day: "2-digit", month: "short", year: "numeric" })
     .replace(".", "");
 };
 

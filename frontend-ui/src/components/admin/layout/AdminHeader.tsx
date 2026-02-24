@@ -1,6 +1,7 @@
 "use client";
 
 import { FaSearch, FaBell, FaEnvelope, FaBars, FaHome } from "react-icons/fa";
+import Link from "next/link";
 
 interface AdminHeaderProps {
     toggleSidebar: () => void;
@@ -8,6 +9,26 @@ interface AdminHeaderProps {
 }
 
 export default function AdminHeader({ toggleSidebar, activeSection }: AdminHeaderProps) {
+    const sectionLabelMap: Record<string, string> = {
+        dashboard: "Dashboard",
+        about: "Sobre mi",
+        profile: "Sobre mi",
+        projects: "Proyectos",
+        services: "Servicios",
+        advisories: "Asesorias",
+        blog: "Blog",
+        testimonials: "Testimonios",
+        ads: "Publicidad",
+        clients: "Clientes",
+        subscribers: "Suscriptores",
+        contact: "Info. Contacto",
+        settings: "Configuracion"
+    };
+
+    const sectionLabel =
+        sectionLabelMap[activeSection] ||
+        activeSection.replace("-", " ");
+
     return (
         <div className="admin-header">
             {/* LEFT: TITLE & TOGGLE */}
@@ -17,7 +38,7 @@ export default function AdminHeader({ toggleSidebar, activeSection }: AdminHeade
                 </button>
                 <div className="header-title hidden md:block">
                     <h2 className="uppercase tracking-widest text-sm font-black text-indigo-400">Dashboard Panel</h2>
-                    <p className="text-white font-bold text-lg capitalize">{activeSection.replace('-', ' ')}</p>
+                    <p className="text-white font-bold text-lg capitalize">{sectionLabel}</p>
                 </div>
             </div>
 
@@ -33,12 +54,12 @@ export default function AdminHeader({ toggleSidebar, activeSection }: AdminHeade
 
             {/* RIGHT: ACTIONS */}
             <div className="header-actions">
-                <a
+                <Link
                     href="/"
                     className="flex items-center gap-2 bg-slate-800 hover:bg-red-600 text-white px-4 py-2 rounded-none text-[10px] font-bold uppercase tracking-widest transition-all border border-white/5 active:scale-95 mr-4"
                 >
                     <FaHome className="text-sm" /> Ver Sitio Web
-                </a>
+                </Link>
 
                 <button className="relative">
                     <FaEnvelope />

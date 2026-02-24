@@ -91,3 +91,18 @@ o modo guest:
 - Comentario < 20 -> 400
 - Token Google invalido -> 400
 
+# Database Configuration
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/portafolio-web
+
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=dw4s3yo41
+CLOUDINARY_API_KEY=367165625545128
+CLOUDINARY_API_SECRET=IK0oz9MkNHU0d6B6OQuE8yF6d9w
+
+# Email Configuration (Resend)
+RESEND_API_KEY=re_GENnYsZ6_HV3YWxpmnW6cmv5n2Dr4YMM4
+EMAIL_RECEIVER=favio4515@gmail.com
+EMAIL_FROM=onboarding@resend.dev
+
+# Google OAuth Configuration
+GOOGLE_CLIENT_ID=686141217518-3ogat5mr2gassq258va2g50o65r26638.apps.googleusercontent.com

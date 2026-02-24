@@ -14,6 +14,7 @@ import "../styles/home-elite.scss";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import GlobalThemeBackground from "@/components/layout/GlobalThemeBackground";
+import FloatingChat from "@/components/layout/FloatingChat";
 
 // ======================
 // FUENTES
@@ -84,6 +85,7 @@ export default function RootLayout({
         </main>
 
         <Footer />
+        <FloatingChat />
       </body>
     </html>
   );

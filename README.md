@@ -42,7 +42,7 @@ Visita:
 *   **Web:** [http://localhost:3000](http://localhost:3000)
 *   **API Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
 *   **Admin DB:** [http://localhost:8080](http://localhost:8080)
-
+npm install html2canvas jspdf framer-motion
 ---
 **Desarrollado por:** Favio Jiménez
 **Licencia:** Propietaria

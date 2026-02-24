@@ -8,13 +8,15 @@ from app.api import (
     auth, ads, upload,
     profile, experience,
     proyectos, contact, media, timeline,
-    certifications, education, blog,
-    services_page, enviar_cotizacion, casos_exito, casos_completos, reviews
+    certifications, education, blog, chat,
+    services_page, enviar_cotizacion, casos_exito, casos_completos, reviews, about_stack,
+    asesoria, team
 )
 
 
 
 from app.db import init_db
+from app.core.advisory_reminders import start_advisory_reminder_worker, stop_advisory_reminder_worker
 from pathlib import Path
 
 # --- DIAGNÓSTICO DE INICIO ---
@@ -57,13 +59,17 @@ app.include_router(education.router, prefix="/api/education", tags=["education"]
 app.include_router(blog.router, prefix="/api/blog", tags=["blog"])
 app.include_router(proyectos.router, prefix="/api/proyectos", tags=["proyectos"])
 app.include_router(contact.router, prefix="/api/contact", tags=["contact"])
+app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
 app.include_router(media.router, prefix="/api/media", tags=["media"])
 app.include_router(timeline.router, prefix="/api/timeline", tags=["timeline"])
 app.include_router(services_page.router, prefix="/api/services-page", tags=["services-page"])
+app.include_router(asesoria.router, prefix="/api", tags=["asesoria"])
 app.include_router(enviar_cotizacion.router, prefix="/api/enviar-cotizacion", tags=["enviar-cotizacion"])
 app.include_router(casos_exito.router, prefix="/api", tags=["casos-exito"])
 app.include_router(casos_completos.router, prefix="/api", tags=["casos-completos"])
 app.include_router(reviews.router, prefix="/api", tags=["reviews"])
+app.include_router(about_stack.router, prefix="/api/about-stack", tags=["about-stack"])
+app.include_router(team.router, prefix="/api/team", tags=["team"])
 
 
 
@@ -77,6 +83,12 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 @app.on_event("startup")
 def on_startup():
     init_db()
+    start_advisory_reminder_worker()
+
+
+@app.on_event("shutdown")
+def on_shutdown():
+    stop_advisory_reminder_worker()
 
 @app.get("/health")
 def health():

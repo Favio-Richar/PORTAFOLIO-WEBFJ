@@ -1,8 +1,6 @@
 "use client";
 
 import React from 'react';
-
-import FloatingChat from '@/components/layout/FloatingChat';
 import Hero from '@/components/home/Hero';
 import Experiencia from '@/components/home/Experiencia';
 import ServiciosHome from '@/components/home/ServiciosHome';
@@ -65,9 +63,6 @@ export default function HomePage() {
         {/* 8. Contacto */}
         <ContactO />
       </main>
-
-      <FloatingChat />
-
     </div>
   );
 }

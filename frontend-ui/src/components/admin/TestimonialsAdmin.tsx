@@ -18,13 +18,17 @@ interface ReviewItem {
 }
 
 const API_BASE = "http://localhost:8000/api/services-page/reviews";
-const KNOWN_REVIEW_ORIGINS = ["blog", "clientes", "servicios", "proyectos"] as const;
+const KNOWN_REVIEW_ORIGINS = ["blog", "clientes", "servicios", "proyectos", "sobre-mi"] as const;
 
 function normalizePageContext(value?: string | null) {
   const raw = (value || "general").toLowerCase().trim();
   if (raw === "cliente") return "clientes";
+  if (raw === "clientes") return "clientes";
   if (raw === "servicio") return "servicios";
+  if (raw === "servicios") return "servicios";
   if (raw === "proyecto") return "proyectos";
+  if (raw === "proyectos") return "proyectos";
+  if (raw === "sobre mi" || raw === "sobre_mi" || raw === "sobremi" || raw === "about") return "sobre-mi";
   return raw || "general";
 }
 
@@ -32,9 +36,10 @@ function getOriginLabel(origin: string) {
   const normalized = normalizePageContext(origin);
   const labels: Record<string, string> = {
     blog: "Blog",
-    clientes: "Cliente",
-    servicios: "Servicio",
+    clientes: "Clientes",
+    servicios: "Servicios",
     proyectos: "Proyecto",
+    "sobre-mi": "Sobre mi",
     general: "General",
   };
   return labels[normalized] || normalized;

@@ -1,21 +1,13 @@
 "use client";
 
-import { useEffect, useState, type ChangeEvent, type FormEvent, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import {
-  Banknote, BarChart3, Bike, Building2, Calculator, CircleDollarSign,
-  CreditCard, Globe, Home, Landmark, Link2, Mail, MapPin, MessageCircle,
-  Package, PhoneCall, Route, ShieldCheck, ShoppingBag, Store, Truck,
-  UtensilsCrossed, Wallet, Wrench,
-  type LucideIcon
-} from "lucide-react";
-import {
-  FaClock, FaChevronRight, FaRegComments, FaShareAlt,
-  FaRocket, FaCode, FaUserCircle,
-  FaCalendarAlt, FaFire, FaEnvelopeOpenText
+  FaClock, FaChevronRight, FaRegComments,
+  FaRocket, FaUserCircle,
+  FaCalendarAlt, FaEnvelopeOpenText, FaStar
 } from "react-icons/fa";
 import "@/styles/blog-elite.scss";
 
@@ -28,7 +20,6 @@ interface BlogPost {
   category: string;
   readTime: string;
   image: string;
-  views: string;
   content?: string;
 }
 
@@ -79,22 +70,44 @@ interface HeroLeadFormState {
 }
 
 type HeroLeadStatus = "idle" | "sending" | "success" | "error";
+type NewsletterStatus = "idle" | "sending" | "success" | "error";
+type BlogPostsLoadStatus = "loading" | "ready" | "empty" | "error";
+type BlogPostsSource = "backend" | "fallback-empty" | "fallback-error";
+const ENABLE_PUBLIC_BLOG_COMMENTS = process.env.NEXT_PUBLIC_ENABLE_BLOG_COMMENTS === "true";
+
+interface BlogCommentItem {
+  id: number | string;
+  author_name: string;
+  author_role?: string | null;
+  author_company?: string | null;
+  content: string;
+  rating: number;
+  created_at?: string | null;
+  status?: string | null;
+}
+
+interface BlogCommentFormState {
+  author_name: string;
+  author_email: string;
+  content: string;
+  rating: number;
+}
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 const DEFAULT_HERO_TEXT_CONFIG: BlogHeroTextConfig = {
-  badge_text: "Blog de estrategia tecnologica",
-  headline_prefix: "Decisiones tecnicas",
-  headline_highlight: "claras y seguras",
-  headline_suffix: "para empresas que crecen",
-  description: "En este blog compartimos casos reales, guias practicas y decisiones de arquitectura para crecer con tecnologia sin improvisar.",
-  cta_text: "Solicitar diagnostico",
+  badge_text: "Blog tecnico para negocios digitales",
+  headline_prefix: "Estrategia, arquitectura y",
+  headline_highlight: "ejecucion real",
+  headline_suffix: "para escalar tu producto web",
+  description: "Publicamos casos reales, guias accionables y decisiones tecnicas aplicadas a proyectos de reservas, ecommerce y servicios web.",
+  cta_text: "Agendar diagnostico",
   cta_url: "/contacto",
-  read_time_text: "Respuesta tecnica en menos de 24h",
-  card_kicker: "Radar Tecnologico 2026",
-  card_title: "3 tendencias que estan cambiando el desarrollo",
-  card_description: "IA agentes, cloud eficiente y seguridad zero trust para productos reales.",
-  card_tags: '["LLM OPS","CLOUD NATIVE","ZERO TRUST"]',
+  read_time_text: "Respuesta tecnica en menos de 24 horas",
+  card_kicker: "Hoja de ruta recomendada",
+  card_title: "Prioridades tecnicas para crecer sin friccion",
+  card_description: "Arquitectura modular, automatizacion y seguridad operativa para equipos en crecimiento.",
+  card_tags: '["ARQUITECTURA","AUTOMATIZACION","SEGURIDAD"]',
   media_type: "video",
   background_image_url: "",
   background_video_url: "",
@@ -122,6 +135,13 @@ const INITIAL_HERO_LEAD_FORM: HeroLeadFormState = {
   descripcion: "",
 };
 
+const INITIAL_BLOG_COMMENT_FORM: BlogCommentFormState = {
+  author_name: "",
+  author_email: "",
+  content: "",
+  rating: 5,
+};
+
 const normalizeHeroTextConfig = (payload: Partial<BlogHeroTextConfig> | null | undefined): BlogHeroTextConfig => {
   const raw = payload || {};
   const hasLegacyCopy =
@@ -131,20 +151,31 @@ const normalizeHeroTextConfig = (payload: Partial<BlogHeroTextConfig> | null | u
     (raw.headline_suffix || "").trim() === "en la era de la IA" &&
     (raw.cta_text || "").trim() === "Leer Ahora";
 
+  const hasPreviousDefaultCopy =
+    (raw.badge_text || "").trim() === "Blog de estrategia tecnologica" &&
+    (raw.headline_prefix || "").trim() === "Decisiones tecnicas" &&
+    (raw.headline_highlight || "").trim() === "claras y seguras" &&
+    (raw.headline_suffix || "").trim() === "para empresas que crecen" &&
+    (raw.description || "").trim() === "En este blog compartimos casos reales, guias practicas y decisiones de arquitectura para crecer con tecnologia sin improvisar." &&
+    (raw.cta_text || "").trim() === "Solicitar diagnostico" &&
+    (raw.read_time_text || "").trim() === "Respuesta tecnica en menos de 24h";
+
+  const shouldResetCopyToDefault = hasLegacyCopy || hasPreviousDefaultCopy;
+
   return {
     ...DEFAULT_HERO_TEXT_CONFIG,
     ...raw,
     media_type: raw.media_type === "image" ? "image" : "video",
     background_image_url: raw.background_image_url || DEFAULT_HERO_TEXT_CONFIG.background_image_url,
     background_video_url: raw.background_video_url || "",
-    badge_text: hasLegacyCopy ? DEFAULT_HERO_TEXT_CONFIG.badge_text : (raw.badge_text || DEFAULT_HERO_TEXT_CONFIG.badge_text),
-    headline_prefix: hasLegacyCopy ? DEFAULT_HERO_TEXT_CONFIG.headline_prefix : (raw.headline_prefix || DEFAULT_HERO_TEXT_CONFIG.headline_prefix),
-    headline_highlight: hasLegacyCopy ? DEFAULT_HERO_TEXT_CONFIG.headline_highlight : (raw.headline_highlight || DEFAULT_HERO_TEXT_CONFIG.headline_highlight),
-    headline_suffix: hasLegacyCopy ? DEFAULT_HERO_TEXT_CONFIG.headline_suffix : (raw.headline_suffix || DEFAULT_HERO_TEXT_CONFIG.headline_suffix),
-    description: hasLegacyCopy ? DEFAULT_HERO_TEXT_CONFIG.description : (raw.description || DEFAULT_HERO_TEXT_CONFIG.description),
-    cta_text: hasLegacyCopy ? DEFAULT_HERO_TEXT_CONFIG.cta_text : (raw.cta_text || DEFAULT_HERO_TEXT_CONFIG.cta_text),
-    cta_url: hasLegacyCopy ? DEFAULT_HERO_TEXT_CONFIG.cta_url : (raw.cta_url || DEFAULT_HERO_TEXT_CONFIG.cta_url),
-    read_time_text: hasLegacyCopy ? DEFAULT_HERO_TEXT_CONFIG.read_time_text : (raw.read_time_text || DEFAULT_HERO_TEXT_CONFIG.read_time_text),
+    badge_text: shouldResetCopyToDefault ? DEFAULT_HERO_TEXT_CONFIG.badge_text : (raw.badge_text || DEFAULT_HERO_TEXT_CONFIG.badge_text),
+    headline_prefix: shouldResetCopyToDefault ? DEFAULT_HERO_TEXT_CONFIG.headline_prefix : (raw.headline_prefix || DEFAULT_HERO_TEXT_CONFIG.headline_prefix),
+    headline_highlight: shouldResetCopyToDefault ? DEFAULT_HERO_TEXT_CONFIG.headline_highlight : (raw.headline_highlight || DEFAULT_HERO_TEXT_CONFIG.headline_highlight),
+    headline_suffix: shouldResetCopyToDefault ? DEFAULT_HERO_TEXT_CONFIG.headline_suffix : (raw.headline_suffix || DEFAULT_HERO_TEXT_CONFIG.headline_suffix),
+    description: shouldResetCopyToDefault ? DEFAULT_HERO_TEXT_CONFIG.description : (raw.description || DEFAULT_HERO_TEXT_CONFIG.description),
+    cta_text: shouldResetCopyToDefault ? DEFAULT_HERO_TEXT_CONFIG.cta_text : (raw.cta_text || DEFAULT_HERO_TEXT_CONFIG.cta_text),
+    cta_url: shouldResetCopyToDefault ? DEFAULT_HERO_TEXT_CONFIG.cta_url : (raw.cta_url || DEFAULT_HERO_TEXT_CONFIG.cta_url),
+    read_time_text: shouldResetCopyToDefault ? DEFAULT_HERO_TEXT_CONFIG.read_time_text : (raw.read_time_text || DEFAULT_HERO_TEXT_CONFIG.read_time_text),
     card_kicker: raw.card_kicker || DEFAULT_HERO_TEXT_CONFIG.card_kicker,
     card_title: raw.card_title || DEFAULT_HERO_TEXT_CONFIG.card_title,
     card_description: raw.card_description || DEFAULT_HERO_TEXT_CONFIG.card_description,
@@ -208,8 +239,39 @@ const formatPostDate = (iso?: string): string => {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "Reciente";
   return date
-    .toLocaleDateString("es-PE", { day: "2-digit", month: "short", year: "numeric" })
+    .toLocaleDateString("es-CL", { day: "2-digit", month: "short", year: "numeric" })
     .replace(".", "");
+};
+
+const formatBlogCommentDate = (iso?: string | null): string => {
+  if (!iso) return "Reciente";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "Reciente";
+
+  const diffMs = Date.now() - date.getTime();
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  if (diffHours < 1) return "Hace unos minutos";
+  if (diffHours < 24) return `Hace ${diffHours} hora${diffHours === 1 ? "" : "s"}`;
+
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays <= 7) return `Hace ${diffDays} dia${diffDays === 1 ? "" : "s"}`;
+  return formatPostDate(iso);
+};
+
+const normalizeBlogComment = (item: Partial<BlogCommentItem>): BlogCommentItem => {
+  const authorName = String(item.author_name || "").trim() || "Invitado";
+  const content = String(item.content || "").trim();
+  const rating = Math.max(1, Math.min(5, Number(item.rating || 5)));
+  return {
+    id: item.id ?? `${authorName}-${content.slice(0, 8)}`,
+    author_name: authorName,
+    author_role: item.author_role || null,
+    author_company: item.author_company || null,
+    content,
+    rating,
+    created_at: item.created_at || null,
+    status: item.status || null,
+  };
 };
 
 const resolveCategoryImage = (category?: string): string => {
@@ -227,7 +289,6 @@ const mapBackendBlogToPost = (item: BackendBlogRecord): BlogPost => {
   const plainContent = stripMarkup(item.content || "");
   const excerpt = plainContent.length > 170 ? `${plainContent.slice(0, 169)}...` : plainContent;
   const resolvedImage = extractFirstImage(item.content || "") || resolveCategoryImage(item.category);
-  const normalizedViews = `${(3 + ((item.id || 1) % 6) * 0.7).toFixed(1)}K`;
 
   return {
     id: item.id,
@@ -237,205 +298,104 @@ const mapBackendBlogToPost = (item: BackendBlogRecord): BlogPost => {
     category: item.category || "General",
     readTime: estimateReadTime(item.content || ""),
     image: resolvedImage,
-    views: normalizedViews,
     content: item.content || "",
   };
 };
 
-// --- Mock Data (Based on requested template) ---
-// --- Mock Data (Clean fallback) ---
-const MOCK_POSTS: BlogPost[] = [
+const BLOG_EDITORIAL_FALLBACK_POSTS: BlogPost[] = [
   {
     id: 1,
     title: "Como un sistema de reservas aumento 200% las ventas de un hotel",
-    excerpt: "Caso real de implementacion: reservas online, cobro automatizado y ocupacion en tiempo real.",
-    date: "15 Ene 2024",
+    excerpt: "Caso real de implementacion de reservas online con pagos integrados y automatizacion operativa.",
+    date: "15 ene 2024",
     category: "Casos de Exito",
     readTime: "5 min",
     image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1200",
-    views: "4.0K",
-    content: `
-      <h3>Contexto del proyecto</h3>
-      <p>El hotel tenia reservas manuales y bajo control operativo. Se implemento un motor de reservas web con pago integrado.</p>
-      <h3>Resultado</h3>
-      <p>En 6 meses se duplico la ocupacion, se redujeron errores de overbooking y el equipo admin ahorro varias horas por dia.</p>
-    `,
+    content: "",
   },
   {
     id: 2,
     title: "Guia completa: que sistema de facturacion conviene para una empresa en crecimiento",
-    excerpt: "Comparativa clara entre facturacion manual, sistemas basicos y plataforma integrada.",
-    date: "12 Ene 2024",
+    excerpt: "Comparativa clara entre alternativas de facturacion para crecer con orden financiero.",
+    date: "12 ene 2024",
     category: "Guias Practicas",
     readTime: "8 min",
     image: "https://images.unsplash.com/photo-1554224155-1696413565d3?auto=format&fit=crop&q=80&w=1200",
-    views: "5.1K",
-    content: `
-      <h3>Problema comun</h3>
-      <p>Las empresas crecen mas rapido que su proceso administrativo. Eso genera errores de cobro y retrasos de caja.</p>
-      <h3>Recomendacion</h3>
-      <p>Centralizar facturacion, clientes y reportes en una sola plataforma para control real del negocio.</p>
-    `,
+    content: "",
   },
   {
     id: 3,
     title: "5 errores costosos en gestion de inventario y como evitarlos",
-    excerpt: "Lecciones practicas para ecommerce y retail: stock, reposicion y trazabilidad.",
-    date: "10 Ene 2024",
+    excerpt: "Lecciones practicas para ecommerce y retail enfocadas en reposicion y control de stock.",
+    date: "10 ene 2024",
     category: "Tips y Consejos",
     readTime: "6 min",
     image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200",
-    views: "6.0K",
-    content: `
-      <h3>Errores que se repiten</h3>
-      <p>Falta de datos en tiempo real, reposicion tardia y compras sin criterio de demanda.</p>
-      <h3>Que funciona</h3>
-      <p>Alertas inteligentes, control por lotes y panel ejecutivo de movimiento de inventario.</p>
-    `,
+    content: "",
   },
   {
     id: 4,
     title: "Por que un restaurante necesita un POS moderno para escalar operaciones",
-    excerpt: "Integracion con delivery, cocina, caja y reportes de margen en un solo flujo.",
-    date: "8 Ene 2024",
+    excerpt: "Integracion de caja, cocina y delivery para decisiones de negocio con datos reales.",
+    date: "08 ene 2024",
     category: "Industria",
     readTime: "7 min",
     image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200",
-    views: "4.2K",
-    content: `
-      <h3>Operacion unificada</h3>
-      <p>Un POS conectado reduce errores de pedido, acelera caja y permite decisiones diarias con datos reales.</p>
-    `,
+    content: "",
   },
   {
     id: 5,
     title: "Seguridad web para empresas: controles minimos para operar sin riesgo",
-    excerpt: "Checklist tecnico para proteger datos, reputacion y continuidad del servicio.",
-    date: "5 Ene 2024",
+    excerpt: "Checklist tecnico para proteger datos y continuidad operativa en aplicaciones web.",
+    date: "05 ene 2024",
     category: "Seguridad",
     readTime: "6 min",
     image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=1200",
-    views: "6.3K",
-    content: `
-      <h3>Base de seguridad</h3>
-      <p>HTTPS estricto, backups verificables, control de accesos y monitoreo de eventos de seguridad.</p>
-    `,
+    content: "",
   },
   {
     id: 6,
     title: "Plataforma SaaS o desarrollo a medida: decision tecnica para directores",
-    excerpt: "Comparativa de costos, tiempo de salida y flexibilidad segun etapa de negocio.",
-    date: "2 Ene 2024",
+    excerpt: "Comparativa de costo, velocidad y flexibilidad para decidir la mejor ruta de producto.",
+    date: "02 ene 2024",
     category: "Estrategia",
-    readTime: "9 min",
+    readTime: "7 min",
     image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&q=80&w=1200",
-    views: "7.5K",
-    content: `
-      <h3>Decision correcta</h3>
-      <p>No se trata de tecnologia favorita, se trata de riesgo, tiempo y retorno esperado del proyecto.</p>
-    `,
+    content: "",
   },
   {
     id: 7,
     title: "Automatizacion de cobranza: como mejorar flujo de caja sin aumentar equipo",
-    excerpt: "Estrategias de recordatorios, estado de deuda y portal de pagos para clientes.",
-    date: "1 Ene 2024",
+    excerpt: "Estrategias para reducir mora con recordatorios, reglas de cobro y seguimiento automatizado.",
+    date: "01 ene 2024",
     category: "Tips y Consejos",
     readTime: "6 min",
     image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1200",
-    views: "3.2K",
-    content: `
-      <h3>Impacto directo</h3>
-      <p>Automatizar cobranzas reduce mora y libera tiempo de operaciones para tareas de mayor valor.</p>
-    `,
+    content: "",
   },
   {
     id: 8,
     title: "Ecommerce profesional: que necesita una tienda para vender de forma estable",
-    excerpt: "Arquitectura operativa: catalogo, pagos, logistica, soporte y analitica.",
-    date: "28 Dic 2023",
+    excerpt: "Base operativa para vender online con catalogo, inventario, pagos y soporte conectados.",
+    date: "28 dic 2023",
     category: "Industria",
     readTime: "7 min",
     image: "https://images.unsplash.com/photo-1556742049-02e45308b01e?auto=format&fit=crop&q=80&w=1200",
-    views: "4.8K",
-    content: `
-      <h3>Base operativa</h3>
-      <p>La venta online sostenible depende de integracion entre inventario, despacho y experiencia del cliente.</p>
-    `,
+    content: "",
   },
-];
-// --- Integrations Data ---
-type IntegrationTabKey = "Pasarelas" | "Logistica" | "Marketplaces" | "Herramientas";
-
-interface IntegrationItem {
-  name: string;
-  icon: LucideIcon;
-  desc: string;
-  accent: string; // "R G B"
-}
-
-const INTEGRATION_TABS: Array<{ key: IntegrationTabKey; label: string; icon: LucideIcon }> = [
-  { key: "Pasarelas", label: "Pasarelas", icon: CreditCard },
-  { key: "Logistica", label: "Logistica", icon: Truck },
-  { key: "Marketplaces", label: "Marketplaces", icon: ShoppingBag },
-  { key: "Herramientas", label: "Herramientas", icon: Wrench },
-];
-
-const INTEGRATIONS_DATA: Record<IntegrationTabKey, IntegrationItem[]> = {
-  Pasarelas: [
-    { name: "Stripe", icon: CreditCard, desc: "Pagos online con tarjeta para distintos mercados.", accent: "34 211 238" },
-    { name: "PayPal", icon: Wallet, desc: "Billetera digital y pagos recurrentes para clientes globales.", accent: "59 130 246" },
-    { name: "Mercado Pago", icon: CircleDollarSign, desc: "Cobro local optimizado para Latinoamerica.", accent: "14 165 233" },
-    { name: "Openpay", icon: ShieldCheck, desc: "Flujo de cobro seguro con validaciones antifraude.", accent: "245 158 11" },
-    { name: "Conekta", icon: Landmark, desc: "Procesamiento de pagos orientado a negocio regional.", accent: "168 85 247" },
-    { name: "2Checkout", icon: Banknote, desc: "Cobro internacional y soporte multimoneda.", accent: "244 114 182" },
-  ],
-  Logistica: [
-    { name: "FedEx", icon: Truck, desc: "Envios internacionales con seguimiento operativo.", accent: "59 130 246" },
-    { name: "DHL", icon: Package, desc: "Rastreo de envios y estados en tiempo real.", accent: "245 158 11" },
-    { name: "Shipit", icon: Route, desc: "Orquestacion de entregas para ecommerce regional.", accent: "34 197 94" },
-    { name: "Loggi", icon: Bike, desc: "Logistica urbana para despachos de ultima milla.", accent: "244 63 94" },
-    { name: "Easypost", icon: Globe, desc: "Gestion multi-carrier con reglas de envio.", accent: "45 212 191" },
-    { name: "Google Maps", icon: MapPin, desc: "Geolocalizacion, rutas y direccionamiento inteligente.", accent: "56 189 248" },
-  ],
-  Marketplaces: [
-    { name: "Booking.com", icon: Building2, desc: "Sincronizacion de disponibilidad para reservas.", accent: "99 102 241" },
-    { name: "Airbnb", icon: Home, desc: "Gestion centralizada de propiedades y calendario.", accent: "244 63 94" },
-    { name: "Uber Eats", icon: UtensilsCrossed, desc: "Operacion conectada para restaurantes y delivery.", accent: "16 185 129" },
-    { name: "Pedidos Ya", icon: Bike, desc: "Integracion de pedidos y estado de reparto.", accent: "236 72 153" },
-    { name: "Amazon", icon: ShoppingBag, desc: "Publicacion y control de inventario omnicanal.", accent: "250 204 21" },
-    { name: "eBay", icon: Store, desc: "Catalogo y stock sincronizado en un solo panel.", accent: "56 189 248" },
-  ],
-  Herramientas: [
-    { name: "Google Analytics", icon: BarChart3, desc: "Analitica de conversion y comportamiento en sitio.", accent: "45 212 191" },
-    { name: "Mailchimp", icon: Mail, desc: "Automatizacion de correos para embudos y nurturing.", accent: "14 165 233" },
-    { name: "Slack", icon: MessageCircle, desc: "Alertas operativas para equipos de proyecto.", accent: "168 85 247" },
-    { name: "Twilio", icon: PhoneCall, desc: "Notificaciones por SMS y canales de contacto.", accent: "34 197 94" },
-    { name: "Zapier", icon: Route, desc: "Automatizacion de procesos entre sistemas.", accent: "249 115 22" },
-    { name: "Contabilidad", icon: Calculator, desc: "Exportacion y conciliacion para control financiero.", accent: "59 130 246" },
-  ],
-};
-
-const BLOG_INSIGHTS_STATS = [
-  { icon: "", val: "120+", label: "Articulos Tecnicos", desc: "Publicados y actualizados" },
-  { icon: "", val: "35K+", label: "Lecturas Anuales", desc: "Audiencia profesional" },
-  { icon: "", val: "7.4 min", label: "Tiempo de Lectura", desc: "Promedio por articulo" },
-  { icon: "", val: "82%", label: "Lectores Recurrentes", desc: "Vuelven por nuevo contenido" },
-  { icon: "", val: "40+", label: "Casos Documentados", desc: "Escenarios reales de negocio" },
-  { icon: "24h", val: "24h", label: "Respuesta Tecnica", desc: "A consultas prioritarias" },
-];
-
-const BLOG_INSIGHTS_PILLARS = [
-  { title: "Publicacion semanal", desc: "Contenido tecnico accionable sin relleno." },
-  { title: "Fuentes verificadas", desc: "Buenas practicas y arquitectura aplicable." },
-  { title: "Enfoque en negocio", desc: "Tecnologia alineada a conversion y escalabilidad." },
-  { title: "Asesoria directa", desc: "Recomendaciones claras para tomar decisiones." },
 ];
 
 export default function BlogPage() {
-  const router = useRouter();
-  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
-  const [posts, setPosts] = useState<BlogPost[]>(MOCK_POSTS);
+  const [posts, setPosts] = useState<BlogPost[]>(BLOG_EDITORIAL_FALLBACK_POSTS);
+  const [postsLoadStatus, setPostsLoadStatus] = useState<BlogPostsLoadStatus>("loading");
+  const [postsLoadError, setPostsLoadError] = useState("");
+  const [postsSource, setPostsSource] = useState<BlogPostsSource>("backend");
+  const [blogComments, setBlogComments] = useState<BlogCommentItem[]>([]);
+  const [blogCommentForm, setBlogCommentForm] = useState<BlogCommentFormState>(INITIAL_BLOG_COMMENT_FORM);
+  const [blogCommentSubmitting, setBlogCommentSubmitting] = useState(false);
+  const [blogCommentMessage, setBlogCommentMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [activeCommentSlideIndex, setActiveCommentSlideIndex] = useState(0);
+  const [visibleCommentFeedCount, setVisibleCommentFeedCount] = useState(4);
   const [heroTextConfig, setHeroTextConfig] = useState<BlogHeroTextConfig>(DEFAULT_HERO_TEXT_CONFIG);
   const [heroSlides, setHeroSlides] = useState<BlogHeroMediaSlide[]>([]);
   const [activeHeroSlideIndex, setActiveHeroSlideIndex] = useState(0);
@@ -443,10 +403,11 @@ export default function BlogPage() {
   const [heroLeadForm, setHeroLeadForm] = useState<HeroLeadFormState>(INITIAL_HERO_LEAD_FORM);
   const [heroLeadStatus, setHeroLeadStatus] = useState<HeroLeadStatus>("idle");
   const [heroLeadError, setHeroLeadError] = useState("");
-  const [activeTab, setActiveTab] = useState<IntegrationTabKey>("Pasarelas");
-  const [activeCategory, setActiveCategory] = useState("Todos");
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState<NewsletterStatus>("idle");
+  const [newsletterMessage, setNewsletterMessage] = useState("");
+  const [activeCategory, setActiveCategory] = useState("Todas");
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     let isMounted = true;
@@ -467,8 +428,8 @@ export default function BlogPage() {
           const slidesData = await slidesResponse.json();
           const normalizedSlides = Array.isArray(slidesData)
             ? slidesData
-                .map((item: Partial<BlogHeroMediaSlide>) => normalizeHeroMediaSlide(item))
-                .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+              .map((item: Partial<BlogHeroMediaSlide>) => normalizeHeroMediaSlide(item))
+              .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
             : [];
 
           if (isMounted) {
@@ -492,23 +453,50 @@ export default function BlogPage() {
 
     const loadBlogCards = async () => {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/blog/`);
-        if (!response.ok) return;
+        if (isMounted) {
+          setPostsLoadStatus("loading");
+          setPostsLoadError("");
+          setPostsSource("backend");
+        }
+
+        const response = await fetch(`${BACKEND_URL}/api/blog/`, {
+          cache: "no-store",
+        });
+        if (!response.ok) {
+          throw new Error(`No se pudieron obtener publicaciones (${response.status}).`);
+        }
 
         const payload = await response.json();
-        if (!Array.isArray(payload) || payload.length === 0) return;
+        if (!Array.isArray(payload)) {
+          throw new Error("Formato invalido de publicaciones.");
+        }
 
         const mapped = payload
           .map((item: BackendBlogRecord) => item)
           .filter((item) => item?.id && item?.title && item?.content && item?.is_published !== false)
-          .map(mapBackendBlogToPost);
+          .map(mapBackendBlogToPost)
+          .sort((a, b) => b.id - a.id);
 
-        if (isMounted && mapped.length > 0) {
-          setPosts(mapped);
-          setCurrentPage(1);
+        if (!isMounted) return;
+
+        if (mapped.length === 0) {
+          setPosts(BLOG_EDITORIAL_FALLBACK_POSTS);
+          setPostsSource("fallback-empty");
+          setPostsLoadStatus("ready");
+          return;
         }
+
+        setPosts(mapped);
+        setPostsSource("backend");
+        setPostsLoadStatus("ready");
       } catch (error) {
         console.error("Error loading blog cards", error);
+        if (!isMounted) return;
+        const message = error instanceof Error ? error.message : "No se pudieron cargar las publicaciones del blog.";
+        setPosts(BLOG_EDITORIAL_FALLBACK_POSTS);
+        setPostsSource("fallback-error");
+        setPostsLoadError(message);
+        setPostsLoadStatus("ready");
       }
     };
 
@@ -546,6 +534,37 @@ export default function BlogPage() {
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [isHeroLeadModalOpen]);
+
+  useEffect(() => {
+    if (!ENABLE_PUBLIC_BLOG_COMMENTS) {
+      setBlogComments([]);
+      return;
+    }
+
+    let isMounted = true;
+
+    const loadBlogComments = async () => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/services-page/reviews?page_context=blog`);
+        if (!response.ok) return;
+        const payload = await response.json();
+        if (!Array.isArray(payload)) return;
+        if (!isMounted) return;
+
+        const normalized = payload
+          .map((item) => normalizeBlogComment(item as Partial<BlogCommentItem>))
+          .filter((item) => item.content.length > 0);
+        setBlogComments(normalized);
+      } catch (error) {
+        console.error("Error loading blog comments:", error);
+      }
+    };
+
+    void loadBlogComments();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const currentHeroSlide = heroSlides[activeHeroSlideIndex] || null;
   const showHeroVideo = !!currentHeroSlide && currentHeroSlide.media_type === "video" && currentHeroSlide.background_video_url.trim().length > 0;
@@ -599,8 +618,124 @@ export default function BlogPage() {
     }
   };
 
+  const handleNewsletterEmailChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setNewsletterEmail(event.target.value);
+    if (newsletterStatus !== "idle") {
+      setNewsletterStatus("idle");
+      setNewsletterMessage("");
+    }
+  };
+
+  const handleNewsletterSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const email = newsletterEmail.trim();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailPattern.test(email)) {
+      setNewsletterStatus("error");
+      setNewsletterMessage("Ingresa un correo valido para suscribirte.");
+      return;
+    }
+
+    setNewsletterStatus("sending");
+    setNewsletterMessage("");
+
+    try {
+      const response = await fetch("/api/enviar-cotizacion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: "Suscriptor blog",
+          email,
+          telefono: "No informado",
+          servicio: "Newsletter Blog",
+          descripcion: "[Origen: Blog Newsletter] Solicitud de suscripcion al boletin tecnico.",
+        }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        const detail = typeof payload?.error === "string" ? payload.error : "No se pudo completar la suscripcion.";
+        throw new Error(detail);
+      }
+
+      setNewsletterStatus("success");
+      setNewsletterMessage("Suscripcion registrada. Te enviaremos contenido tecnico de alto valor.");
+      setNewsletterEmail("");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "No se pudo completar la suscripcion.";
+      setNewsletterStatus("error");
+      setNewsletterMessage(message);
+    }
+  };
+
+  const handleBlogCommentInput = (field: keyof BlogCommentFormState, value: string | number) => {
+    setBlogCommentForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleBlogCommentSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setBlogCommentMessage(null);
+
+    const authorName = blogCommentForm.author_name.trim();
+    const authorEmail = blogCommentForm.author_email.trim();
+    const content = blogCommentForm.content.trim();
+    const rating = Math.max(1, Math.min(5, Number(blogCommentForm.rating) || 5));
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!authorName || !authorEmail || content.length < 20) {
+      setBlogCommentMessage({
+        type: "error",
+        text: "Completa nombre, email y un comentario de al menos 20 caracteres.",
+      });
+      return;
+    }
+
+    if (!emailPattern.test(authorEmail)) {
+      setBlogCommentMessage({
+        type: "error",
+        text: "Ingresa un email valido para registrar el comentario.",
+      });
+      return;
+    }
+
+    try {
+      setBlogCommentSubmitting(true);
+      const response = await fetch(`${BACKEND_URL}/api/services-page/reviews`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          author_name: authorName,
+          author_role: authorEmail,
+          author_company: "Lector del blog",
+          content,
+          rating,
+          page_context: "blog",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("No se pudo registrar el comentario.");
+      }
+
+      setBlogCommentForm(INITIAL_BLOG_COMMENT_FORM);
+      setBlogCommentMessage({
+        type: "success",
+        text: "Comentario enviado. Queda pendiente de moderacion y se publicara en esta seccion.",
+      });
+    } catch (error) {
+      console.error("Error submitting blog comment:", error);
+      setBlogCommentMessage({
+        type: "error",
+        text: "Error de conexion. Intenta nuevamente en unos segundos.",
+      });
+    } finally {
+      setBlogCommentSubmitting(false);
+    }
+  };
+
   const goToBlogArticles = () => {
-    const target = document.getElementById("blog-articles");
+    const target = document.getElementById("blog-feed");
     if (target) {
       target.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
@@ -609,32 +744,92 @@ export default function BlogPage() {
     window.scrollTo({ top: 1200, behavior: "smooth" });
   };
 
-  const postsPerPage = 6; // Ajustado para mejor visualizacin
-  const categoryOptions = ["Todos", ...Array.from(new Set(posts.map((post) => post.category).filter(Boolean)))];
+  const scrollToCommentForm = () => {
+    const target = document.getElementById("blog-comments-form");
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
-  const filteredPosts = posts.filter(post => {
-    const matchesCategory = activeCategory === "Todos" || post.category === activeCategory;
-    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
-  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+  const carouselComments = blogComments;
+  const blogCommentsTotal = carouselComments.length;
+  const safeActiveCommentIndex = blogCommentsTotal > 0 ? activeCommentSlideIndex % blogCommentsTotal : 0;
+  const activeCommentSlide = blogCommentsTotal > 0 ? carouselComments[safeActiveCommentIndex] : null;
+  const commentFeedPool = blogCommentsTotal > 1
+    ? carouselComments.filter((_, index) => index !== safeActiveCommentIndex)
+    : [];
+  const shouldShowCommentFeed = commentFeedPool.length > 0;
+  const visibleCommentFeed = commentFeedPool.slice(0, visibleCommentFeedCount);
+  const hasMoreCommentFeed = visibleCommentFeedCount < commentFeedPool.length;
 
   useEffect(() => {
-    if (totalPages === 0 && currentPage !== 1) {
-      setCurrentPage(1);
-      return;
-    }
-    if (totalPages > 0 && currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
+    setActiveCommentSlideIndex(0);
+    setVisibleCommentFeedCount(blogComments.length > 1 ? Math.min(4, blogComments.length - 1) : 0);
+  }, [blogComments.length]);
 
-  const paginatedPosts = filteredPosts.slice(
-    (currentPage - 1) * postsPerPage,
-    currentPage * postsPerPage
-  );
+  useEffect(() => {
+    if (blogCommentsTotal <= 1) return;
+    const interval = window.setInterval(() => {
+      setActiveCommentSlideIndex((prev) => (prev + 1) % blogCommentsTotal);
+    }, 6000);
+    return () => window.clearInterval(interval);
+  }, [blogCommentsTotal]);
+
+  const goToPrevComment = () => {
+    if (blogCommentsTotal <= 1) return;
+    setActiveCommentSlideIndex((prev) => (prev - 1 + blogCommentsTotal) % blogCommentsTotal);
+  };
+
+  const goToNextComment = () => {
+    if (blogCommentsTotal <= 1) return;
+    setActiveCommentSlideIndex((prev) => (prev + 1) % blogCommentsTotal);
+  };
+
+  const scrollToCommentFeed = () => {
+    const target = document.getElementById("blog-comments-feed");
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const categoryOptions = useMemo(() => {
+    const unique = Array.from(
+      new Set(
+        posts
+          .map((post) => post.category.trim())
+          .filter(Boolean)
+      )
+    ).sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+
+    return ["Todas", ...unique];
+  }, [posts]);
+
+  useEffect(() => {
+    if (activeCategory !== "Todas" && !categoryOptions.includes(activeCategory)) {
+      setActiveCategory("Todas");
+    }
+  }, [activeCategory, categoryOptions]);
+
+  const filteredPosts = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+
+    return posts.filter((post) => {
+      const matchesCategory =
+        activeCategory === "Todas" || post.category.toLowerCase() === activeCategory.toLowerCase();
+      if (!matchesCategory) return false;
+
+      if (!normalizedQuery) return true;
+      const haystack = `${post.title} ${post.excerpt} ${post.category}`.toLowerCase();
+      return haystack.includes(normalizedQuery);
+    });
+  }, [posts, activeCategory, searchQuery]);
+
+  const readingHighlights = filteredPosts.slice(0, 4);
+  const featuredPost = filteredPosts.length > 0 ? filteredPosts[0] : null;
+  const recentPosts = featuredPost ? filteredPosts.slice(1, 7) : [];
+  const hasAppliedFilter = activeCategory !== "Todas" || searchQuery.trim().length > 0;
+  const estimatedReadMinutes = filteredPosts.reduce((acc, post) => {
+    const minutes = Number.parseInt(post.readTime, 10);
+    return acc + (Number.isFinite(minutes) ? minutes : 0);
+  }, 0);
 
   return (
     <div className="blog-page-wrapper">
@@ -680,7 +875,7 @@ export default function BlogPage() {
               <p className="hero-description text-lg md:text-xl mb-10 leading-relaxed max-w-3xl">
                 {heroTextConfig.description}
               </p>
-              <div className="flex items-center gap-4 flex-wrap">
+              <div className="hero-actions flex items-center gap-4 flex-wrap">
                 <button
                   type="button"
                   onClick={openHeroLeadModal}
@@ -688,21 +883,22 @@ export default function BlogPage() {
                 >
                   {heroTextConfig.cta_text} <FaChevronRight className="text-xs" />
                 </button>
-                <Link
-                  href={heroTextConfig.cta_url || "/contacto"}
-                  className="px-6 py-3 rounded-2xl border border-cyan-300/75 bg-slate-950/80 text-cyan-300 font-semibold text-sm shadow-[0_8px_25px_rgba(2,6,23,0.5)] backdrop-blur-md hover:border-cyan-200 hover:text-cyan-200 hover:bg-slate-900/90 transition-all"
+                <button
+                  type="button"
+                  onClick={goToBlogArticles}
+                  className="hero-secondary-cta px-6 py-3 rounded-2xl border border-cyan-300/75 bg-slate-950/80 text-cyan-300 font-semibold text-sm shadow-[0_8px_25px_rgba(2,6,23,0.5)] backdrop-blur-md hover:border-cyan-200 hover:text-cyan-200 hover:bg-slate-900/90 transition-all"
                 >
-                  Ver mas contenido
-                </Link>
-                <div className="flex items-center gap-3 text-amber-300 text-sm font-semibold drop-shadow-[0_2px_8px_rgba(2,6,23,0.6)]">
+                  Ver articulos destacados
+                </button>
+                <div className="hero-response-line flex items-center gap-3 text-sm font-semibold drop-shadow-[0_2px_8px_rgba(2,6,23,0.6)]">
                   <FaClock /> {heroTextConfig.read_time_text}
                 </div>
               </div>
-              <div className="mt-6 flex flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.15em]">
-                {["Diagnostico inicial sin costo", "Respuesta en 24h", "Arquitectura segura para escalar"].map((item) => (
+              <div className="hero-proof-chips mt-6 flex flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.15em]">
+                {["Diagnostico orientado a negocio", "Implementacion en fases claras", "Escalabilidad y seguridad desde el inicio"].map((item) => (
                   <span
                     key={item}
-                    className="px-4 py-2 rounded-xl border border-amber-300/80 bg-slate-950/84 text-amber-300 shadow-[0_6px_20px_rgba(2,6,23,0.45)]"
+                    className="hero-proof-chip px-4 py-2 rounded-xl border border-amber-300/80 bg-slate-950/84 text-amber-300 shadow-[0_6px_20px_rgba(2,6,23,0.45)]"
                   >
                     {item}
                   </span>
@@ -713,440 +909,764 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* 2. BLOG INSIGHTS SECTION */}
-      <section className="blog-insights-section py-32 relative overflow-hidden border-y border-white/5">
+      {/* 2. FILTROS DEL BLOG */}
+      <section className="blog-insights-section py-24 relative overflow-hidden border-y border-white/5">
         <div className="blog-container">
-          <div className="text-center mb-16">
-            <span className="insights-kicker inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6">
-              Blog Intelligence
+          <div className="text-center mb-10">
+            <span className="insights-kicker inline-flex items-center gap-2 px-4 py-2 rounded-full mb-5">
+              Explora por tema
             </span>
-            <h2 className="insights-title text-4xl lg:text-6xl font-black mb-5">Insights que Impulsan Decisiones de Negocio</h2>
+            <h2 className="insights-title text-4xl lg:text-5xl font-black mb-4">Un blog real, ordenado por categorias</h2>
             <p className="insights-subtitle text-lg max-w-3xl mx-auto">
-              Este bloque resume el valor real del blog: contenido tecnico, casos aplicables y acompanamiento para decisiones de tecnologia con menor riesgo.
+              Filtra por categoria o busca por palabra clave para encontrar guias, casos y buenas practicas puntuales.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-7 mb-16">
-            {BLOG_INSIGHTS_STATS.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.35, delay: i * 0.05 }}
-                className="insight-stat-card p-7 rounded-[1.8rem] text-center group"
-              >
-                <div className="insight-icon text-4xl mb-5">{stat.icon}</div>
-                <div className="insight-value text-3xl font-extrabold mb-2 tracking-tight">{stat.val}</div>
-                <div className="insight-label text-sm font-bold mb-2 uppercase tracking-wide">{stat.label}</div>
-                <p className="insight-desc text-xs font-semibold leading-relaxed">{stat.desc}</p>
-              </motion.div>
-            ))}
-          </div>
+          <div className="blog-filter-shell rounded-[2rem] border border-white/10 bg-slate-900/65 p-6 md:p-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-6">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] font-black text-cyan-200/85 mb-2">Busqueda editorial</p>
+                <p className="text-sm text-slate-300">Encuentra contenido por titulo, categoria o resumen.</p>
+              </div>
+              <div className="w-full lg:max-w-lg">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Buscar: ecommerce, seguridad, reservas..."
+                  className="search-input blog-search-field w-full px-5 py-3 rounded-xl text-sm text-white"
+                />
+              </div>
+            </div>
 
-          <div className="insights-pillars-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-10 rounded-[2.2rem]">
-            {BLOG_INSIGHTS_PILLARS.map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.35, delay: 0.1 + i * 0.05 }}
-                className="insight-pillar-item flex gap-3 items-start"
-              >
-                <span className="insight-check mt-1 w-5 h-5 rounded-md text-[11px] font-black flex items-center justify-center">
-                  
-                </span>
-                <div>
-                  <h4 className="insight-pillar-title font-bold text-sm mb-1 capitalize">{item.title}</h4>
-                  <p className="insight-pillar-desc text-xs leading-relaxed">{item.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 3. INTEGRATIONS SECTION (Tabs) */}
-      <section className="integrations-section py-32 bg-slate-950">
-        <div className="blog-container">
-          <div className="text-center mb-16">
-            <span className="integrations-kicker inline-flex items-center px-4 py-2 rounded-full mb-6">
-              Casos y guias de integracion
-            </span>
-            <h2 className="integrations-title text-4xl lg:text-5xl font-black mb-6 uppercase tracking-tight flex items-center justify-center gap-3">
-              <Link2 size={34} />
-              Integraciones reales para proyectos de agencia
-            </h2>
-            <p className="integrations-subtitle text-lg max-w-3xl mx-auto">
-              Estas plataformas se usan en proyectos reales con clientes. En el blog explicamos como integrarlas paso a paso.
-            </p>
-          </div>
-
-          <div className="integration-tabs flex flex-wrap justify-center gap-4 mb-16 border-b border-white/5 pb-8">
-            {INTEGRATION_TABS.map((tabMeta) => {
-              const TabIcon = tabMeta.icon;
-              const isActive = activeTab === tabMeta.key;
-              return (
-                <button
-                  key={tabMeta.key}
-                  onClick={() => setActiveTab(tabMeta.key)}
-                  className={`integration-tab px-8 py-3 rounded-xl font-bold text-sm transition-all border ${isActive ? "is-active" : ""}`}
-                >
-                  <TabIcon size={15} />
-                  <span>{tabMeta.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="integration-cards-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
-              {(INTEGRATIONS_DATA[activeTab] || []).map((item) => {
-                const ItemIcon = item.icon;
+            <div className="flex flex-wrap gap-3">
+              {categoryOptions.map((category) => {
+                const isActive = activeCategory === category;
                 return (
-                  <article
-                    key={item.name}
-                    className="integration-card p-10 rounded-[2.5rem] group"
-                    style={{ "--integration-accent": item.accent } as CSSProperties}
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => setActiveCategory(category)}
+                    className={`blog-filter-chip ${isActive ? "is-active" : ""} px-4 py-2 rounded-full text-xs font-bold uppercase tracking-[0.12em] border transition-all ${isActive
+                      ? "border-cyan-300/65 bg-cyan-400/15 text-cyan-100"
+                      : "border-white/15 bg-white/5 text-slate-300 hover:border-cyan-300/45 hover:text-cyan-100"
+                      }`}
                   >
-                    <div className="flex items-center gap-6 mb-8">
-                      <div className="integration-icon-shell w-16 h-16 rounded-2xl flex items-center justify-center">
-                        <ItemIcon size={28} strokeWidth={2.25} />
-                      </div>
-                      <div>
-                        <h3 className="integration-name text-xl font-bold">{item.name}</h3>
-                        <span className="integration-badge text-[10px] font-bold uppercase tracking-widest mt-1 block">Guia en el blog</span>
-                      </div>
-                    </div>
-                    <p className="integration-desc text-sm leading-relaxed">{item.desc}</p>
-                  </article>
+                    {category}
+                  </button>
                 );
               })}
-            </motion.div>
-          </AnimatePresence>
+            </div>
 
-          <div className="integration-cta-box mt-24 p-12 rounded-[3rem] text-center">
-            <h3 className="text-3xl font-black mb-4 uppercase tracking-tight">Buscas una integracion especifica?</h3>
-            <p className="text-slate-300 mb-10 max-w-2xl mx-auto">
-              Revisa las guias del blog y, si necesitas apoyo tecnico para tu caso, agenda asesoria con nuestro equipo.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <button
-                onClick={goToBlogArticles}
-                className="cta-button integration-cta-primary px-10 py-4 rounded-2xl text-white font-bold text-base transition-all hover:-translate-y-1"
-              >
-                Ver guias de integracion
-              </button>
-              <button
-                onClick={openHeroLeadModal}
-                className="integration-cta-secondary px-10 py-4 rounded-2xl font-bold text-base transition-all"
-              >
-                Solicitar asesoria tecnica
-              </button>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-7">
+              <div className="blog-metric-card rounded-2xl border border-white/10 bg-black/20 px-4 py-4">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-slate-400 font-bold mb-1">Articulos visibles</p>
+                <p className="text-3xl font-black text-white">{filteredPosts.length}</p>
+              </div>
+              <div className="blog-metric-card rounded-2xl border border-white/10 bg-black/20 px-4 py-4">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-slate-400 font-bold mb-1">Categorias activas</p>
+                <p className="text-3xl font-black text-white">{Math.max(categoryOptions.length - 1, 0)}</p>
+              </div>
+              <div className="blog-metric-card rounded-2xl border border-white/10 bg-black/20 px-4 py-4">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-slate-400 font-bold mb-1">Minutos estimados</p>
+                <p className="text-3xl font-black text-white">{estimatedReadMinutes}</p>
+              </div>
             </div>
           </div>
         </div>
       </section>
-      {/* 4. MAIN CONTENT (GRID + SIDEBAR) */}
-      <section id="blog-articles" className="py-32 bg-slate-950">
+
+      {/* 3. LECTURAS RECOMENDADAS */}
+      <section className="editorial-picks-section py-24 bg-slate-950 border-b border-white/5">
         <div className="blog-container">
-          <div className="flex flex-col lg:flex-row gap-16">
-
-            {/* MAIN ARTICLES GRID */}
-            <main className="lg:w-2/3">
-              <div className="blog-header mb-12">
-                <h1 className="blog-main-title text-4xl lg:text-6xl font-black mb-6">Blog de Sistemas Web</h1>
-                <p className="blog-main-subtitle text-slate-300">
-                  Guias, casos reales y decisiones tecnicas para transformar operaciones digitales.
-                </p>
-              </div>
-
-              {/* Categorias (Filtros) */}
-              <div className="flex flex-wrap gap-3 mb-12">
-                {categoryOptions.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => { setActiveCategory(cat); setCurrentPage(1); }}
-                    className={`blog-filter-chip px-6 py-2 rounded-xl text-xs font-bold border transition-all ${
-                      activeCategory === cat ? "is-active" : ""
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <AnimatePresence mode="popLayout">
-                  {paginatedPosts.map((post, idx) => (
-                    <motion.div
-                      layout
-                      key={post.id}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.4, delay: idx * 0.1 }}
-                      className="square-card group cursor-pointer"
-                      onClick={() => router.push(`/blog/${post.id}`)}
-                    >
-                      <div className="square-image">
-                        <Image src={post.image} alt={post.title} fill className="object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
-                        <span className="blog-card-category absolute top-6 right-6 px-4 py-1.5 text-white text-[10px] font-bold rounded-lg uppercase tracking-widest">
-                          {post.category}
-                        </span>
-                      </div>
-                      <div className="square-content">
-                        <div>
-                          <div className="flex items-center gap-3 text-slate-500 text-[10px] font-bold mb-4 uppercase tracking-widest">
-                            <FaCalendarAlt className="text-blue-500" /> {post.date}
-                          </div>
-                          <h3 className="blog-card-title text-2xl font-bold mb-4 group-hover:text-blue-300 transition-colors leading-tight">
-                            {post.title}
-                          </h3>
-                          <p className="blog-card-excerpt text-slate-300 text-sm line-clamp-3 leading-relaxed">
-                            {post.excerpt}
-                          </p>
-                        </div>
-                        <div className="mt-8 flex items-center justify-between border-t border-white/5 pt-6">
-                          <Link
-                            href={`/blog/${post.id}`}
-                            onClick={(event) => event.stopPropagation()}
-                            className="blog-read-btn text-sm font-bold flex items-center gap-2 hover:gap-3 transition-all"
-                          >
-                            Seguir leyendo <FaChevronRight className="text-[10px]" />
-                          </Link>
-                          <div className="flex items-center gap-4 text-slate-600 text-[10px] font-bold uppercase tracking-widest">
-                            <div className="flex items-center gap-1.5">
-                              <FaClock className="text-blue-500/50" /> {post.readTime}
-                            </div>
-                            <span className="w-1 h-1 rounded-full bg-slate-800" />
-                            <div className="flex items-center gap-1.5">
-                              <FaFire className="text-orange-600/50" /> {post.views} Vistas
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-
-              {/* No Results */}
-              {filteredPosts.length === 0 && (
-                <div className="text-center py-40 border-2 border-dashed border-white/5 rounded-[4rem]">
-                  <FaRocket className="text-6xl text-slate-700 mx-auto mb-8 animate-bounce" />
-                  <h3 className="text-3xl font-bold text-slate-400">Sin resultados encontrados</h3>
-                  <p className="text-slate-500 mt-4">Intenta ajustar tus parametros de busqueda.</p>
-                </div>
-              )}
-
-              {/* Paginacion */}
-              {totalPages > 1 && (
-                <div className="mt-16 flex justify-center gap-4">
-                  {Array.from({ length: totalPages }).map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => { setCurrentPage(i + 1); window.scrollTo({ top: 800, behavior: 'smooth' }); }}
-                      className={`w-12 h-12 rounded-xl font-bold transition-all border ${currentPage === i + 1
-                        ? "bg-blue-600 border-blue-500 text-white"
-                        : "bg-white/5 border-white/10 text-slate-400 hover:border-blue-500/30"
-                        }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </main>
-
-            {/* SIDEBAR */}
-            <aside className="lg:w-1/3 space-y-12">
-              {/* Busqueda */}
-              <div className="article-card blog-sidebar-card p-8 rounded-[2.5rem]">
-                <h3 className="blog-sidebar-title text-xl font-bold mb-6 flex items-center gap-3">
-                  Buscar articulos
-                </h3>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Escribe para buscar..."
-                    className="search-input blog-search-input w-full px-6 py-4 rounded-2xl text-white"
-                    value={searchQuery}
-                    onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                  />
-                </div>
-              </div>
-
-              {/* Mini Stats Sidebar */}
-              <div className="article-card blog-sidebar-card p-8 rounded-[2.5rem]">
-                <h3 className="blog-sidebar-title text-xl font-bold mb-8">Estadisticas</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    { val: "12", label: "Articulos" },
-                    { val: "45K+", label: "Lecturas" },
-                    { val: "1.2K+", label: "Comentarios" },
-                    { val: "500+", label: "Seguidores" }
-                  ].map((stat, i) => (
-                    <div key={i} className="bg-white/5 p-4 rounded-2xl border border-white/5 text-center">
-                      <div className="text-xl font-bold text-blue-400">{stat.val}</div>
-                      <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Trending Ahora (Integrated from requested image) */}
-              <div className="article-card blog-sidebar-card p-8 rounded-[2.5rem] border border-white/5">
-                <div className="flex items-center gap-4 mb-6 border-b border-white/5 pb-6">
-                  <FaFire className="text-xl text-amber-400" />
-                  <h3 className="blog-sidebar-title text-xl font-bold text-white">Tendencias del blog</h3>
-                </div>
-
-                <div className="space-y-8">
-                  {[...posts]
-                    .sort((a, b) => parseFloat(b.views) - parseFloat(a.views))
-                    .slice(0, 5)
-                    .map((art, idx) => (
-                      <Link
-                        key={`${art.id}-${idx}`}
-                        href={`/blog/${art.id}`}
-                        className="flex gap-6 group cursor-pointer border-b border-white/5 pb-6 last:border-0 last:pb-0"
-                      >
-                        <div className="w-10 h-10 rounded-full bg-slate-900 border border-white/5 flex items-center justify-center text-blue-400 text-sm font-bold shrink-0 group-hover:bg-blue-600/20 transition-colors">
-                          {idx < 9 ? `0${idx + 1}` : idx + 1}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors leading-snug line-clamp-2">
-                            {art.title}
-                          </h4>
-                          <div className="flex items-center gap-2 text-[11px] text-slate-500 font-bold mt-2 lowercase">
-                            <FaFire className="text-orange-600" /> {art.views} vistas
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                </div>
-              </div>
-
-              {/* Newsletter Sidebar */}
-              <div className="article-card p-8 rounded-[2.5rem] bg-gradient-to-br from-blue-600/20 to-purple-600/20 border-blue-500/30">
-                <FaEnvelopeOpenText className="text-4xl text-blue-400 mb-6" />
-                <h3 className="text-2xl font-bold mb-4 italic">Newsletter</h3>
-                <p className="text-slate-400 text-sm mb-8 leading-relaxed">
-                  Recibe los mejores tips sobre sistemas web cada semana.
-                </p>
-                <div className="space-y-4">
-                  <input type="email" placeholder="tu@email.com" className="search-input w-full px-6 py-4 rounded-2xl text-sm" />
-                  <button className="cta-button w-full py-4 rounded-2xl text-white font-bold">Suscribirme</button>
-                </div>
-              </div>
-
-              {/* Etiquetas Populares */}
-              <div className="article-card p-8 rounded-[2.5rem]">
-                <h3 className="text-xl font-bold mb-8 italic"> Etiquetas</h3>
-                <div className="flex flex-wrap gap-2">
-                  {['Reservas', 'Facturas', 'Inventarios', 'POS', 'Seguridad', 'E-commerce', 'API', 'Soporte', 'Datos'].map(tag => (
-                    <span key={tag} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-slate-400 hover:border-blue-500/50 cursor-pointer transition-all">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* CTA Soluciones */}
-              <div className="article-card p-8 rounded-[2.5rem] border-blue-500/50 bg-blue-900/10">
-                <h3 className="text-xl font-bold mb-4 text-blue-400 italic"> Necesitas Soluciones?</h3>
-                <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-                  Tenemos la solucin perfecta para tu negocio. Consulta sin costo.
-                </p>
-                <button className="cta-button w-full py-4 rounded-2xl text-white font-bold mb-4">Solicitar Demo</button>
-                <button className="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-blue-400 font-bold text-sm">Ver Catlogo</button>
-              </div>
-            </aside>
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
+            <div>
+              <span className="integrations-kicker inline-flex items-center px-4 py-2 rounded-full mb-5">
+                Lecturas recomendadas
+              </span>
+              <h2 className="text-3xl md:text-5xl font-black mb-3">Seleccion editorial del momento</h2>
+              <p className="text-slate-300 max-w-3xl">
+                Articulos destacados para comprender tendencias, arquitectura y decisiones de producto en proyectos web.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={goToBlogArticles}
+              className="insights-primary-action px-8 py-3 rounded-xl text-sm font-extrabold uppercase tracking-[0.12em] w-fit"
+            >
+              Ir al feed completo
+            </button>
           </div>
+
+          {postsLoadStatus === "loading" && posts.length === 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+              {Array.from({ length: 4 }).map((_, idx) => (
+                <div
+                  key={`editorial-loading-${idx}`}
+                  className="editorial-pick-card rounded-[1.6rem] border border-white/10 bg-slate-900/65 h-[23rem] animate-pulse"
+                />
+              ))}
+            </div>
+          )}
+
+          {postsLoadStatus === "ready" && readingHighlights.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+              {readingHighlights.map((post, index) => (
+                <motion.article
+                  key={`highlight-${post.id}`}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.25 }}
+                  transition={{ duration: 0.28, delay: index * 0.04 }}
+                  className="editorial-pick-card rounded-[1.6rem] border border-white/10 bg-slate-900/65 overflow-hidden"
+                >
+                  <Link href={`/blog/${post.id}`} className="block">
+                    <div className="relative h-44">
+                      <Image src={post.image} alt={post.title} fill className="object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+                    </div>
+                    <div className="p-5">
+                      <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-3">
+                        <FaCalendarAlt className="text-blue-400" /> {post.date}
+                      </div>
+                      <h3 className="text-lg font-black text-white leading-tight mb-3 line-clamp-2">{post.title}</h3>
+                      <p className="text-sm text-slate-300 leading-relaxed line-clamp-3">{post.excerpt}</p>
+                      <div className="mt-4 flex items-center justify-between">
+                        <span className="text-[10px] uppercase tracking-widest text-cyan-200/85 font-bold">{post.category}</span>
+                        <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">{post.readTime}</span>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.article>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+      {/* 4. PUBLICACIONES RECIENTES */}
+      <section id="blog-feed" className="blog-feed-section py-28 bg-slate-950">
+        <div className="blog-container">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
+            <div>
+              <span className="integrations-kicker inline-flex items-center px-4 py-2 rounded-full mb-5">
+                Publicaciones recientes
+              </span>
+              <h2 className="blog-main-title text-4xl lg:text-6xl font-black mb-4">
+                Novedades y casos aplicados
+              </h2>
+              <p className="blog-main-subtitle text-slate-300 max-w-3xl">
+                Entradas claras y directas sobre sistemas web, integraciones y operacion digital.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveCategory("Todas");
+                setSearchQuery("");
+              }}
+              disabled={!hasAppliedFilter}
+              className="insights-secondary-action px-7 py-3 rounded-xl text-sm font-bold uppercase tracking-[0.1em] w-fit disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              Limpiar filtros
+            </button>
+          </div>
+
+          {postsLoadStatus === "loading" && posts.length === 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={`post-loading-${index}`}
+                  className="rounded-[2rem] border border-white/10 bg-slate-900/70 h-[30rem] animate-pulse"
+                />
+              ))}
+            </div>
+          )}
+
+          {postsLoadStatus === "ready" && filteredPosts.length === 0 && (
+            <div className="rounded-[2rem] border border-cyan-300/25 bg-slate-900/75 p-8 md:p-10 text-center">
+              <h3 className="text-2xl font-black text-slate-100 mb-3">No hay resultados con ese filtro</h3>
+              <p className="text-slate-300 mb-6">
+                Ajusta la categoria o cambia el termino de busqueda para encontrar articulos.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveCategory("Todas");
+                  setSearchQuery("");
+                }}
+                className="insights-primary-action inline-flex px-7 py-3 rounded-xl text-xs font-bold uppercase tracking-[0.1em]"
+              >
+                Ver todas las publicaciones
+              </button>
+            </div>
+          )}
+
+          {postsLoadStatus === "ready" && postsSource !== "backend" && (
+            <div className="mb-8 rounded-2xl border border-amber-300/30 bg-amber-500/10 px-5 py-4">
+              <p className="text-sm font-semibold text-amber-100">
+                {postsSource === "fallback-empty"
+                  ? "No hay publicaciones publicadas en tu backend. Se muestra contenido editorial de ejemplo."
+                  : "No se pudo conectar al backend del blog. Se muestra contenido editorial de ejemplo temporalmente."}
+              </p>
+              {postsSource === "fallback-error" && postsLoadError ? (
+                <p className="text-xs text-amber-200/80 mt-2">{postsLoadError}</p>
+              ) : null}
+            </div>
+          )}
+
+          {postsLoadStatus === "ready" && featuredPost && (
+            <article className="feed-featured-card mb-10 overflow-hidden rounded-[2.2rem] border border-cyan-300/28 bg-gradient-to-br from-slate-900/92 via-slate-900/86 to-blue-950/55 shadow-[0_26px_60px_rgba(2,6,23,0.58)]">
+              <div className="grid grid-cols-1 lg:grid-cols-2">
+                <div className="relative min-h-[280px] lg:min-h-[360px]">
+                  <Image src={featuredPost.image} alt={featuredPost.title} fill className="object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-950/25 to-transparent" />
+                  <span className="absolute top-6 left-6 px-4 py-2 rounded-xl border border-cyan-300/60 bg-slate-950/70 text-cyan-200 text-[10px] font-black uppercase tracking-[0.18em]">
+                    Articulo destacado
+                  </span>
+                </div>
+                <div className="p-8 md:p-10 lg:p-12 flex flex-col justify-between gap-8">
+                  <div>
+                    <div className="flex items-center gap-3 text-slate-400 text-[10px] font-bold mb-5 uppercase tracking-widest">
+                      <FaCalendarAlt className="text-blue-400" /> {featuredPost.date}
+                      <span className="w-1 h-1 rounded-full bg-slate-600" />
+                      <FaClock className="text-blue-400/80" /> {featuredPost.readTime}
+                    </div>
+                    <h3 className="text-3xl md:text-4xl font-black text-slate-100 leading-tight mb-5">
+                      {featuredPost.title}
+                    </h3>
+                    <p className="text-slate-300 text-base leading-relaxed">
+                      {featuredPost.excerpt}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-[11px] font-bold uppercase tracking-widest text-slate-300">
+                      {featuredPost.category}
+                    </span>
+                    <Link
+                      href={`/blog/${featuredPost.id}`}
+                      className="insights-primary-action inline-flex items-center gap-2 px-7 py-3 rounded-xl text-xs font-extrabold uppercase tracking-[0.12em]"
+                    >
+                      Leer articulo
+                      <FaChevronRight className="text-[10px]" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </article>
+          )}
+
+          {postsLoadStatus === "ready" && recentPosts.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+              {recentPosts.map((post, idx) => (
+                <motion.article
+                  key={post.id}
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ duration: 0.3, delay: idx * 0.04 }}
+                  className="square-card group"
+                >
+                  <div className="square-image">
+                    <Image src={post.image} alt={post.title} fill className="object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
+                    <span className="blog-card-category absolute top-6 right-6 px-4 py-1.5 text-white text-[10px] font-bold rounded-lg uppercase tracking-widest">
+                      {post.category}
+                    </span>
+                  </div>
+                  <div className="square-content">
+                    <div>
+                      <div className="flex items-center gap-3 text-slate-500 text-[10px] font-bold mb-4 uppercase tracking-widest">
+                        <FaCalendarAlt className="text-blue-500" /> {post.date}
+                      </div>
+                      <h3 className="blog-card-title text-2xl font-bold mb-4 leading-tight">
+                        {post.title}
+                      </h3>
+                      <p className="blog-card-excerpt text-slate-300 text-sm line-clamp-3 leading-relaxed">
+                        {post.excerpt}
+                      </p>
+                    </div>
+                    <div className="mt-8 flex items-center justify-between border-t border-white/5 pt-6">
+                      <Link
+                        href={`/blog/${post.id}`}
+                        className="blog-read-btn text-sm font-bold flex items-center gap-2 hover:gap-3 transition-all"
+                      >
+                        Ver articulo <FaChevronRight className="text-[10px]" />
+                      </Link>
+                      <div className="flex items-center gap-1.5 text-slate-600 text-[10px] font-bold uppercase tracking-widest">
+                        <FaClock className="text-blue-500/50" /> {post.readTime}
+                      </div>
+                    </div>
+                  </div>
+                </motion.article>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
       {/* 5. COMMENTS SECTION */}
-      <section className="py-32 bg-slate-950">
-        <div className="blog-container max-w-4xl">
-          <div className="flex items-center gap-4 mb-16">
-            <FaRegComments className="text-4xl text-blue-500" />
-            <h2 className="text-4xl font-bold">Conversacin (24)</h2>
-          </div>
-
-          <div className="space-y-12 mb-20">
-            {/* Comment 1 */}
-            <div className="article-card p-10 rounded-[3rem]">
-              <div className="flex gap-6">
-                <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400">
-                  <FaUserCircle className="text-4xl" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-bold">Marcos Tech</h4>
-                    <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Hace 2 horas</span>
-                  </div>
-                  <p className="text-slate-400 leading-relaxed mb-6">
-                    Excelente artculo sobre Next.js. Podras profundizar en el uso masivo de Partial Prerendering en aplicaciones E-commerce?
-                  </p>
-                  <div className="flex gap-6 text-xs font-bold uppercase tracking-widest">
-                    <button className="text-blue-400 hover:text-white">Responder</button>
-                    <button className="text-slate-500 hover:text-white">Reportar</button>
-                  </div>
-                </div>
+      {ENABLE_PUBLIC_BLOG_COMMENTS && activeCommentSlide && (
+        <section className="comments-section py-24 relative overflow-hidden">
+          <div className="blog-container max-w-4xl relative z-10">
+            <div className="comments-header mb-12">
+              <div className="comments-kicker">Debate tecnico activo</div>
+              <div className="comments-title-row">
+                <span className="comments-title-icon">
+                  <FaRegComments />
+                </span>
+                <h2 className="comments-title">Conversacion tecnica <span>({blogCommentsTotal})</span></h2>
               </div>
+              <p className="comments-subtitle">
+                Opiniones de lectores sobre arquitectura, implementacion y decisiones reales en productos web.
+              </p>
+            </div>
+
+            <div className="comments-carousel-shell mb-10">
+              <div className="comments-carousel-toolbar">
+                <span className="comments-carousel-count">
+                  Comentario {safeActiveCommentIndex + 1} de {blogCommentsTotal}
+                </span>
+                {blogCommentsTotal > 1 && (
+                  <div className="comments-carousel-controls">
+                    <button type="button" onClick={goToPrevComment}>Anterior</button>
+                    <button type="button" onClick={goToNextComment}>Siguiente</button>
+                  </div>
+                )}
+              </div>
+
+              <AnimatePresence mode="wait">
+                <motion.article
+                  key={`comment-slide-${activeCommentSlide.id}-${safeActiveCommentIndex}`}
+                  initial={{ opacity: 0, y: 14, scale: 0.985 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -12, scale: 0.985 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="comment-card comment-slide-card"
+                >
+                  <div className="comment-avatar">
+                    <FaUserCircle className="text-4xl" />
+                  </div>
+                  <div className="comment-body">
+                    <div className="comment-meta">
+                      <h4>{activeCommentSlide.author_name}</h4>
+                      <span>{formatBlogCommentDate(activeCommentSlide.created_at)}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-amber-400 mb-2">
+                      {Array.from({ length: 5 }).map((_, index) => (
+                        <FaStar key={`${activeCommentSlide.id}-rating-${index}`} className={index < activeCommentSlide.rating ? "text-amber-400" : "text-slate-700"} />
+                      ))}
+                    </div>
+                    <p className="comment-text">
+                      {activeCommentSlide.content}
+                    </p>
+                    <div className="comment-actions">
+                      <button type="button" onClick={scrollToCommentForm} className="comment-action-primary">
+                        Responder en comentarios
+                      </button>
+                      <button type="button" onClick={goToBlogArticles} className="comment-action-secondary">
+                        Ver mas articulos
+                      </button>
+                    </div>
+                  </div>
+                </motion.article>
+              </AnimatePresence>
+
+              {blogCommentsTotal > 1 && (
+                <div className="comments-carousel-dots">
+                  {carouselComments.map((comment, index) => (
+                    <button
+                      key={`comment-dot-${comment.id}-${index}`}
+                      type="button"
+                      className={`comments-carousel-dot ${index === safeActiveCommentIndex ? "is-active" : ""}`}
+                      onClick={() => setActiveCommentSlideIndex(index)}
+                      aria-label={`Ir a comentario ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {shouldShowCommentFeed && (
+                <button type="button" className="comment-feed-anchor" onClick={scrollToCommentFeed}>
+                  Bajar para ver mas resenas <FaChevronRight className="text-[11px] rotate-90" />
+                </button>
+              )}
+            </div>
+
+            {shouldShowCommentFeed && (
+              <div id="blog-comments-feed" className="comment-feed-grid mb-12">
+                {visibleCommentFeed.map((comment, index) => (
+                  <article key={`feed-${comment.id}-${index}`} className="comment-card comment-feed-card">
+                    <div className="comment-avatar">
+                      <FaUserCircle className="text-3xl" />
+                    </div>
+                    <div className="comment-body">
+                      <div className="comment-meta">
+                        <h4>{comment.author_name}</h4>
+                        <span>{formatBlogCommentDate(comment.created_at)}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-amber-400 mb-2">
+                        {Array.from({ length: 5 }).map((_, starIndex) => (
+                          <FaStar key={`feed-star-${comment.id}-${starIndex}`} className={starIndex < comment.rating ? "text-amber-400" : "text-slate-700"} />
+                        ))}
+                      </div>
+                      <p className="comment-text">{comment.content}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+
+            {shouldShowCommentFeed && hasMoreCommentFeed && (
+              <div className="flex justify-center mb-12">
+                <button
+                  type="button"
+                  className="comment-load-more"
+                  onClick={() => setVisibleCommentFeedCount((prev) => Math.min(prev + 4, commentFeedPool.length))}
+                >
+                  Ver mas comentarios
+                </button>
+              </div>
+            )}
+
+            {/* Comment Form */}
+            <div id="blog-comments-form" className="comment-form-shell">
+              <div className="comment-form-header">
+                <h3>Deja tu opinion tecnica</h3>
+                <span className="comment-form-badge">Moderacion editorial activa</span>
+              </div>
+              {blogCommentMessage && (
+                <div className={`mb-4 rounded-xl border px-4 py-3 text-sm ${blogCommentMessage.type === "success"
+                  ? "border-emerald-500/35 bg-emerald-500/10 text-emerald-200"
+                  : "border-red-500/35 bg-red-500/10 text-red-200"
+                  }`}>
+                  {blogCommentMessage.text}
+                </div>
+              )}
+              <form className="comment-form space-y-5" onSubmit={handleBlogCommentSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Nombre completo"
+                    className="comment-input w-full"
+                    value={blogCommentForm.author_name}
+                    onChange={(event) => handleBlogCommentInput("author_name", event.target.value)}
+                    required
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email corporativo"
+                    className="comment-input w-full"
+                    value={blogCommentForm.author_email}
+                    onChange={(event) => handleBlogCommentInput("author_email", event.target.value)}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <p className="text-xs uppercase tracking-[0.14em] font-black text-white/60 mb-3">Calificacion</p>
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={`blog-comment-star-${star}`}
+                        type="button"
+                        onClick={() => handleBlogCommentInput("rating", star)}
+                        className="text-2xl transition-all duration-200 hover:scale-110 active:scale-95"
+                      >
+                        <FaStar className={Number(blogCommentForm.rating) >= star ? "text-yellow-400" : "text-slate-700"} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <textarea
+                  placeholder="Tu comentario o aporte sobre este contenido..."
+                  rows={4}
+                  className="comment-input w-full resize-none"
+                  value={blogCommentForm.content}
+                  onChange={(event) => handleBlogCommentInput("content", event.target.value)}
+                  required
+                />
+                <button className="comment-submit cta-button text-white font-bold flex items-center gap-3" type="submit" disabled={blogCommentSubmitting}>
+                  {blogCommentSubmitting ? "Enviando..." : "Publicar comentario"} <FaRocket />
+                </button>
+              </form>
             </div>
           </div>
+        </section>
+      )}
 
-          {/* Comment Form */}
-          <div className="article-card p-12 rounded-[3.5rem] border-blue-500/20 bg-slate-900/40">
-            <h3 className="text-2xl font-bold mb-8">Deja tu opinin tcnica</h3>
-            <form className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <input type="text" placeholder="Nombre completo" className="search-input w-full px-8 py-5 rounded-2xl shadow-inner" />
-                <input type="email" placeholder="Email corporativo" className="search-input w-full px-8 py-5 rounded-2xl shadow-inner" />
-              </div>
-              <textarea placeholder="Tu comentario o pregunta tcnica..." rows={5} className="search-input w-full px-8 py-6 rounded-3xl resize-none shadow-inner"></textarea>
-              <button className="cta-button px-12 py-5 rounded-2xl text-white font-bold flex items-center gap-3">
-                Publicar Comentario <FaRocket />
-              </button>
-            </form>
-          </div>
+      {/* 5.5 AI FEATURES SECTION (BLOQUE CARACTERÍSTICAS) */}
+      <section className="py-24 px-4 bg-[#020617] flex flex-col justify-center items-center gap-8 relative overflow-hidden">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-600/5 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none" />
+
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className='px-6 py-2 border border-slate-800 text-blue-400 text-xs font-black rounded-full uppercase tracking-widest bg-slate-900/50 backdrop-blur-sm'
+        >
+          Características
+        </motion.button>
+
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1 }}
+          className="text-4xl md:text-6xl font-black text-white max-w-3xl text-center leading-[1.1] tracking-tight"
+        >
+          Agentes de IA que <br />
+          <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">automatizan y aceleran</span> el crecimiento
+        </motion.h2>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2 }}
+          className='text-lg md:text-xl text-slate-400 max-w-2xl text-center font-medium leading-relaxed'
+        >
+          Optimice las operaciones, aumente la productividad y escale sin esfuerzo, todo impulsado por la automatización inteligente.
+        </motion.p>
+
+        <div className="relative max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+          {/* Card 1 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            whileHover={{ y: -5 }}
+            className='bg-gradient-to-b from-[#020204] to-[#120d26] border border-slate-800/60 rounded-3xl p-8 space-y-4 transition-all duration-300 shadow-2xl hover:border-blue-500/30 group'
+          >
+            <div className="w-12 h-12 rounded-2xl bg-slate-900/80 flex items-center justify-center border border-white/5 group-hover:scale-110 transition-transform duration-300">
+              <svg className='text-blue-400' xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+            </div>
+            <p className='font-black text-xl text-white'>Automatización de tareas</p>
+            <p className='text-sm md:text-base text-slate-400 leading-relaxed'>
+              Deje que la IA se encargue de las tareas repetitivas y que consumen mucho tiempo para que su equipo pueda concentrarse en el crecimiento.
+            </p>
+          </motion.div>
+
+          {/* Card 2 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            whileHover={{ y: -5 }}
+            className='bg-gradient-to-b from-[#020204] to-[#120d26] border border-slate-800/60 rounded-3xl p-8 space-y-4 transition-all duration-300 shadow-2xl hover:border-blue-500/30 group'
+          >
+            <div className="w-12 h-12 rounded-2xl bg-slate-900/80 flex items-center justify-center border border-white/5 group-hover:scale-110 transition-transform duration-300">
+              <svg className='text-blue-400' xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+                <path d="M12 7v5l4 2" />
+              </svg>
+            </div>
+            <p className='font-black text-xl text-white'>Monitoreo en tiempo real</p>
+            <p className='text-sm md:text-base text-slate-400 leading-relaxed'>
+              Potencie su negocio permitiendo que la IA se haga cargo de las tareas repetitivas y libere a su equipo para realizar trabajos de alto impacto.
+            </p>
+          </motion.div>
+
+          {/* Card 3 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            whileHover={{ y: -5 }}
+            className='bg-gradient-to-b from-[#020204] to-[#120d26] border border-slate-800/60 rounded-3xl p-8 space-y-4 transition-all duration-300 shadow-2xl hover:border-blue-500/30 group'
+          >
+            <div className="w-12 h-12 rounded-2xl bg-slate-900/80 flex items-center justify-center border border-white/5 group-hover:scale-110 transition-transform duration-300">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 7.9999C20.9996 7.64918 20.9071 7.30471 20.7315 7.00106C20.556 6.69742 20.3037 6.44526 20 6.2699L13 2.2699C12.696 2.09437 12.3511 2.00195 12 2.00195C11.6489 2.00195 11.304 2.09437 11 2.2699L4 6.2699C3.69626 6.44526 3.44398 6.69742 3.26846 7.00106C3.09294 7.30471 3.00036 7.64918 3 7.9999V15.9999C3.00036 16.3506 3.09294 16.6951 3.26846 16.9987C3.44398 17.3024 3.69626 17.5545 4 17.7299L11 21.7299C11.304 21.9054 11.6489 21.9979 12 21.9979C12.3511 21.9979 12.696 21.9054 13 21.7299L20 17.7299C20.3037 17.5545 20.556 17.3024 20.7315 16.9987C20.9071 16.6951 20.9996 16.3506 21 15.9999V7.9999Z" stroke="#60a5fa" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M3.29999 7L12 12L20.7 7" stroke="#60a5fa" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 22V12" stroke="#60a5fa" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <p className='font-black text-xl text-white'>Conciencia del contexto</p>
+            <p className='text-sm md:text-base text-slate-400 leading-relaxed'>
+              La IA se encarga de las tareas repetitivas para que su equipo pueda centrarse en el crecimiento y en obtener resultados.
+            </p>
+          </motion.div>
+
+          {/* Card 4 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            whileHover={{ y: -5 }}
+            className='bg-gradient-to-b from-[#020204] to-[#120d26] border border-slate-800/60 rounded-3xl p-8 space-y-4 transition-all duration-300 shadow-2xl hover:border-blue-500/30 group'
+          >
+            <div className="w-12 h-12 rounded-2xl bg-slate-900/80 flex items-center justify-center border border-white/5 group-hover:scale-110 transition-transform duration-300">
+              <svg className='text-blue-400' xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <ellipse cx="12" cy="5" rx="9" ry="3" />
+                <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+                <path d="M3 12A9 3 0 0 0 21 12" />
+              </svg>
+            </div>
+            <p className='font-black text-xl text-white'>Optimización de recursos</p>
+            <p className='text-sm md:text-base text-slate-400 leading-relaxed'>
+              Potencie su negocio permitiendo que la IA se haga cargo de las tareas repetitivas y libere al equipo para trabajos de alto impacto.
+            </p>
+          </motion.div>
+
+          {/* Card 5 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            whileHover={{ y: -5 }}
+            className='bg-gradient-to-b from-[#020204] to-[#120d26] border border-slate-800/60 rounded-3xl p-8 space-y-4 transition-all duration-300 shadow-2xl hover:border-blue-500/30 group'
+          >
+            <div className="w-12 h-12 rounded-2xl bg-slate-900/80 flex items-center justify-center border border-white/5 group-hover:scale-110 transition-transform duration-300">
+              <svg className='text-blue-400' xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <path d="M16 3.128a4 4 0 0 1 0 7.744" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <circle cx="9" cy="7" r="4" />
+              </svg>
+            </div>
+            <p className='font-black text-xl text-white'>Acceso basado en roles</p>
+            <p className='text-sm md:text-base text-slate-400 leading-relaxed'>
+              Libera a tu equipo del trabajo manual y repetitivo. Deja que la IA automatice las tareas mientras tú te concentras en escalar.
+            </p>
+          </motion.div>
+
+          {/* Card 6 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            whileHover={{ y: -5 }}
+            className='bg-gradient-to-b from-[#020204] to-[#120d26] border border-slate-800/60 rounded-3xl p-8 space-y-4 transition-all duration-300 shadow-2xl hover:border-blue-500/30 group'
+          >
+            <div className="w-12 h-12 rounded-2xl bg-slate-900/80 flex items-center justify-center border border-white/5 group-hover:scale-110 transition-transform duration-300">
+              <svg className='text-blue-400' xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1" />
+                <path d="m12 15 5 6H7Z" />
+              </svg>
+            </div>
+            <p className='font-black text-xl text-white'>Colaboración IA-Agente</p>
+            <p className='text-sm md:text-base text-slate-400 leading-relaxed'>
+              Deje que la IA se encargue de las tareas repetitivas para que su equipo pueda mantenerse enfocado en el crecimiento del negocio.
+            </p>
+          </motion.div>
         </div>
       </section>
+      <section className="py-24 relative overflow-hidden bg-[#020617]">
+        {/* Glow effects focused on the center */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-600/10 blur-[150px] rounded-full pointer-events-none opacity-50" />
 
-      {/* 6. NEWSLETTER BOTTOM */}
-      <section className="py-40 relative overflow-hidden bg-slate-900">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(59,130,246,0.1),transparent_50%100%)]" />
-        <div className="blog-container text-center relative z-10">
-          <div className="max-w-3xl mx-auto">
-            <span className="w-20 h-20 bg-blue-500/20 rounded-[2rem] flex items-center justify-center mx-auto mb-10 border border-blue-500/30">
-              <FaEnvelopeOpenText className="text-4xl text-blue-400" />
-            </span>
-            <h2 className="text-5xl lg:text-7xl font-bold mb-8 italic">No te pierdas de nada</h2>
-            <p className="text-slate-400 text-xl mb-16 leading-relaxed">
-              Recibe las ltimas tendencias en ingeniera directamente en tu inbox. <br /> Sin spam, solo contenido elite.
-            </p>
-            <div className="flex flex-col md:flex-row gap-6 justify-center max-w-2xl mx-auto">
-              <input type="email" placeholder="Introduce tu email" className="search-input flex-1 px-10 py-5 rounded-2xl text-lg backdrop-blur-xl" />
-              <button className="cta-button px-12 py-5 rounded-2xl text-white font-bold text-lg whitespace-nowrap">
-                Unirme Ahora
-              </button>
+        <div className="blog-container relative z-10 px-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-5xl mx-auto p-px rounded-[3rem] bg-gradient-to-b from-blue-500/30 via-slate-700/20 to-transparent"
+          >
+            <div className="flex flex-col items-center justify-center text-center py-16 md:py-24 rounded-[47px] bg-[#0f172a]/80 backdrop-blur-2xl shadow-2xl relative overflow-hidden border border-white/5">
+              {/* Discrete grid overlay inside the card */}
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+
+              <div className="flex items-center justify-center bg-slate-800/60 backdrop-blur-md px-5 py-2.5 shadow-xl gap-2 rounded-full text-[10px] md:text-xs mb-8 border border-white/10">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-blue-400">
+                  <path d="M2.503 10.06a3.3 3.3 0 0 0-.88 1.809 4.7 4.7 0 0 0-.067 1.03v.545h.75q.416-.002.825-.075a3.24 3.24 0 0 0 1.81-.882 1.65 1.65 0 0 0-.131-2.325 1.65 1.65 0 0 0-2.307-.103m1.632 1.621a2.1 2.1 0 0 1-1.182.563h-.206v-.207a2.1 2.1 0 0 1 .563-1.18.34.34 0 0 1 .225-.076.63.63 0 0 1 .44.206.506.506 0 0 1 .16.694m9.6-9.581a.853.853 0 0 0-.835-.835A8.2 8.2 0 0 0 6.816 3.28L5.288 5.062l-2.25-.468a.94.94 0 0 0-.863.253l-.637.637a.94.94 0 0 0-.263.76.94.94 0 0 0 .422.693l1.931 1.238.122.075 3 3.047.075.075 1.238 1.931a.94.94 0 0 0 .693.422h.104a.94.94 0 0 0 .656-.272l.637-.637a.94.94 0 0 0 .253-.863l-.468-2.24 1.725-1.482A8.24 8.24 0 0 0 13.735 2.1M2.915 5.765l1.238.263-.6.703-.937-.628zm5.982 6.657-.628-.938.703-.6.263 1.238zm1.978-5.053-3.45 2.943-2.737-2.737 2.943-3.45a6.98 6.98 0 0 1 4.932-1.688 7 7 0 0 1-1.688 4.932" fill="currentColor" />
+                  <path d="M10.434 6.216a1.116 1.116 0 0 0-.056-1.594 1.086 1.086 0 0 0-1.918.742 1.1 1.1 0 0 0 .38.786 1.125 1.125 0 0 0 1.594.066" fill="currentColor" />
+                </svg>
+                <span className="bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent font-black uppercase tracking-[0.2em]">Con la confianza de expertos</span>
+              </div>
+
+              <h2 className="text-4xl md:text-6xl font-black mt-2 leading-[1.05] text-white tracking-tight drop-shadow-2xl">
+                Desbloquea tu potencial con <br />
+                <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">orientacion tecnica</span>
+                {" "}y resultados reales
+              </h2>
+
+              <p className="text-slate-400 mt-8 max-w-2xl px-6 text-lg md:text-xl font-medium leading-relaxed">
+                Acelera tus objetivos con estrategias personalizadas y un ecosistema de soporte diseñado para la excelencia digital.
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center gap-8 mt-14">
+                <Link
+                  href="/asesoria"
+                  className="group relative px-12 py-5 rounded-2xl font-black text-white overflow-hidden transition-all duration-500 hover:scale-[1.05] active:scale-[0.98] shadow-[0_15px_40px_-10px_rgba(99,102,241,0.5)]"
+                >
+                  {/* Shiny Gradient background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-600 to-blue-700 transition-all duration-500 group-hover:opacity-90" />
+                  {/* Shimmer effect */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.6)_50%,transparent_75%)] bg-[length:250%_250%] animate-[shimmer_2s_infinite]" />
+
+                  <span className="relative flex items-center gap-3">
+                    Agendar Asesoria <FaRocket className="text-sm group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
+                  </span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById("newsletter-inline-form");
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="group relative px-12 py-5 rounded-2xl font-black text-slate-200 overflow-hidden border border-white/10 transition-all duration-500 hover:text-white hover:border-white/20 bg-slate-900/40 backdrop-blur-md shadow-xl"
+                >
+                  {/* Subtle hover background */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-slate-800 to-slate-900" />
+
+                  <span className="relative flex items-center gap-3">
+                    Unirme al Newsletter <FaEnvelopeOpenText className="text-sm group-hover:rotate-12 transition-transform duration-300" />
+                  </span>
+                </button>
+              </div>
+
+              {/* Newsletter Inline Form */}
+              <div id="newsletter-inline-form" className="mt-16 w-full max-w-lg px-6">
+                <form onSubmit={handleNewsletterSubmit} className="space-y-5">
+                  <div className="relative group">
+                    <input
+                      type="email"
+                      placeholder="tu@empresa.com"
+                      value={newsletterEmail}
+                      onChange={handleNewsletterEmailChange}
+                      required
+                      className="w-full px-8 py-5 rounded-2xl border border-white/5 bg-slate-900/50 backdrop-blur-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all font-bold placeholder:text-slate-600 text-lg shadow-inner group-hover:border-white/10"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={newsletterStatus === "sending"}
+                    className="w-full py-5 bg-white text-slate-950 rounded-2xl font-black hover:bg-slate-200 transition-all flex items-center justify-center gap-3 shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-[0.99]"
+                  >
+                    {newsletterStatus === "sending" ? (
+                      <>Procesando...</>
+                    ) : (
+                      <>
+                        Suscribirme Ahora <FaRocket className="text-sm" />
+                      </>
+                    )}
+                  </button>
+                  {newsletterStatus !== "idle" && (
+                    <motion.p
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`text-center text-sm font-black mt-4 ${newsletterStatus === "success" ? "text-emerald-400" : "text-rose-400"}`}
+                    >
+                      {newsletterMessage}
+                    </motion.p>
+                  )}
+                </form>
+              </div>
             </div>
-            <p className="text-slate-500 text-xs mt-10 font-medium italic">
-              * Al suscribirte, aceptas nuestra poltica de privacidad y trminos de servicio.
-            </p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -1170,7 +1690,7 @@ export default function BlogPage() {
                 className="absolute right-5 top-5 w-10 h-10 rounded-full border border-white/20 bg-white/5 text-slate-200 hover:bg-white/10 transition-colors"
                 aria-label="Cerrar formulario"
               >
-                
+                <span aria-hidden="true">&times;</span>
               </button>
 
               <div className="lead-offer-badge mb-5">
@@ -1281,85 +1801,6 @@ export default function BlogPage() {
         )}
       </AnimatePresence>
 
-      {/* 8. MODAL (Dynamic Content Viewer) */}
-      <AnimatePresence>
-        {selectedPost && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-6 lg:p-20 bg-slate-950/90 backdrop-blur-2xl"
-          >
-            <motion.div
-              initial={{ y: 100, scale: 0.9 }}
-              animate={{ y: 0, scale: 1 }}
-              exit={{ y: 100, scale: 0.9 }}
-              className="bg-slate-900 w-full max-w-6xl h-full rounded-[4rem] overflow-hidden border border-white/10 shadow-4xl flex flex-col lg:flex-row relative"
-            >
-              <button
-                onClick={() => setSelectedPost(null)}
-                className="absolute top-10 right-10 z-50 w-14 h-14 bg-white/5 hover:bg-white/10 rounded-full flex items-center justify-center border border-white/10 transition-colors"
-              >
-                <span className="text-3xl">&times;</span>
-              </button>
-
-              <div className="lg:w-1/2 relative h-64 lg:h-auto">
-                <Image src={selectedPost.image} alt={selectedPost.title} fill className="object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent" />
-              </div>
-
-              <div className="lg:w-1/2 p-12 lg:p-24 overflow-y-auto">
-                <span className="text-blue-400 text-[10px] font-bold uppercase tracking-widest mb-6 block">{selectedPost.category}</span>
-                <h2 className="text-4xl lg:text-6xl font-bold mb-10 leading-tight">{selectedPost.title}</h2>
-                <div className="flex items-center gap-8 text-slate-500 text-xs font-bold uppercase tracking-widest mb-16 border-b border-white/5 pb-10">
-                  <span className="flex items-center gap-2"><FaCalendarAlt /> {selectedPost.date}</span>
-                  <span className="flex items-center gap-2"><FaClock /> {selectedPost.readTime}</span>
-                </div>
-                <div className="text-slate-300 text-lg leading-relaxed space-y-8">
-                  {selectedPost.content ? (
-                    <div
-                      className="blog-content-rich"
-                      dangerouslySetInnerHTML={{ __html: selectedPost.content }}
-                    />
-                  ) : (
-                    <>
-                      <p className="font-medium italic">{selectedPost.excerpt}</p>
-                      <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                      </p>
-                      <div className="p-10 bg-slate-950 rounded-3xl border border-white/5">
-                        <h4 className="text-white font-bold mb-4 flex items-center gap-3"><FaCode className="text-blue-500" /> Key Takeaway</h4>
-                        <p className="text-slate-400 text-sm">
-                          La clave para una infraestructura resiliente no es evitar el fallo, sino disear sistemas que puedan recuperarse automticamente sin intervencin humana.
-                        </p>
-                      </div>
-                      <p>
-                        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                      </p>
-                    </>
-                  )}
-                </div>
-
-                <div className="mt-20 pt-16 border-t border-white/5 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <FaUserCircle className="text-4xl text-slate-600" />
-                    <div>
-                      <div className="text-white font-bold">Favio Jimnez</div>
-                      <div className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Autor Principal</div>
-                    </div>
-                  </div>
-                  <button className="p-4 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 transition-colors">
-                    <FaShareAlt />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
-
-
-

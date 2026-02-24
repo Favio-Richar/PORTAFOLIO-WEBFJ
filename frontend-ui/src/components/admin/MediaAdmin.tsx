@@ -60,12 +60,12 @@ export default function MediaAdmin() {
 
             if (res.ok) {
                 const data = await res.json();
-                setNewItem({
-                    ...newItem,
+                setNewItem((prev) => ({
+                    ...prev,
                     url: data.url,
                     type: file.type.startsWith("video/") ? "video" : "image",
                     title: file.name.split(".")[0]
-                });
+                }));
             } else {
                 alert("Error al subir archivo");
             }
@@ -184,13 +184,58 @@ export default function MediaAdmin() {
                                     <div className="p-10">
                                         <label className={`relative group/drop cursor-pointer h-72 rounded-none border border-white/5 hover:border-blue-500/30 transition-all duration-700 flex flex-col items-center justify-center gap-6 bg-black/40 overflow-hidden ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
                                             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover/drop:opacity-100 transition-opacity" />
-                                            <div className="w-24 h-24 rounded-none bg-blue-600/5 border border-blue-500/10 flex items-center justify-center relative z-10 group-hover/drop:scale-110 group-hover/drop:border-blue-500/30 transition-all duration-700">
-                                                {isUploading ? <div className="w-10 h-10 border-2 border-blue-500 border-t-transparent animate-spin rounded-full shadow-[0_0_15px_rgba(37,99,235,0.5)]" /> : <FaUpload className="text-blue-500/60 text-4xl group-hover/drop:text-blue-400" />}
-                                            </div>
-                                            <div className="text-center relative z-10 space-y-2">
-                                                <p className="text-white font-black uppercase text-[12px] tracking-[0.2em]">{isUploading ? "Syncing..." : "Inject Multimedia"}</p>
-                                                <p className="text-white/10 font-mono text-[9px] uppercase tracking-widest mt-1">Accepts: RAW_JPG • PNG • MP4_ELITE</p>
-                                            </div>
+
+                                            {newItem.url && !isUploading ? (
+                                                <>
+                                                    {newItem.type === "video" ? (
+                                                        <video
+                                                            src={newItem.url}
+                                                            className="absolute inset-0 w-full h-full object-cover"
+                                                            autoPlay
+                                                            muted
+                                                            loop
+                                                            playsInline
+                                                            controls
+                                                        />
+                                                    ) : (
+                                                        <Image
+                                                            src={newItem.url}
+                                                            alt={newItem.title || "Preview multimedia"}
+                                                            fill
+                                                            unoptimized
+                                                            className="object-cover"
+                                                        />
+                                                    )}
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                                                    <div className="absolute top-4 right-4 px-4 py-1 text-[9px] font-black uppercase tracking-[0.2em] border border-white/20 bg-black/50 text-white/90">
+                                                        {newItem.type === "video" ? "Cinematic" : "Still"}
+                                                    </div>
+                                                    <div className="absolute left-4 right-4 bottom-4 text-center z-10">
+                                                        <p className="text-white font-black uppercase text-[11px] tracking-[0.2em]">Preview Ready</p>
+                                                        <p className="text-white/60 font-mono text-[9px] uppercase tracking-wider mt-1">
+                                                            Click para reemplazar antes de autorizar
+                                                        </p>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="w-24 h-24 rounded-none bg-blue-600/5 border border-blue-500/10 flex items-center justify-center relative z-10 group-hover/drop:scale-110 group-hover/drop:border-blue-500/30 transition-all duration-700">
+                                                        <FaUpload className="text-blue-500/60 text-4xl group-hover/drop:text-blue-400" />
+                                                    </div>
+                                                    <div className="text-center relative z-10 space-y-2">
+                                                        <p className="text-white font-black uppercase text-[12px] tracking-[0.2em]">Inject Multimedia</p>
+                                                        <p className="text-white/10 font-mono text-[9px] uppercase tracking-widest mt-1">Accepts: RAW_JPG • PNG • MP4_ELITE</p>
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            {isUploading ? (
+                                                <div className="absolute inset-0 z-20 bg-black/70 backdrop-blur-[1px] flex flex-col items-center justify-center gap-4">
+                                                    <div className="w-10 h-10 border-2 border-blue-500 border-t-transparent animate-spin rounded-full shadow-[0_0_15px_rgba(37,99,235,0.5)]" />
+                                                    <p className="text-white/90 font-black uppercase text-[10px] tracking-[0.3em]">Syncing...</p>
+                                                </div>
+                                            ) : null}
+
                                             <input type="file" className="hidden" onChange={handleFileUpload} accept="image/*,video/*" />
                                         </label>
                                     </div>

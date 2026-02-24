@@ -39,6 +39,9 @@ class ReviewPublic(BaseModel):
     created_at: Optional[str] = None
     is_verified: bool = False
     status: str
+    author_role: Optional[str] = None
+    author_company: Optional[str] = None
+    page_context: Optional[str] = None
     user: Optional[ReviewUserPublic] = None
     display_name: Optional[str] = None
     avatar_fallback: Optional[str] = None
@@ -133,6 +136,9 @@ def _serialize_review(review: Review, user_by_id: Dict[int, User]) -> ReviewPubl
         created_at=review.created_at,
         is_verified=bool(review.is_verified),
         status=review.status or "pending",
+        author_role=(review.author_role or "").strip() or None,
+        author_company=(review.author_company or "").strip() or None,
+        page_context=(review.page_context or "").strip() or None,
         user=public_user,
         display_name=resolved_name,
         avatar_fallback=_extract_initials(resolved_name),
@@ -307,7 +313,7 @@ def create_review(payload: ReviewCreatePayload, request: Request, session: Sessi
             display_name=google_name,
             reviewer_email=google_email or None,
             author_name=google_name,
-            author_role=google_email or None,
+            author_role=None,
             author_company=_sanitize_text(payload.company or "") or None,
             comment=comment,
             content=comment,
@@ -340,7 +346,7 @@ def create_review(payload: ReviewCreatePayload, request: Request, session: Sessi
             display_name=display_name,
             reviewer_email=reviewer_email,
             author_name=display_name,
-            author_role=reviewer_email,
+            author_role=None,
             author_company=company,
             comment=comment,
             content=comment,

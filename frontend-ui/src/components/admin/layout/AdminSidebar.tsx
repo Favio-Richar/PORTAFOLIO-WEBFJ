@@ -2,11 +2,10 @@
 
 import {
     FaHome, FaProjectDiagram, FaBlog, FaUsers, FaUserTie,
-    FaBriefcase, FaGraduationCap, FaCertificate, FaPhone,
     FaClock, FaCogs, FaSignOutAlt, FaServicestack, FaCommentAlt,
-    FaEnvelopeOpenText, FaUserPlus, FaAd,
-    FaSearch, FaBell, FaEnvelope, FaBars, FaImages
+    FaEnvelopeOpenText, FaUserPlus, FaAd
 } from "react-icons/fa";
+import Link from "next/link";
 
 interface AdminSidebarProps {
     activeSection: string;
@@ -28,6 +27,7 @@ export default function AdminSidebar({ activeSection, setActiveSection, isCollap
             items: [
                 { id: "projects", label: "Proyectos", icon: <FaProjectDiagram />, color: "blue" },
                 { id: "services", label: "Servicios", icon: <FaServicestack />, color: "indigo" },
+                { id: "advisories", label: "Asesorias", icon: <FaClock />, color: "sky" },
                 { id: "blog", label: "Blog", icon: <FaBlog />, color: "violet" },
                 { id: "testimonials", label: "Testimonios", icon: <FaCommentAlt />, color: "fuchsia" },
                 { id: "ads", label: "Publicidad", icon: <FaAd />, color: "pink" }
@@ -43,7 +43,7 @@ export default function AdminSidebar({ activeSection, setActiveSection, isCollap
         {
             title: "Personal",
             items: [
-                { id: "profile", label: "Perfil Profesional", icon: <FaUserTie />, color: "amber" },
+                { id: "about", label: "Sobre mi", icon: <FaUserTie />, color: "amber" },
             ]
         },
         {
@@ -59,9 +59,9 @@ export default function AdminSidebar({ activeSection, setActiveSection, isCollap
         <div className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
             {/* HEADER */}
             <div className="sidebar-header">
-                <a href="/" className="hover:opacity-80 transition-opacity">
+                <Link href="/" className="hover:opacity-80 transition-opacity">
                     <h1>PORTFOLIO<span className="text-red-600">ADMIN</span></h1>
-                </a>
+                </Link>
             </div>
 
             {/* MENU */}

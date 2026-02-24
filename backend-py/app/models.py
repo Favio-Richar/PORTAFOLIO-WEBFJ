@@ -282,6 +282,68 @@ class AdditionalService(SQLModel, table=True):
     recurring: bool = Field(default=False)
     payment_type: Optional[str] = "one-time"
 
+class ServiceAdvisoryCard(SQLModel, table=True):
+    __tablename__ = "service_advisory_card"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str
+    price: str
+    duration: str = Field(default="60 minutos")
+    audience: Optional[str] = Field(default="[]")
+    includes: Optional[str] = Field(default="[]")
+    result: str
+    market_note: Optional[str] = None
+    icon: Optional[str] = Field(default="briefcase")
+    order_index: int = Field(default=0, index=True)
+    active: bool = Field(default=True, index=True)
+
+
+class AdvisoryBooking(SQLModel, table=True):
+    __tablename__ = "advisory_booking"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    booking_code: str = Field(index=True)
+    service_id: Optional[int] = Field(default=None, index=True)
+    service_name: str
+    date: str = Field(index=True)  # YYYY-MM-DD
+    time: str = Field(index=True)  # HH:MM
+    customer_name: str
+    customer_email: str
+    customer_phone: str
+    company: Optional[str] = None
+    notes: Optional[str] = None
+    meeting_provider: str = Field(default="google_meet")
+    reminders_h24: bool = Field(default=True)
+    reminders_h1: bool = Field(default=True)
+    reminder_h24_sent_at: Optional[datetime] = None
+    reminder_h1_sent_at: Optional[datetime] = None
+    status: str = Field(default="confirmed", index=True)  # pending|confirmed|cancelled|rescheduled
+    meeting_link: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = None
+
+
+class AdvisoryBlockedSlot(SQLModel, table=True):
+    __tablename__ = "advisory_blocked_slot"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    date: str = Field(index=True)  # YYYY-MM-DD
+    time: str = Field(index=True)  # HH:MM
+    reason: Optional[str] = None
+    active: bool = Field(default=True, index=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class AdvisoryWeeklyAvailability(SQLModel, table=True):
+    __tablename__ = "advisory_weekly_availability"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    weekday: int = Field(index=True)  # 0 Monday ... 6 Sunday
+    enabled: bool = Field(default=True)
+    start_time: str = Field(default="09:00")
+    end_time: str = Field(default="18:00")
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
 # ========== FAQ & TEAM ==========
 
 class Faq(SQLModel, table=True):
@@ -306,6 +368,29 @@ class TeamMember(SQLModel, table=True):
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
     media_type: Optional[str] = "image"
+
+# ========== SERVICES INDUSTRIES ==========
+
+class ServiceIndustry(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    description: str
+    icon: Optional[str] = "briefcase"
+    examples: Optional[str] = "[]"
+    order_index: int = Field(default=0, index=True)
+    active: bool = Field(default=True, index=True)
+
+# ========== ABOUT STACK ========== 
+
+class AboutStackItem(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    icon_key: Optional[str] = None
+    color: Optional[str] = None
+    order_index: int = Field(default=0, index=True)
+    active: bool = Field(default=True, index=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = None
 
 # ========== REVIEWS ==========
 

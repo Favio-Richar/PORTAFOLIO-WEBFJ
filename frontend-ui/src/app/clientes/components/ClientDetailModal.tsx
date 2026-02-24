@@ -49,6 +49,8 @@ const ClientDetailModal = memo(({ selectedClient, onClose }: ClientDetailModalPr
   const [activeMediaIdx, setActiveMediaIdx] = useState(0);
 
   if (!selectedClient) return null;
+  const mediaItems = selectedClient.media ?? [];
+  const hasMediaCarousel = mediaItems.length > 1;
 
   return (
     <motion.div
@@ -96,8 +98,8 @@ const ClientDetailModal = memo(({ selectedClient, onClose }: ClientDetailModalPr
               <div className="hero-cell media-pasarela">
                 <div className="main-media-viewer">
                   {(() => {
-                    const currentMedia = (selectedClient.media && selectedClient.media.length > 0)
-                      ? selectedClient.media[activeMediaIdx]
+                    const currentMedia = mediaItems.length > 0
+                      ? mediaItems[activeMediaIdx % mediaItems.length]
                       : { url: selectedClient.image, type: "image" };
 
                     if (currentMedia?.type === "video") {
@@ -110,16 +112,16 @@ const ClientDetailModal = memo(({ selectedClient, onClose }: ClientDetailModalPr
                     return <img key={currentMedia?.url} src={currentMedia?.url} alt={selectedClient.name} className="w-full h-full object-cover" />;
                   })()}
 
-                  {selectedClient.media && selectedClient.media.length > 1 && (
+                  {hasMediaCarousel && (
                     <div className="media-nav-overlay">
                       <button
-                        onClick={() => setActiveMediaIdx((prev) => (prev - 1 + selectedClient.media.length) % selectedClient.media.length)}
+                        onClick={() => setActiveMediaIdx((prev) => (prev - 1 + mediaItems.length) % mediaItems.length)}
                         className="nav-btn prev"
                       >
                         <FaArrowLeft />
                       </button>
                       <button
-                        onClick={() => setActiveMediaIdx((prev) => (prev + 1) % selectedClient.media.length)}
+                        onClick={() => setActiveMediaIdx((prev) => (prev + 1) % mediaItems.length)}
                         className="nav-btn next"
                       >
                         <FaArrowRight />
@@ -128,9 +130,9 @@ const ClientDetailModal = memo(({ selectedClient, onClose }: ClientDetailModalPr
                   )}
                 </div>
 
-                {selectedClient.media && selectedClient.media.length > 1 && (
+                {hasMediaCarousel && (
                   <div className="media-thumbnail-strip">
-                    {selectedClient.media.map((m, idx: number) => (
+                    {mediaItems.map((m, idx: number) => (
                       <div
                         key={idx}
                         className={`mini-thumb ${idx === activeMediaIdx ? "active" : ""}`}

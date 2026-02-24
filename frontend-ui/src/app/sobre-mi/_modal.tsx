@@ -1,1 +1,1 @@
-import { AnimatePresence } from "framer-motion";
+export { default } from "./_CertModal";
