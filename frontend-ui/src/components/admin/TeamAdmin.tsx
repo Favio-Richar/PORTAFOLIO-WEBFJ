@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { FaPlus, FaTrash, FaEdit, FaSave, FaTimes, FaUserAlt, FaUpload, FaSpinner } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 type TeamMember = {
     id?: number;
@@ -14,7 +16,7 @@ type TeamMember = {
     active: boolean;
 };
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = API_BASE;
 
 const TeamAdmin: React.FC = () => {
     const [members, setMembers] = useState<TeamMember[]>([]);
@@ -37,7 +39,7 @@ const TeamAdmin: React.FC = () => {
             const formData = new FormData();
             formData.append("file", file);
 
-            const res = await fetch(`${BACKEND_URL}/api/upload`, {
+            const res = await adminFetch(`${BACKEND_URL}/api/upload`, {
                 method: "POST",
                 body: formData,
             });
@@ -58,7 +60,7 @@ const TeamAdmin: React.FC = () => {
     const fetchMembers = async () => {
         try {
             setLoading(true);
-            const res = await fetch(`${BACKEND_URL}/api/team/all`);
+            const res = await adminFetch(`${BACKEND_URL}/api/team/all`);
             if (res.ok) {
                 const data = await res.json();
                 setMembers(data);
@@ -75,7 +77,7 @@ const TeamAdmin: React.FC = () => {
         const url = member.id ? `${BACKEND_URL}/api/team/${member.id}` : `${BACKEND_URL}/api/team/`;
 
         try {
-            const res = await fetch(url, {
+            const res = await adminFetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(member),
@@ -94,7 +96,7 @@ const TeamAdmin: React.FC = () => {
     const handleDelete = async (id: number) => {
         if (!confirm("¿Seguro que deseas eliminar este miembro?")) return;
         try {
-            const res = await fetch(`${BACKEND_URL}/api/team/${id}`, { method: "DELETE" });
+            const res = await adminFetch(`${BACKEND_URL}/api/team/${id}`, { method: "DELETE" });
             if (res.ok) fetchMembers();
         } catch (err) {
             console.error("Error deleting member:", err);

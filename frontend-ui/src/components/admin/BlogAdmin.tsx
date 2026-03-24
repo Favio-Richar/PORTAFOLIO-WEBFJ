@@ -15,6 +15,8 @@ import {
   FaTimes,
   FaVideo,
 } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 type MediaType = "image" | "video";
 
@@ -52,7 +54,7 @@ interface UploadResponse {
   url?: string;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = API_BASE;
 
 const INITIAL_CARD_FORM: BlogCardDraft = {
   title: "",
@@ -252,7 +254,7 @@ export default function BlogAdmin() {
   const loadSlides = async () => {
     setIsLoadingSlides(true);
     try {
-      const response = await fetch(`${BACKEND_URL}/api/blog/hero/slides`);
+      const response = await adminFetch(`${BACKEND_URL}/api/blog/hero/slides`);
       if (!response.ok) throw new Error("No se pudieron cargar los medias");
       const data = await response.json();
       const normalized = Array.isArray(data) ? data.map((item: Partial<BlogHeroSlide>) => normalizeSlide(item)) : [];
@@ -269,7 +271,7 @@ export default function BlogAdmin() {
     setIsLoadingCards(true);
     setCardsLoadError("");
     try {
-      const response = await fetch(`${BACKEND_URL}/api/blog/`);
+      const response = await adminFetch(`${BACKEND_URL}/api/blog/`);
       if (!response.ok) throw new Error("No se pudieron cargar las tarjetas");
       const data = await response.json();
       const normalized = Array.isArray(data) ? data.map((item: Partial<BlogCard>) => normalizeCard(item)) : [];
@@ -297,7 +299,7 @@ export default function BlogAdmin() {
   }, []);
 
   const setSlideActive = async (slideId: number, isActive: boolean) => {
-    await fetch(`${BACKEND_URL}/api/blog/hero/slides/${slideId}`, {
+    await adminFetch(`${BACKEND_URL}/api/blog/hero/slides/${slideId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ is_active: isActive }),
@@ -310,7 +312,7 @@ export default function BlogAdmin() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const uploadResponse = await fetch(`${BACKEND_URL}/api/upload`, {
+      const uploadResponse = await adminFetch(`${BACKEND_URL}/api/upload`, {
         method: "POST",
         body: formData,
       });
@@ -327,7 +329,7 @@ export default function BlogAdmin() {
         order_index: orderedSlides.length,
       };
 
-      const createResponse = await fetch(`${BACKEND_URL}/api/blog/hero/slides`, {
+      const createResponse = await adminFetch(`${BACKEND_URL}/api/blog/hero/slides`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -361,7 +363,7 @@ export default function BlogAdmin() {
     if (!confirm("Eliminar este fondo?")) return;
     setWorkingSlideId(slideId);
     try {
-      const response = await fetch(`${BACKEND_URL}/api/blog/hero/slides/${slideId}`, { method: "DELETE" });
+      const response = await adminFetch(`${BACKEND_URL}/api/blog/hero/slides/${slideId}`, { method: "DELETE" });
       if (!response.ok) throw new Error("No se pudo eliminar");
       await loadSlides();
     } catch (error) {
@@ -396,7 +398,7 @@ export default function BlogAdmin() {
       const endpoint = editingCardId ? `${BACKEND_URL}/api/blog/${editingCardId}` : `${BACKEND_URL}/api/blog/`;
       const method = editingCardId ? "PUT" : "POST";
 
-      const response = await fetch(endpoint, {
+      const response = await adminFetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -442,7 +444,7 @@ export default function BlogAdmin() {
   const togglePublishCard = async (card: BlogCard) => {
     setWorkingCardId(card.id);
     try {
-      const response = await fetch(`${BACKEND_URL}/api/blog/${card.id}`, {
+      const response = await adminFetch(`${BACKEND_URL}/api/blog/${card.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_published: !card.is_published }),
@@ -462,7 +464,7 @@ export default function BlogAdmin() {
 
     setWorkingCardId(cardId);
     try {
-      const response = await fetch(`${BACKEND_URL}/api/blog/${cardId}`, { method: "DELETE" });
+      const response = await adminFetch(`${BACKEND_URL}/api/blog/${cardId}`, { method: "DELETE" });
       if (!response.ok) throw new Error("No se pudo eliminar");
       await loadCards();
       if (editingCardId === cardId) closeCardForm();

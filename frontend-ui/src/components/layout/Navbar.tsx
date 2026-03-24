@@ -171,7 +171,7 @@ export default function Navbar() {
               className="hidden lg:flex relative overflow-hidden group bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-8 py-2.5 rounded-full font-bold text-[11px] uppercase tracking-[0.2em] hover:scale-105 transition-all duration-300 items-center justify-center shadow-lg shadow-indigo-500/20"
             >
               <span className="relative z-10 flex items-center gap-3">
-                Iniciar Proyecto <FaRocket className="text-xs group-hover:animate-pulse" />
+                Agendar diagnóstico <FaRocket className="text-xs group-hover:animate-pulse" />
               </span>
             </Link>
 
@@ -258,7 +258,7 @@ export default function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full block bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-center py-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/20"
               >
-                Iniciar Proyecto Ahora
+                Agendar diagnóstico
               </Link>
             </div>
           </motion.div>

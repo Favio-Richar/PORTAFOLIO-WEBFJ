@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from app.db import engine
 from app.models import Experience
+from app.core.admin_auth import require_admin
 from typing import List, Optional
 from pydantic import BaseModel
 
@@ -38,7 +39,10 @@ def get_experiences():
 
 
 @router.post("", response_model=Experience)
-def create_experience(exp_data: ExperienceCreate):
+def create_experience(
+    exp_data: ExperienceCreate,
+    current_user=Depends(require_admin),
+):
     """Crear nueva experiencia"""
     with Session(engine) as session:
         exp = Experience(
@@ -57,7 +61,11 @@ def create_experience(exp_data: ExperienceCreate):
 
 
 @router.put("/{exp_id}", response_model=Experience)
-def update_experience(exp_id: int, exp_data: ExperienceUpdate):
+def update_experience(
+    exp_id: int,
+    exp_data: ExperienceUpdate,
+    current_user=Depends(require_admin),
+):
     """Actualizar experiencia"""
     with Session(engine) as session:
         exp = session.get(Experience, exp_id)
@@ -79,7 +87,10 @@ def update_experience(exp_id: int, exp_data: ExperienceUpdate):
 
 
 @router.delete("/{exp_id}")
-def delete_experience(exp_id: int):
+def delete_experience(
+    exp_id: int,
+    current_user=Depends(require_admin),
+):
     """Eliminar experiencia"""
     with Session(engine) as session:
         exp = session.get(Experience, exp_id)

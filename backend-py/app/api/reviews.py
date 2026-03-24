@@ -15,6 +15,7 @@ from sqlmodel import Session, select
 
 from app.db import get_session
 from app.models import Review, User
+from app.core.admin_auth import require_admin
 
 router = APIRouter()
 
@@ -370,7 +371,11 @@ def create_review(payload: ReviewCreatePayload, request: Request, session: Sessi
 
 
 @router.post("/reviews/approve")
-def approve_review(payload: ReviewApprovePayload, session: Session = Depends(get_session)):
+def approve_review(
+    payload: ReviewApprovePayload,
+    session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
+):
     review = session.get(Review, payload.review_id)
     if not review:
         raise HTTPException(status_code=404, detail="Resena no encontrada.")

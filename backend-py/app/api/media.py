@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from app.db import engine
 from app.models import Media
 from typing import List
+from app.core.admin_auth import require_admin
 
 router = APIRouter()
 
@@ -13,7 +14,7 @@ def get_all_media():
         return session.exec(select(Media)).all()
 
 @router.post("")
-def create_media(media: Media):
+def create_media(media: Media, _current_user=Depends(require_admin)):
     """Añadir nuevo elemento a la galería"""
     with Session(engine) as session:
         session.add(media)
@@ -22,7 +23,7 @@ def create_media(media: Media):
         return media
 
 @router.put("/{media_id}")
-def update_media(media_id: int, media_data: Media):
+def update_media(media_id: int, media_data: Media, _current_user=Depends(require_admin)):
     """Actualizar metadata de un elemento de media"""
     with Session(engine) as session:
         media = session.get(Media, media_id)
@@ -42,7 +43,7 @@ def update_media(media_id: int, media_data: Media):
         return media
 
 @router.delete("/{media_id}")
-def delete_media(media_id: int):
+def delete_media(media_id: int, _current_user=Depends(require_admin)):
     """Eliminar elemento de la galería"""
     with Session(engine) as session:
         media = session.get(Media, media_id)

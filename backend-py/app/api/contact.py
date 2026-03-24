@@ -3,10 +3,11 @@ from typing import Optional, Tuple
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from sqlmodel import SQLModel, Session, select
 from app.db import engine
 from app.models import Contact
+from app.core.admin_auth import require_admin
 
 router = APIRouter()
 
@@ -117,7 +118,10 @@ def get_contact():
 
 
 @router.post("")
-def update_contact(contact_data: ContactUpdate):
+def update_contact(
+    contact_data: ContactUpdate,
+    current_user=Depends(require_admin),
+):
     """Actualizar o crear contacto"""
     with Session(engine) as session:
         # Buscar contacto existente

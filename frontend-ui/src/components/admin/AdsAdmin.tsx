@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { FaPlus, FaTrash, FaToggleOn, FaToggleOff, FaImage, FaLink, FaAd, FaVideo, FaPhotoVideo, FaSpinner } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 interface MediaItem {
     type: 'image' | 'video';
@@ -37,7 +39,7 @@ export default function AdsAdmin() {
 
     const fetchAds = async () => {
         try {
-            const res = await fetch("http://localhost:8000/api/ads/");
+            const res = await adminFetch(`${API_BASE}/api/ads/`);
             if (res.ok) {
                 const data = await res.json();
                 setAds(data);
@@ -58,7 +60,7 @@ export default function AdsAdmin() {
             const formData = new FormData();
             formData.append("file", file);
 
-            const res = await fetch("http://localhost:8000/api/upload", {
+            const res = await adminFetch(`${API_BASE}/api/upload`, {
                 method: "POST",
                 body: formData,
             });
@@ -92,12 +94,12 @@ export default function AdsAdmin() {
 
         try {
             const url = editingAd
-                ? `http://localhost:8000/api/ads/${editingAd.id}`
-                : "http://localhost:8000/api/ads/";
+                ? `${API_BASE}/api/ads/${editingAd.id}`
+                : `${API_BASE}/api/ads/`;
 
             const method = editingAd ? "PATCH" : "POST";
 
-            const adRes = await fetch(url, {
+            const adRes = await adminFetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -148,7 +150,7 @@ export default function AdsAdmin() {
     const handleDelete = async (id: number) => {
         if (!confirm("¿Eliminar este anuncio?")) return;
         try {
-            await fetch(`http://localhost:8000/api/ads/${id}`, { method: "DELETE" });
+            await adminFetch(`${API_BASE}/api/ads/${id}`, { method: "DELETE" });
             fetchAds();
         } catch (error) {
             console.error("Error deleting ad:", error);
@@ -157,7 +159,7 @@ export default function AdsAdmin() {
 
     const toggleActive = async (ad: Ad) => {
         try {
-            await fetch(`http://localhost:8000/api/ads/${ad.id}`, {
+            await adminFetch(`${API_BASE}/api/ads/${ad.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ is_active: !ad.is_active }),

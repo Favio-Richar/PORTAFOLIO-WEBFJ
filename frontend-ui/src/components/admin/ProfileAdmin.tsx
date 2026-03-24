@@ -6,6 +6,8 @@ import {
     FaImage, FaVideo, FaSave, FaPlusCircle, FaSpinner, FaInfoCircle, FaCheckCircle, FaArrowRight, FaTrash
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 // Sub-components
 import ExperienceAdmin from "./ExperienceAdmin";
@@ -59,9 +61,9 @@ export default function ProfileAdmin({
     useEffect(() => { setProfile(initialProfile); }, [initialProfile]);
 
     const deletePhysicalFile = async (url: string) => {
-        if (!url || !url.includes("localhost:8000/uploads/")) return;
+        if (!url || (!url.includes("/uploads/") && !url.includes("cloudinary.com"))) return;
         try {
-            await fetch(`http://localhost:8000/api/upload/delete?url=${encodeURIComponent(url)}`, { method: "DELETE" });
+            await adminFetch(`${API_BASE}/api/upload/delete?url=${encodeURIComponent(url)}`, { method: "DELETE" });
         } catch (error) { console.error("Error deleting physical file:", error); }
     };
 
@@ -76,7 +78,7 @@ export default function ProfileAdmin({
         formData.append("file", file);
 
         try {
-            const res = await fetch("http://localhost:8000/api/upload", { method: "POST", body: formData });
+            const res = await adminFetch(`${API_BASE}/api/upload`, { method: "POST", body: formData });
             if (!res.ok) throw new Error("Upload failed");
             const result = await res.json();
 
@@ -97,7 +99,7 @@ export default function ProfileAdmin({
     const handleSaveIdentity = async () => {
         setSaveStatus("saving");
         try {
-            const response = await fetch("http://localhost:8000/api/profile", {
+            const response = await adminFetch(`${API_BASE}/api/profile`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

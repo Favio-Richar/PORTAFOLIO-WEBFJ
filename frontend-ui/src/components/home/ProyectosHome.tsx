@@ -6,10 +6,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import type { IconType } from 'react-icons';
 import { FaArrowRight, FaCode, FaDatabase, FaMobileAlt, FaRocket, FaShoppingCart, FaStar, FaTimes } from 'react-icons/fa';
 import { SiGithub, SiGooglechrome, SiWhatsapp } from 'react-icons/si';
+import API_BASE from "@/lib/apiBase";
 import '@/styles/home-elite.scss';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-const FALLBACK_WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '56952402170';
+const BACKEND_URL = API_BASE;
+const FALLBACK_WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '56971464296';
 
 interface BackendProyecto {
   id: number;
@@ -423,6 +424,8 @@ export default function ProyectosHome() {
     return `https://${value}`;
   };
 
+  const hasExternalUrl = (rawUrl?: string | null) => Boolean(normalizeExternalUrl(rawUrl));
+
   const openExternalLink = (rawUrl?: string | null) => {
     const target = normalizeExternalUrl(rawUrl);
     if (!target) return false;
@@ -440,18 +443,18 @@ export default function ProyectosHome() {
   };
 
   const openProjectDemo = (project: Proyecto) => {
-    const opened = openExternalLink(project.demo_url);
-    if (!opened) openWhatsApp(`${project.title} (demo)`);
+    openExternalLink(project.demo_url);
   };
 
   const openProjectRepo = (project: Proyecto) => {
-    const opened = openExternalLink(project.repo_url);
-    if (!opened) openWhatsApp(`${project.title} (repositorio)`);
+    openExternalLink(project.repo_url);
   };
 
   const selectedVariant = selectedProject
     ? (CATEGORY_META[selectedProject.category] || CATEGORY_META.otro)
     : CATEGORY_META.otro;
+  const selectedHasDemoLink = hasExternalUrl(selectedProject?.demo_url);
+  const selectedHasRepoLink = hasExternalUrl(selectedProject?.repo_url);
 
   return (
     <section id="proyectos" className="py-24 px-6">
@@ -465,7 +468,7 @@ export default function ProyectosHome() {
             Proyectos <span className="gradient-text">destacados</span>
           </h2>
           <p className="max-w-3xl mx-auto text-base md:text-lg text-slate-300 font-display leading-relaxed">
-            Casos desarrollados por Digital Systems FJ para empresas que necesitaban escalar ventas, optimizar operaciones y acelerar resultados con tecnologia.
+            Casos desarrollados por FJ Digital Engineering para empresas que necesitaban escalar ventas, optimizar operaciones y acelerar resultados con tecnología.
           </p>
         </div>
 
@@ -624,10 +627,7 @@ export default function ProyectosHome() {
                   <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
                     <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black mb-1">Enlaces</p>
                     <p className="text-sm text-slate-100 font-semibold">
-                      {[selectedProject.demo_url, selectedProject.repo_url].filter((value) => {
-                        const trimmed = String(value || '').trim().toLowerCase();
-                        return trimmed.length > 0 && trimmed !== '#';
-                      }).length} disponibles
+                      {[selectedProject.demo_url, selectedProject.repo_url].filter((value) => hasExternalUrl(value)).length} disponibles
                     </p>
                   </div>
                 </div>
@@ -655,9 +655,14 @@ export default function ProyectosHome() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => openProjectRepo(selectedProject)}
-                    className="rounded-2xl border border-amber-400/45 bg-gradient-to-b from-[#17120d] to-[#090807] px-4 py-3 hover:border-amber-300 hover:from-amber-300 hover:to-amber-500 transition-all flex items-center justify-center gap-2 text-amber-300 hover:text-black font-sans font-semibold text-sm tracking-normal"
+                    disabled={!selectedHasRepoLink}
+                    className={`rounded-2xl border px-4 py-3 transition-all flex items-center justify-center gap-2 font-sans font-semibold text-sm tracking-normal ${
+                      selectedHasRepoLink
+                        ? 'border-amber-400/45 bg-gradient-to-b from-[#17120d] to-[#090807] hover:border-amber-300 hover:from-amber-300 hover:to-amber-500 text-amber-300 hover:text-black'
+                        : 'border-white/10 bg-white/[0.04] text-slate-500 cursor-not-allowed opacity-60'
+                    }`}
                   >
-                    <SiGithub className="text-base" /> Ver GitHub
+                    <SiGithub className="text-base" /> {selectedHasRepoLink ? 'Ver GitHub' : 'GitHub no disponible'}
                   </motion.button>
 
                   <motion.button
@@ -665,9 +670,14 @@ export default function ProyectosHome() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => openProjectDemo(selectedProject)}
-                    className="rounded-2xl border border-amber-400/45 bg-gradient-to-b from-[#17120d] to-[#090807] px-4 py-3 hover:border-amber-300 hover:from-amber-300 hover:to-amber-500 transition-all shadow-[0_10px_24px_rgba(245,158,11,0.16)] flex items-center justify-center gap-2 text-amber-300 hover:text-black font-sans font-semibold text-sm tracking-normal"
+                    disabled={!selectedHasDemoLink}
+                    className={`rounded-2xl border px-4 py-3 transition-all shadow-[0_10px_24px_rgba(245,158,11,0.16)] flex items-center justify-center gap-2 font-sans font-semibold text-sm tracking-normal ${
+                      selectedHasDemoLink
+                        ? 'border-amber-400/45 bg-gradient-to-b from-[#17120d] to-[#090807] hover:border-amber-300 hover:from-amber-300 hover:to-amber-500 text-amber-300 hover:text-black'
+                        : 'border-white/10 bg-white/[0.04] text-slate-500 cursor-not-allowed opacity-60 shadow-none'
+                    }`}
                   >
-                    <SiGooglechrome className="text-base" /> Ver Demo
+                    <SiGooglechrome className="text-base" /> {selectedHasDemoLink ? 'Ver Demo' : 'Demo no disponible'}
                   </motion.button>
 
                   <motion.button

@@ -15,6 +15,8 @@ import {
   FaVideo,
 } from "react-icons/fa";
 import { AnimatePresence, motion } from "framer-motion";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 type MediaType = "image" | "video";
 
@@ -72,7 +74,7 @@ interface FullCase {
   is_published: boolean;
 }
 
-const API_BASE = "http://localhost:8000/api";
+const API_ROOT = `${API_BASE}/api`;
 
 function emptyCase(): FullCase {
   return {
@@ -172,7 +174,7 @@ async function uploadFile(file: File): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(`${API_BASE}/upload`, {
+  const response = await adminFetch(`${API_ROOT}/upload`, {
     method: "POST",
     body: formData,
   });
@@ -197,7 +199,7 @@ export default function ClientFullCasesAdmin() {
   const loadCases = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/casos-completos`);
+      const response = await adminFetch(`${API_ROOT}/casos-completos`);
       if (!response.ok) throw new Error("No se pudo cargar casos completos");
       const data = await response.json();
       setCases((data || []).map(normalizeCase));
@@ -234,8 +236,8 @@ export default function ClientFullCasesAdmin() {
     try {
       const isNew = !editingCase.id;
       const endpoint = isNew
-        ? `${API_BASE}/casos-completos`
-        : `${API_BASE}/casos-completos/${editingCase.id}`;
+        ? `${API_ROOT}/casos-completos`
+        : `${API_ROOT}/casos-completos/${editingCase.id}`;
 
       const payload = {
         ...editingCase,
@@ -247,7 +249,7 @@ export default function ClientFullCasesAdmin() {
         extra_links: JSON.stringify(editingCase.extra_links),
       };
 
-      const response = await fetch(endpoint, {
+      const response = await adminFetch(endpoint, {
         method: isNew ? "POST" : "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -269,7 +271,7 @@ export default function ClientFullCasesAdmin() {
     if (!confirm("¿Eliminar este caso completo?")) return;
 
     try {
-      const response = await fetch(`${API_BASE}/casos-completos/${id}`, { method: "DELETE" });
+      const response = await adminFetch(`${API_ROOT}/casos-completos/${id}`, { method: "DELETE" });
       if (!response.ok) throw new Error("No se pudo eliminar");
       await loadCases();
     } catch (error) {

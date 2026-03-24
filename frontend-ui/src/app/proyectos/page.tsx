@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
@@ -7,7 +7,7 @@ import {
   FaGlobe, FaShoppingCart, FaMobileAlt, FaDatabase, FaCode,
   FaSpinner, FaExclamationTriangle,
   FaWhatsapp, FaChevronDown, FaChevronLeft, FaChevronRight, FaEye, FaTimes,
-  FaLightbulb, FaClock, FaCalendarCheck, FaCogs, FaPlay, FaImage,
+  FaLightbulb, FaClock, FaCalendarCheck, FaCogs, FaPlay, FaImage, FaShieldAlt,
   FaReact, FaNodeJs, FaPython, FaFigma,
 } from "react-icons/fa";
 import {
@@ -16,28 +16,28 @@ import {
   SiAmazon, SiGraphql, SiKubernetes, SiTensorflow, SiAngular
 } from "react-icons/si";
 import { defaultContact, type ContactData } from "@/lib/data/contact";
+import API_BASE from "@/lib/apiBase";
+import Link from "next/link";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
-const FALLBACK_WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "56952402170";
+const BACKEND_URL = API_BASE;
+const FALLBACK_WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "56971464296";
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Static color maps (avoid dynamic Tailwind purge) ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
 const CAT_STYLES: Record<string, { bg: string; text: string; border: string; glow: string }> = {
-  web:       { bg: "bg-blue-500/10",    text: "text-blue-400",    border: "border-blue-500/30",    glow: "shadow-blue-500/20" },
+  web: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/30", glow: "shadow-blue-500/20" },
   ecommerce: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/30", glow: "shadow-emerald-500/20" },
-  sistemas:  { bg: "bg-violet-500/10",  text: "text-violet-400",  border: "border-violet-500/30",  glow: "shadow-violet-500/20" },
-  apps:      { bg: "bg-amber-500/10",   text: "text-amber-400",   border: "border-amber-500/30",   glow: "shadow-amber-500/20" },
-  otro:      { bg: "bg-slate-500/10",   text: "text-slate-400",   border: "border-slate-500/30",   glow: "shadow-slate-500/20" },
+  sistemas: { bg: "bg-violet-500/10", text: "text-violet-400", border: "border-violet-500/30", glow: "shadow-violet-500/20" },
+  apps: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/30", glow: "shadow-amber-500/20" },
+  otro: { bg: "bg-slate-500/10", text: "text-slate-400", border: "border-slate-500/30", glow: "shadow-slate-500/20" },
 };
-
 const AVATAR_BG: Record<string, string> = {
   blue: "bg-blue-600", emerald: "bg-emerald-600", violet: "bg-violet-600",
   amber: "bg-amber-600", pink: "bg-pink-600", cyan: "bg-cyan-600",
 };
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Types ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ── Section ──
 interface BackendProyecto {
   id: number; title?: string; description?: string; category?: string;
-  status?: string; image_url?: string; video_url?: string | null;
+  status?: string; image_url?: string; video_url?: string | null; slug?: string | null;
   media?: string | BackendMediaItem[] | null;
   demo_url?: string | null; repo_url?: string | null;
   stack?: string | string[]; results?: string | null; client_name?: string | null;
@@ -59,7 +59,7 @@ interface ProjectMediaItem {
 }
 
 interface Proyecto {
-  id: number; title: string; description: string; category: string;
+  id: number; slug?: string; title: string; description: string; category: string;
   price: string; featured: boolean; active: boolean; order_index: number;
   cover_url: string; tags: string[]; stack: string[];
   video_url?: string; media?: ProjectMediaItem[];
@@ -142,10 +142,10 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
-  web: "Sitio Web", ecommerce: "E-Commerce", sistemas: "Sistema", apps: "App MÃƒÆ’Ã‚Â³vil", otro: "Otro",
+  web: "Sitio Web", ecommerce: "E-Commerce", sistemas: "Sistema", apps: "App Móvil", otro: "Otro",
 };
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Backend parser ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ── Section ──
 type FilterKey = "all" | "landing" | "ecommerce" | "reservas" | "automatizacion" | "apps" | "otros";
 
 const FILTER_TABS: Array<{ key: FilterKey; label: string; icon: React.ReactNode }> = [
@@ -153,8 +153,8 @@ const FILTER_TABS: Array<{ key: FilterKey; label: string; icon: React.ReactNode 
   { key: "landing", label: "Landing Page", icon: <FaGlobe className="text-[11px]" /> },
   { key: "ecommerce", label: "E-Commerce", icon: <FaShoppingCart className="text-[11px]" /> },
   { key: "reservas", label: "Sistemas de reservas", icon: <FaCalendarCheck className="text-[11px]" /> },
-  { key: "automatizacion", label: "Automatizacion", icon: <FaCogs className="text-[11px]" /> },
-  { key: "apps", label: "App Movil", icon: <FaMobileAlt className="text-[11px]" /> },
+  { key: "automatizacion", label: "Automatización", icon: <FaCogs className="text-[11px]" /> },
+  { key: "apps", label: "App Móvil", icon: <FaMobileAlt className="text-[11px]" /> },
   { key: "otros", label: "Otros", icon: <FaCode className="text-[11px]" /> },
 ];
 
@@ -255,10 +255,11 @@ function parseProyecto(item: BackendProyecto): Proyecto {
     media: mediaRaw,
   });
   const isActive = typeof meta.active === "boolean" ? meta.active
-    : !["inactivo","desactivado","archivado"].some(s => (item.status||"").toLowerCase().includes(s));
+    : !["inactivo", "desactivado", "archivado"].some(s => (item.status || "").toLowerCase().includes(s));
 
   return {
     id: Number(item.id),
+    slug: String(item.slug || "").trim(),
     title: String(item.title || "").trim(),
     description: String(item.description || "").trim(),
     category: String(item.category || "otro").trim(),
@@ -278,7 +279,7 @@ function parseProyecto(item: BackendProyecto): Proyecto {
   };
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Static data ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ── Section ──
 const PROCESS_STEPS = [
   {
     num: "01",
@@ -291,9 +292,9 @@ const PROCESS_STEPS = [
   },
   {
     num: "02",
-    title: "Solucion implementada",
-    desc: "Landing, e-commerce, sistema o automatizacion ejecutada para resolver el problema real.",
-    focus: "Ejecucion concreta",
+    title: "Solución implementada",
+    desc: "Landing, e-commerce, sistema o automatización ejecutada para resolver el problema real.",
+    focus: "Ejecución concreta",
     evidence: "Flujo funcional y alcance final",
     icon: <FaCogs />,
     color: "from-violet-500 to-pink-500",
@@ -301,8 +302,8 @@ const PROCESS_STEPS = [
   {
     num: "03",
     title: "Stack y arquitectura",
-    desc: "Tecnologias e integraciones aplicadas para rendimiento, escalabilidad y control operativo.",
-    focus: "Base tecnica",
+    desc: "Tecnologías e integraciones aplicadas para rendimiento, escalabilidad y control operativo.",
+    focus: "Base técnica",
     evidence: "Integraciones y stack productivo",
     icon: <FaCode />,
     color: "from-emerald-500 to-teal-500",
@@ -310,9 +311,9 @@ const PROCESS_STEPS = [
   {
     num: "04",
     title: "Resultados medibles",
-    desc: "Impacto en conversion, ventas, tiempo operativo y calidad del proceso despues del lanzamiento.",
+    desc: "Impacto en conversión, ventas, tiempo operativo y calidad del proceso después del lanzamiento.",
     focus: "Impacto real",
-    evidence: "Metricas antes vs despues",
+    evidence: "Métricas antes vs después",
     icon: <FaRocket />,
     color: "from-amber-500 to-orange-500",
   },
@@ -368,6 +369,21 @@ const TECH_STACK_FALLBACK: StackRibbonItem[] = [
   { iconKey: "figma", name: "Figma", color: "#F24E1E" },
 ];
 
+const TECH_COLORS: Record<string, { bg: string; text: string; border: string; icon: React.ReactNode }> = {
+  "React": { bg: "#61DAFB20", border: "#61DAFB", text: "#61DAFB", icon: <FaReact /> },
+  "Next.js": { bg: "#FFFFFF20", border: "#FFFFFF", text: "#FFFFFF", icon: <SiNextdotjs /> },
+  "TypeScript": { bg: "#3178C620", border: "#3178C6", text: "#3178C6", icon: <SiTypescript /> },
+  "Node.js": { bg: "#33993320", border: "#339933", text: "#339933", icon: <FaNodeJs /> },
+  "Python": { bg: "#3776AB20", border: "#3776AB", text: "#3776AB", icon: <FaPython /> },
+  "TailwindCSS": { bg: "#06B6D420", border: "#06B6D4", text: "#06B6D4", icon: <SiTailwindcss /> },
+  "Figma": { bg: "#F24E1E20", border: "#F24E1E", text: "#F24E1E", icon: <FaFigma /> },
+  "AWS": { bg: "#FF990020", border: "#FF9900", text: "#FF9900", icon: <SiAmazon /> },
+  "Google Cloud": { bg: "#4285F420", border: "#4285F4", text: "#4285F4", icon: <SiAmazon /> },
+  "MongoDB": { bg: "#47A24820", border: "#47A248", text: "#47A248", icon: <SiMongodb /> },
+  "PostgreSQL": { bg: "#4169E120", border: "#4169E1", text: "#4169E1", icon: <SiPostgresql /> },
+  "Docker": { bg: "#2496ED20", border: "#2496ED", text: "#2496ED", icon: <SiDocker /> }
+};
+
 const normalizeStackIconKey = (value?: string | null): string => {
   const normalized = String(value || "")
     .toLowerCase()
@@ -384,24 +400,24 @@ const normalizeStackIconKey = (value?: string | null): string => {
 };
 
 const REVIEWS: ReviewCard[] = [
-  { name: "MarÃƒÆ’Ã‚Â­a GonzÃƒÆ’Ã‚Â¡lez", role: "CEO, Boutique Fashion MX", text: "Entregaron mi tienda en tiempo rÃƒÆ’Ã‚Â©cord. Las ventas crecieron 300% el primer mes. El equipo es increÃƒÆ’Ã‚Â­blemente profesional.", rating: 5, initial: "M", color: "blue", project: "E-Commerce Fashion" },
-  { name: "Carlos RamÃƒÆ’Ã‚Â­rez", role: "Dir. Comercial, TechSolutions", text: "El CRM transformÃƒÆ’Ã‚Â³ nuestra operaciÃƒÆ’Ã‚Â³n. Pasamos de perder oportunidades a cerrar el 80% de nuestros leads calificados.", rating: 5, initial: "C", color: "emerald", project: "Sistema CRM" },
-  { name: "Ana MartÃƒÆ’Ã‚Â­nez", role: "CTO, InnovateTech", text: "MigraciÃƒÆ’Ã‚Â³n completa a la nube sin downtime. La infraestructura Azure nos da tranquilidad total. Equipo muy capacitado.", rating: 5, initial: "A", color: "violet", project: "MigraciÃƒÆ’Ã‚Â³n Cloud" },
-  { name: "Jorge Silva", role: "Fundador, FitLife App", text: "La app superÃƒÆ’Ã‚Â³ expectativas. Interface intuitiva, cero crashes en producciÃƒÆ’Ã‚Â³n y usuarios que la aman desde el dÃƒÆ’Ã‚Â­a 1.", rating: 5, initial: "J", color: "amber", project: "App iOS/Android" },
-  { name: "Laura FernÃƒÆ’Ã‚Â¡ndez", role: "Gerente Digital, ClÃƒÆ’Ã‚Â­nica Pro", text: "El portal de reservas transformÃƒÆ’Ã‚Â³ la experiencia del paciente. Agenda ocupada al 95% y reducciÃƒÆ’Ã‚Â³n del 60% en no-shows.", rating: 5, initial: "L", color: "pink", project: "Portal Salud" },
-  { name: "Roberto DÃƒÆ’Ã‚Â­az", role: "CEO, RetailMax", text: "El ERP personalizado integrÃƒÆ’Ã‚Â³ todos nuestros procesos. Ahorramos 40 horas/semana en operaciones manuales.", rating: 5, initial: "R", color: "cyan", project: "Sistema ERP" },
+  { name: "María González", role: "CEO, Boutique Fashion MX", text: "Entregaron mi tienda en tiempo récord. Las ventas crecieron 300% el primer mes. El equipo es increíblemente profesional.", rating: 5, initial: "M", color: "blue", project: "E-Commerce Fashion" },
+  { name: "Carlos Ramírez", role: "Dir. Comercial, TechSolutions", text: "El CRM transformó nuestra operación. Pasamos de perder oportunidades a cerrar el 80% de nuestros leads calificados.", rating: 5, initial: "C", color: "emerald", project: "Sistema CRM" },
+  { name: "Ana Martínez", role: "CTO, InnovateTech", text: "Migración completa a la nube sin downtime. La infraestructura Azure nos da tranquilidad total. Equipo muy capacitado.", rating: 5, initial: "A", color: "violet", project: "Migración Cloud" },
+  { name: "Jorge Silva", role: "Fundador, FitLife App", text: "La app superó expectativas. Interfaz intuitiva, cero crashes en producción y usuarios que la aman desde el día 1.", rating: 5, initial: "J", color: "amber", project: "App iOS/Android" },
+  { name: "Laura Fernández", role: "Gerente Digital, Clínica Pro", text: "El portal de reservas transformó la experiencia del paciente. Agenda ocupada al 95% y reducción del 60% en no-shows.", rating: 5, initial: "L", color: "pink", project: "Portal Salud" },
+  { name: "Roberto Díaz", role: "CEO, RetailMax", text: "El ERP personalizado integró todos nuestros procesos. Ahorramos 40 horas/semana en operaciones manuales.", rating: 5, initial: "R", color: "cyan", project: "Sistema ERP" },
 ];
 
 const REVIEW_TONES: AvatarTone[] = ["blue", "emerald", "violet", "amber", "pink", "cyan"];
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Fallback projects if API has no data ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ── Section ──
 const FALLBACK_PROJECTS: Proyecto[] = [
-  { id: 1, title: "Tienda Online Fashion", description: "E-Commerce completo con pasarela de pagos, gestiÃƒÆ’Ã‚Â³n de inventario y panel admin. +300% en ventas el primer mes.", category: "ecommerce", price: "$3,500", featured: true, active: true, order_index: 0, cover_url: "", tags: ["Stripe", "Multi-moneda", "Analytics"], stack: ["Next.js","Stripe","PostgreSQL"] },
-  { id: 2, title: "Sistema CRM Corporativo", description: "CRM personalizado con pipeline de ventas, automatizaciÃƒÆ’Ã‚Â³n y dashboards en tiempo real para equipo de 50+ usuarios.", category: "sistemas", price: "$4,800", featured: true, active: true, order_index: 1, cover_url: "", tags: ["Pipeline", "AutomatizaciÃƒÆ’Ã‚Â³n", "Reportes"], stack: ["React","Node.js","MongoDB"] },
-  { id: 3, title: "Portal Web Corporativo", description: "Sitio corporativo enterprise con CMS, blog SEO optimizado, y formularios de captaciÃƒÆ’Ã‚Â³n de leads integrados.", category: "web", price: "$2,200", featured: true, active: true, order_index: 2, cover_url: "", tags: ["SEO", "CMS", "Lead Gen"], stack: ["Next.js","Sanity","Vercel"] },
-  { id: 4, title: "App Fitness & Reservas", description: "AplicaciÃƒÆ’Ã‚Â³n mÃƒÆ’Ã‚Â³vil iOS/Android para gestiÃƒÆ’Ã‚Â³n de clases, reservas online y seguimiento de progreso del cliente.", category: "apps", price: "$8,500", featured: false, active: true, order_index: 3, cover_url: "", tags: ["React Native", "Push Notif", "GPS"], stack: ["React Native","Firebase","Node.js"] },
-  { id: 5, title: "Marketplace Multi-Vendor", description: "Plataforma marketplace con mÃƒÆ’Ã‚Âºltiples vendedores, sistema de comisiones, review system y logÃƒÆ’Ã‚Â­stica integrada.", category: "ecommerce", price: "$7,500", featured: false, active: true, order_index: 4, cover_url: "", tags: ["Multi-vendor", "Comisiones", "Logistics"], stack: ["Next.js","Stripe Connect","PostgreSQL"] },
-  { id: 6, title: "ERP Manufactura", description: "Sistema de planificaciÃƒÆ’Ã‚Â³n de recursos adaptado a procesos de manufactura: BOM, MRP, control de calidad y trazabilidad.", category: "sistemas", price: "$12,000", featured: false, active: true, order_index: 5, cover_url: "", tags: ["BOM", "MRP", "Trazabilidad"], stack: ["React","Python","PostgreSQL"] },
+  { id: 1, title: "Tienda Online Fashion", description: "E-Commerce completo con pasarela de pagos, gestión de inventario y panel admin. +300% en ventas el primer mes.", category: "ecommerce", price: "$3,500", featured: true, active: true, order_index: 0, cover_url: "", tags: ["Stripe", "Multi-moneda", "Analytics"], stack: ["Next.js", "Stripe", "PostgreSQL"] },
+  { id: 2, title: "Sistema CRM Corporativo", description: "CRM personalizado con pipeline de ventas, automatización y dashboards en tiempo real para equipo de 50+ usuarios.", category: "sistemas", price: "$4,800", featured: true, active: true, order_index: 1, cover_url: "", tags: ["Pipeline", "Automatización", "Reportes"], stack: ["React", "Node.js", "MongoDB"] },
+  { id: 3, title: "Portal Web Corporativo", description: "Sitio corporativo enterprise con CMS, blog SEO optimizado, y formularios de captación de leads integrados.", category: "web", price: "$2,200", featured: true, active: true, order_index: 2, cover_url: "", tags: ["SEO", "CMS", "Lead Gen"], stack: ["Next.js", "Sanity", "Vercel"] },
+  { id: 4, title: "App Fitness & Reservas", description: "Aplicación móvil iOS/Android para gestión de clases, reservas online y seguimiento de progreso del cliente.", category: "apps", price: "$8,500", featured: false, active: true, order_index: 3, cover_url: "", tags: ["React Native", "Push Notif", "GPS"], stack: ["React Native", "Firebase", "Node.js"] },
+  { id: 5, title: "Marketplace Multi-Vendor", description: "Plataforma marketplace con múltiples vendedores, sistema de comisiones, review system y logística integrada.", category: "ecommerce", price: "$7,500", featured: false, active: true, order_index: 4, cover_url: "", tags: ["Multi-vendor", "Comisiones", "Logistics"], stack: ["Next.js", "Stripe Connect", "PostgreSQL"] },
+  { id: 6, title: "ERP Manufactura", description: "Sistema de planificación de recursos adaptado a procesos de manufactura: BOM, MRP, control de calidad y trazabilidad.", category: "sistemas", price: "$12,000", featured: false, active: true, order_index: 5, cover_url: "", tags: ["BOM", "MRP", "Trazabilidad"], stack: ["React", "Python", "PostgreSQL"] },
 ];
 
 const CATEGORY_GRADIENTS: Record<string, string> = {
@@ -433,7 +449,7 @@ const pseudoRandom = (index: number, salt: number): number => {
 
 const roundValue = (value: number, precision = 4): number => Number(value.toFixed(precision));
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Particle background ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ── Section ──
 function ParticlesBg() {
   const particles = useMemo<ParticleSpec[]>(
     () =>
@@ -473,7 +489,7 @@ function ParticlesBg() {
   );
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Grid noise overlay ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ── Section ──
 function GridOverlay() {
   return (
     <div
@@ -486,7 +502,7 @@ function GridOverlay() {
   );
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Skeleton ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ── Section ──
 function ProjectSkeleton() {
   return (
     <div className="rounded-2xl overflow-hidden border border-white/5 bg-white/[0.02] animate-pulse">
@@ -504,7 +520,7 @@ function ProjectSkeleton() {
   );
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ Project Card ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ── Section ──
 function ProjectCard({
   p,
   onOpenDetails,
@@ -523,6 +539,10 @@ function ProjectCard({
       style={{ boxShadow: "0 10px 48px rgba(0,0,0,0.5)" }}
     >
       <div className={`absolute -inset-px bg-gradient-to-br ${grad} opacity-[0.14] pointer-events-none`} />
+
+      {/* Top light beam effect */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none bg-[radial-gradient(ellipse_65%_45%_at_50%_100%,rgba(56,189,248,0.18),transparent)]" />
 
       {/* Image area */}
@@ -562,9 +582,9 @@ function ProjectCard({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.96 }}
             onClick={() => onOpenDetails(p)}
-            className="opacity-0 group-hover:opacity-100 flex items-center gap-2 bg-white text-black font-black text-xs uppercase tracking-widest px-5 py-2.5 rounded-full transition-all duration-300 shadow-xl"
+            className="opacity-0 group-hover:opacity-100 flex items-center gap-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-[10px] uppercase tracking-[0.2em] px-6 py-3 rounded-full transition-all duration-500 shadow-[0_10px_30px_rgba(6,182,212,0.4)] hover:shadow-[0_15px_40px_rgba(6,182,212,0.6)] hover:scale-105 active:scale-95"
           >
-            <FaEye /> Ver Proyecto
+            <FaEye className="text-xs" /> Ver Análisis Técnico
           </motion.button>
         </div>
       </div>
@@ -582,11 +602,18 @@ function ProjectCard({
         {/* Stack pills */}
         {p.stack.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {p.stack.slice(0, 3).map((s) => (
-              <span key={s} className="text-[10px] font-bold px-2 py-1 bg-white/5 border border-white/10 text-slate-400 rounded-md">
-                {s}
-              </span>
-            ))}
+            {p.stack.slice(0, 3).map((s) => {
+              const tech = TECH_COLORS[s];
+              return tech ? (
+                <span key={s} style={{ backgroundColor: tech.bg, borderColor: tech.border, color: tech.text, boxShadow: `0 2px 8px ${tech.bg}` }} className="flex items-center gap-1.5 text-[10px] font-bold px-2 py-1 border rounded-md">
+                  <span className="text-xs">{tech.icon}</span> {s}
+                </span>
+              ) : (
+                <span key={s} className="text-[10px] font-bold px-2 py-1 bg-white/5 border border-white/10 text-slate-400 rounded-md">
+                  {s}
+                </span>
+              );
+            })}
             {p.stack.length > 3 && (
               <span className="text-[10px] font-bold px-2 py-1 bg-white/5 border border-white/10 text-slate-600 rounded-md">
                 +{p.stack.length - 3}
@@ -603,25 +630,22 @@ function ProjectCard({
               <div className="text-lg font-black text-white">{p.price}</div>
             </div>
           ) : <div />}
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => onOpenDetails(p)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-cyan-300/35 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-violet-500/20 text-cyan-100 text-xs font-bold uppercase tracking-[0.08em] hover:border-cyan-200/70 hover:from-cyan-500/40 hover:via-blue-500/42 hover:to-violet-500/40 transition-all shadow-[0_8px_20px_rgba(6,182,212,0.2)]"
+          <Link
+            href={`/proyectos/${p.slug || p.id}`}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-cyan-300/35 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-violet-500/20 text-cyan-100 text-xs font-bold uppercase tracking-[0.08em] hover:border-cyan-200/70 hover:from-cyan-500/40 hover:via-blue-500/42 hover:to-violet-500/40 transition-all hover:scale-105 active:scale-95 shadow-[0_8px_20px_rgba(6,182,212,0.2)]"
           >
             Ver mas
             <span className="w-5 h-5 rounded-full border border-cyan-200/40 bg-cyan-500/20 flex items-center justify-center">
               <FaArrowRight className="text-[9px]" />
             </span>
-          </motion.button>
+          </Link>
         </div>
       </div>
     </motion.div>
   );
 }
 
-// ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ MAIN PAGE ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬
+// ── Section ──
 export default function ProyectosPage() {
   type ReviewPublishMode = "idle" | "google" | "guest";
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
@@ -756,7 +780,7 @@ export default function ProyectosPage() {
         if (normalized.length > 0) {
           setReviewsList(normalized);
         }
-      }).catch(() => {});
+      }).catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -967,6 +991,10 @@ export default function ProyectosPage() {
     return `https://${value}`;
   }, []);
 
+  const hasExternalUrl = useCallback((rawUrl?: string | null) => {
+    return Boolean(normalizeExternalUrl(rawUrl));
+  }, [normalizeExternalUrl]);
+
   const openExternalLink = useCallback((rawUrl?: string | null) => {
     const target = normalizeExternalUrl(rawUrl);
     if (!target) return false;
@@ -984,18 +1012,12 @@ export default function ProyectosPage() {
   }, [whatsappDigits]);
 
   const openProjectDemo = useCallback((project: Proyecto) => {
-    const opened = openExternalLink(project.demo_url);
-    if (!opened) {
-      openWhatsApp(`${project.title} (demo)`);
-    }
-  }, [openExternalLink, openWhatsApp]);
+    openExternalLink(project.demo_url);
+  }, [openExternalLink]);
 
   const openProjectRepo = useCallback((project: Proyecto) => {
-    const opened = openExternalLink(project.repo_url);
-    if (!opened) {
-      openWhatsApp(`${project.title} (repositorio)`);
-    }
-  }, [openExternalLink, openWhatsApp]);
+    openExternalLink(project.repo_url);
+  }, [openExternalLink]);
 
   const ensureGoogleSdkLoaded = useCallback(async () => {
     if (typeof window === "undefined") return false;
@@ -1233,11 +1255,10 @@ export default function ProyectosPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050508] text-white overflow-x-hidden" style={{ fontFamily: "'Poppins', system-ui, sans-serif" }}>
+    <div className="min-h-screen bg-[#050508] text-white overflow-x-hidden">
 
       {/* Google Font */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
         @keyframes proyectosParticleFloat {
           0%, 100% { transform: translateY(0); opacity: 0.12; }
           50% { transform: translateY(-30px); opacity: 0.38; }
@@ -1279,33 +1300,33 @@ export default function ProyectosPage() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-500/30 bg-blue-500/5 text-blue-400 text-xs font-bold uppercase tracking-widest mb-8"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 text-[10px] font-black uppercase tracking-[0.25em] mb-8"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                Portafolio de Proyectos
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                Consultoría Digital de Alto Nivel
               </motion.div>
 
-              <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.95] mb-7">
-                <span className="text-white">Proyectos</span>
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] mb-7">
+                <span className="text-white">Arquitectura Digital</span>
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-violet-400">
-                  terminados con impacto
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600">
+                  Impulsamos el Crecimiento
                 </span>
               </h1>
 
-              <p className="text-lg text-slate-400 max-w-2xl mx-auto lg:mx-0 mb-8 leading-relaxed font-light">
-                Portafolio real de implementaciones entregadas y operativas. Cada caso muestra objetivo del negocio, solucion ejecutada, stack usado y resultados medibles.
+              <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto lg:mx-0 mb-8 leading-relaxed font-medium">
+                Transformamos desafíos complejos en soluciones digitales de alto impacto. Impulsamos la rentabilidad y escalabilidad de tu negocio mediante tecnología estratégica y diseño orientado a resultados.
               </p>
 
-              <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-8">
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 text-emerald-300 text-xs font-semibold">
-                  <FaCheck className="text-[10px]" /> En produccion
+              <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-10">
+                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-emerald-400/20 bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                  <FaCheck className="text-[10px]" /> Infraestructura de Clase Mundial
                 </span>
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-xs font-semibold">
-                  <FaCheck className="text-[10px]" /> Resultados medibles
+                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-cyan-400/20 bg-cyan-500/10 text-cyan-400 text-[10px] font-black uppercase tracking-wider">
+                  <FaCheck className="text-[10px]" /> Maximización de Conversión
                 </span>
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-400/30 bg-violet-500/10 text-violet-300 text-xs font-semibold">
-                  <FaCheck className="text-[10px]" /> Entrega completa y soporte
+                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-indigo-400/20 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-wider">
+                  <FaCheck className="text-[10px]" /> Escalabilidad sin Límites
                 </span>
               </div>
 
@@ -1314,9 +1335,9 @@ export default function ProyectosPage() {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => document.getElementById("portafolio")?.scrollIntoView({ behavior: "smooth" })}
-                  className="flex items-center gap-3 px-8 py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/20"
+                  className="flex items-center gap-3 px-8 py-5 bg-blue-600 text-white font-black text-sm uppercase tracking-widest rounded-2xl hover:bg-blue-500 transition-all shadow-xl shadow-blue-600/30 group"
                 >
-                  <FaEye /> Ver Casos Terminados
+                  <FaEye className="group-hover:scale-110 transition-transform" /> Ver Casos de Éxito
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.03 }}
@@ -1324,61 +1345,82 @@ export default function ProyectosPage() {
                   onClick={() => openWhatsApp()}
                   className="flex items-center gap-3 px-8 py-4 border border-emerald-500/40 text-emerald-300 font-bold rounded-xl hover:bg-emerald-500/10 hover:text-emerald-200 transition-colors"
                 >
-                  <FaWhatsapp className="text-emerald-400" /> Solicitar Evaluacion
+                  <FaWhatsapp className="text-emerald-400" /> Agendar Consultoría
                 </motion.button>
               </div>
             </div>
 
             <motion.div
-              initial={{ opacity: 0, x: 24 }}
+              initial={{ opacity: 0, x: 40 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="relative"
+              transition={{ delay: 0.3, duration: 1 }}
+              className="relative lg:h-[500px] flex items-center justify-center"
             >
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0b0f1a] min-h-[420px] shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
-                {heroProject.cover_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={heroProject.cover_url}
-                    alt={heroProject.title}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className={`absolute inset-0 bg-gradient-to-br ${CATEGORY_GRADIENTS[heroProject.category] || CATEGORY_GRADIENTS.otro}`} />
-                )}
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/5" />
-
-                <div className="absolute top-5 left-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/20 bg-black/35 text-white text-[11px] font-bold uppercase tracking-widest backdrop-blur-sm">
-                  <FaStar className="text-amber-300 text-[10px]" />
-                  Proyecto destacado
-                </div>
-
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <p className="text-[11px] uppercase tracking-[0.14em] text-cyan-300/80 font-semibold mb-2">
-                    {CATEGORY_LABELS[heroProject.category] || "Proyecto digital"}
-                  </p>
-                  <h3 className="text-2xl md:text-3xl font-black text-white leading-tight mb-2">
-                    {heroProject.title}
-                  </h3>
-                  <p className="text-sm text-slate-300 leading-relaxed mb-4 line-clamp-3">
-                    {heroProject.description}
-                  </p>
-
-                  {heroProject.stack.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {heroProject.stack.slice(0, 3).map((item) => (
-                        <span
-                          key={`${heroProject.id}-${item}`}
-                          className="text-[11px] px-2.5 py-1 rounded-md border border-white/20 bg-black/35 text-slate-200"
-                        >
-                          {item}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+              {/* Decorative Background Agency Image */}
+              <div className="absolute -inset-4 md:-inset-10 lg:-inset-20 z-0 opacity-40 blur-[2px] pointer-events-none group">
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#050508] via-transparent to-transparent z-10" />
+                <img
+                  src="/img/agency-hero.png"
+                  alt="Agency Environment"
+                  className="w-full h-full object-cover rounded-[40px] scale-95 group-hover:scale-100 transition-transform duration-[3s]"
+                />
               </div>
+
+              {/* Main Featured Project Card (Layered) */}
+              <motion.div
+                whileHover={{ y: -15, rotateY: -5, rotateX: 5 }}
+                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                className="relative z-10 w-full max-w-[440px] perspective-1000"
+              >
+                <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0b0f1a]/80 backdrop-blur-md min-h-[420px] shadow-[0_40px_100px_rgba(0,0,0,0.6)] group">
+                  {heroProject.cover_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={heroProject.cover_url}
+                      alt={heroProject.title}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div className={`absolute inset-0 bg-gradient-to-br ${CATEGORY_GRADIENTS[heroProject.category] || CATEGORY_GRADIENTS.otro}`} />
+                  )}
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 transition-opacity duration-500 group-hover:via-black/50" />
+
+                  <div className="absolute top-5 left-5 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/20 bg-black/45 text-white text-[11px] font-bold uppercase tracking-widest backdrop-blur-sm z-20">
+                    <FaStar className="text-amber-300 text-[10px]" />
+                    Proyecto destacado
+                  </div>
+
+                  <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-300 font-bold mb-3">
+                      {CATEGORY_LABELS[heroProject.category] || "Proyecto digital"}
+                    </p>
+                    <h3 className="text-2xl md:text-3xl font-black text-white leading-tight mb-3 group-hover:text-cyan-200 transition-colors">
+                      {heroProject.title}
+                    </h3>
+                    <p className="text-sm text-slate-300 leading-relaxed mb-6 line-clamp-3">
+                      {heroProject.description}
+                    </p>
+
+                    {heroProject.stack.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {heroProject.stack.slice(0, 3).map((item) => (
+                          <span
+                            key={`${heroProject.id}-${item}`}
+                            className="text-[10px] px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-slate-200 backdrop-blur-sm group-hover:border-cyan-500/30 transition-colors"
+                          >
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Glass accent decorations */}
+                <div className="absolute -top-6 -right-6 w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 backdrop-blur-xl border border-white/10 -z-10 animate-pulse" />
+                <div className="absolute -bottom-10 -left-10 w-24 h-24 rounded-full bg-indigo-500/10 blur-2xl -z-20" />
+              </motion.div>
             </motion.div>
           </motion.div>
 
@@ -1404,21 +1446,23 @@ export default function ProyectosPage() {
             className="mb-20"
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-[2px] bg-blue-500" />
-              <span className="text-blue-400 text-xs font-bold uppercase tracking-widest">Mas Solicitados</span>
+              <div className="w-8 h-[2px] bg-cyan-500" />
+              <span className="text-cyan-400 text-xs font-black uppercase tracking-[0.3em]">Ingeniería con Propósito</span>
             </div>
-            <h2 className="text-5xl md:text-6xl font-black text-white mb-4 tracking-tight">
-              Proyectos <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400">Destacados</span>
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 tracking-tighter">
+              Soluciones que <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-500">Transforman Empresas</span>
             </h2>
-            <p className="text-slate-500 text-lg max-w-2xl">Los proyectos con mayor impacto e indice de satisfaccion de nuestros clientes.</p>
+            <p className="text-slate-400 text-lg md:text-xl max-w-3xl font-medium leading-relaxed">
+              Descubre cómo hemos ayudado a empresas a optimizar sus procesos, reducir costos operativos y dominar su sector mediante tecnología de vanguardia.
+            </p>
           </motion.div>
 
           <div className="flex items-center justify-between mb-8 gap-4">
-            <p className="text-[11px] md:text-xs uppercase tracking-[0.16em] text-slate-500">
-              Pasarela activa: {featuredPool.length} casos destacados
+            <p className="text-[11px] md:text-xs uppercase tracking-[0.2em] text-slate-500 font-bold">
+              Ecosistema de Innovación: {featuredPool.length} Casos de Éxito
             </p>
-            <span className="text-[10px] md:text-xs uppercase tracking-[0.16em] text-cyan-300/70">
-              Desplazamiento continuo
+            <span className="text-[10px] md:text-xs uppercase tracking-[0.3em] text-cyan-400 font-black">
+              Innovación en Movimiento
             </span>
           </div>
 
@@ -1457,79 +1501,77 @@ export default function ProyectosPage() {
                         className="group relative h-full rounded-[28px] overflow-hidden border border-cyan-300/18 bg-[#080b14] hover:border-cyan-300/45 transition-all duration-500"
                         style={{ boxShadow: "0 20px 80px rgba(0,0,0,0.52)" }}
                       >
-                        <div className={`absolute -inset-px bg-gradient-to-br ${CATEGORY_GRADIENTS[p.category] || CATEGORY_GRADIENTS.otro} opacity-[0.24] pointer-events-none`} />
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(ellipse_70%_45%_at_50%_100%,rgba(34,211,238,0.2),transparent)] pointer-events-none" />
+                        <Link href={`/proyectos/${p.slug || p.id}`} className="block h-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-500/50 rounded-[28px]">
+                          <div className={`absolute -inset-px bg-gradient-to-br ${CATEGORY_GRADIENTS[p.category] || CATEGORY_GRADIENTS.otro} opacity-[0.24] pointer-events-none`} />
+                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(ellipse_70%_45%_at_50%_100%,rgba(34,211,238,0.2),transparent)] pointer-events-none" />
 
-                        <div className="relative h-64 overflow-hidden flex items-center justify-center">
-                          {p.cover_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={p.cover_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                          ) : (
-                            <>
-                              <div className="text-8xl opacity-25">{CATEGORY_ICONS[p.category]}</div>
-                              <motion.div
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-                                className="absolute inset-8 rounded-full border border-white/10"
-                              />
-                            </>
-                          )}
-
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#070a13] via-[#070a13]/35 to-transparent" />
-
-                          <div className="absolute top-4 left-4 right-4 flex items-start justify-between gap-3 z-20">
-                            <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wide px-3 py-1.5 rounded-full border ${catStyle.border} ${catStyle.bg} ${catStyle.text} backdrop-blur-sm`}>
-                              {CATEGORY_ICONS[p.category] || <FaCode className="text-[9px]" />} {catLabel}
-                            </span>
-                            <span className="inline-flex items-center gap-1.5 bg-amber-400 text-black text-[10px] font-black uppercase tracking-wide px-3 py-1.5 rounded-full shadow-lg shadow-amber-400/25">
-                              <FaStar className="text-[9px]" /> Bestseller
-                            </span>
-                          </div>
-
-                          <div className="absolute bottom-4 left-4 right-4 z-20 flex items-center justify-between text-[11px]">
-                            <span className="px-2.5 py-1 rounded-md border border-white/20 bg-black/35 text-slate-200 font-semibold">
-                              {p.stack.length > 0 ? `${p.stack.length} tecnologias` : "Stack a medida"}
-                            </span>
-                            <span className="px-2.5 py-1 rounded-md border border-cyan-300/30 bg-cyan-500/15 text-cyan-200 font-semibold">
-                              {p.price ? `${p.price} USD` : "Cotizacion"}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="relative p-6 md:p-7 flex flex-col min-h-[310px]">
-                          <h3
-                            className="text-2xl font-bold text-white mb-3 tracking-normal leading-tight line-clamp-2 min-h-[68px] group-hover:text-cyan-200 transition-colors"
-                            style={{ fontFamily: "var(--font-geist-sans)" }}
-                          >
-                            {p.title}
-                          </h3>
-                          <p className="text-slate-300/90 text-sm leading-relaxed mb-5 line-clamp-3 min-h-[78px]">{p.description}</p>
-
-                          <div className="flex flex-wrap gap-2 mb-6 min-h-[42px]">
-                            {previewTags.length > 0 ? previewTags.map((tag) => (
-                              <span key={tag} className="text-[11px] font-bold px-3 py-1.5 bg-white/[0.05] border border-white/12 text-slate-200 rounded-full">
-                                {tag}
-                              </span>
-                            )) : (
-                              <span className="text-[11px] px-3 py-1.5 opacity-0 select-none">placeholder</span>
+                          <div className="relative h-64 overflow-hidden flex items-center justify-center">
+                            {p.cover_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={p.cover_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            ) : (
+                              <>
+                                <div className="text-8xl opacity-25">{CATEGORY_ICONS[p.category]}</div>
+                                <motion.div
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+                                  className="absolute inset-8 rounded-full border border-white/10"
+                                />
+                              </>
                             )}
+
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#070a13] via-[#070a13]/35 to-transparent" />
+
+                            <div className="absolute top-4 left-4 right-4 flex items-start justify-between gap-3 z-20">
+                              <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wide px-3 py-1.5 rounded-full border ${catStyle.border} ${catStyle.bg} ${catStyle.text} backdrop-blur-sm`}>
+                                {CATEGORY_ICONS[p.category] || <FaCode className="text-[9px]" />} {catLabel}
+                              </span>
+                              <span className="inline-flex items-center gap-1.5 bg-amber-400 text-black text-[10px] font-black uppercase tracking-wide px-3 py-1.5 rounded-full shadow-lg shadow-amber-400/25">
+                                <FaStar className="text-[9px]" /> Bestseller
+                              </span>
+                            </div>
+
+                            <div className="absolute bottom-4 left-4 right-4 z-20 flex items-center justify-between text-[11px]">
+                              <span className="px-2.5 py-1 rounded-md border border-white/20 bg-black/35 text-slate-200 font-semibold">
+                                {p.stack.length > 0 ? `${p.stack.length} tecnologias` : "Stack a medida"}
+                              </span>
+                              <span className="px-2.5 py-1 rounded-md border border-cyan-300/30 bg-cyan-500/15 text-cyan-200 font-semibold">
+                                {p.price ? `${p.price} USD` : "Cotizacion"}
+                              </span>
+                            </div>
                           </div>
 
-                          <div className="mt-auto pt-5 border-t border-white/[0.08]">
-                            <motion.button
-                              type="button"
-                              whileHover={{ scale: 1.012 }}
-                              whileTap={{ scale: 0.985 }}
-                              onClick={() => openProjectDetails(p)}
-                              className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-cyan-300/40 bg-gradient-to-r from-cyan-500/28 via-blue-500/28 to-violet-500/28 text-cyan-50 font-bold text-sm hover:from-cyan-500/40 hover:via-blue-500/42 hover:to-violet-500/40 hover:border-cyan-200/70 transition-all shadow-[0_10px_30px_rgba(6,182,212,0.22)]"
+                          <div className="relative p-6 md:p-7 flex flex-col min-h-[310px]">
+                            <h3
+                              className="text-2xl font-bold text-white mb-3 tracking-normal leading-tight line-clamp-2 min-h-[68px] group-hover:text-cyan-200 transition-colors"
+                              style={{ fontFamily: "var(--font-geist-sans)" }}
                             >
-                              <span>Ver caso completo</span>
-                              <span className="w-7 h-7 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
-                                <FaArrowRight className="text-[11px]" />
-                              </span>
-                            </motion.button>
+                              {p.title}
+                            </h3>
+                            <p className="text-slate-300/90 text-sm leading-relaxed mb-5 line-clamp-3 min-h-[78px]">{p.description}</p>
+
+                            <div className="flex flex-wrap gap-2 mb-6 min-h-[42px]">
+                              {previewTags.length > 0 ? previewTags.map((tag) => (
+                                <span key={tag} className="text-[11px] font-bold px-3 py-1.5 bg-white/[0.05] border border-white/12 text-slate-200 rounded-full">
+                                  {tag}
+                                </span>
+                              )) : (
+                                <span className="text-[11px] px-3 py-1.5 opacity-0 select-none">placeholder</span>
+                              )}
+                            </div>
+
+                            <div className="mt-auto pt-5 border-t border-white/[0.08]">
+                              <div
+                                className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-amber-400/40 bg-gradient-to-b from-[#17120d] to-[#010101] text-amber-300 font-bold text-sm group-hover:from-amber-400 group-hover:to-amber-500 group-hover:text-black transition-all shadow-[0_10px_30px_rgba(245,158,11,0.15)]"
+                              >
+                                <span>Ver caso completo</span>
+                                <span className="w-7 h-7 rounded-full bg-amber-400/20 border border-amber-400/30 flex items-center justify-center group-hover:bg-black/20">
+                                  <FaArrowRight className="text-[11px]" />
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        </Link>
                       </motion.article>
                     </div>
                   );
@@ -1541,62 +1583,72 @@ export default function ProyectosPage() {
       </section>
 
       {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ 3. FULL PORTFOLIO ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
-      <section id="portafolio" className="py-32 px-6 border-t border-white/[0.04]">
+      <section id="portafolio" className="py-24 px-6 border-t border-white/[0.04]">
         <div className="max-w-7xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-16">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-[2px] bg-emerald-500" />
-              <span className="text-emerald-400 text-xs font-bold uppercase tracking-widest">Portafolio Completo</span>
+              <div className="w-8 h-[2px] bg-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.5)]" />
+              <span className="text-cyan-400 text-[10px] font-black uppercase tracking-[0.3em]">Historial de Resultados</span>
             </div>
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-              <div className="max-w-3xl">
-                <h2 className="text-5xl font-black text-white tracking-tight mb-4">
-                  Todos los <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Proyectos</span>
-                </h2>
-                <p className="text-slate-400 text-base md:text-lg leading-relaxed">
-                  Casos reales entregados con enfoque de negocio, stack implementado y resultados medibles. Filtra por tipo de solucion y revisa cada proyecto en detalle.
-                </p>
-              </div>
-              {/* Filter tabs */}
-              <div className="flex flex-wrap gap-2 p-2 rounded-2xl border border-cyan-300/15 bg-gradient-to-br from-white/[0.03] to-cyan-500/[0.04] backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
-                {FILTER_TABS.map((tab) => (
-                  <motion.button
-                    type="button"
-                    key={tab.key}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => setFilter(tab.key)}
-                    className={`relative px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
-                      filter === tab.key
-                        ? "text-white"
-                        : "border border-white/10 text-slate-400 hover:border-white/20 hover:text-white"
-                    }`}
-                  >
-                    {filter === tab.key && (
-                      <motion.span
-                        layoutId="projects-filter-pill"
-                        className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/90 via-blue-600/90 to-violet-600/90 shadow-lg shadow-cyan-500/30"
-                        transition={{ type: "spring", stiffness: 280, damping: 24 }}
-                      />
-                    )}
-                    <span className="relative z-10 flex items-center gap-2">
-                      {tab.icon}
-                      {tab.label}
-                    </span>
-                  </motion.button>
-                ))}
+            <div className="max-w-4xl mb-12">
+              <h2 className="text-5xl md:text-6xl font-black text-white tracking-tighter mb-6 leading-none">
+                Portafolio de <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500">Innovación</span>
+              </h2>
+              <p className="text-slate-400 text-lg md:text-xl leading-relaxed font-medium">
+                Un recorrido por los desafíos técnicos que hemos superado para entregar valor real a nuestros clientes. Cada proyecto es una prueba de nuestro compromiso con la excelencia.
+              </p>
+            </div>
+
+            <div className="w-full pt-10 border-t border-white/5">
+              <div className="flex flex-wrap items-center justify-start gap-3">
+                {FILTER_TABS.map((tab) => {
+                  const isActive = filter === tab.key;
+                  return (
+                    <motion.button
+                      type="button"
+                      key={tab.key}
+                      whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.05)" }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setFilter(tab.key)}
+                      className={`group relative px-6 py-3.5 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 border-2 flex items-center gap-3 overflow-hidden ${isActive
+                        ? "bg-cyan-500/10 border-cyan-400/60 text-white shadow-[0_0_30px_rgba(34,211,238,0.15)]"
+                        : "bg-[#0a0a0a] border-white/10 text-slate-500 hover:border-white/30 hover:text-white"
+                        }`}
+                    >
+                      {/* Active glow bridge */}
+                      {isActive && (
+                        <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-transparent" />
+                      )}
+
+                      <span className={`relative z-10 text-base transition-colors duration-300 ${isActive ? "text-cyan-400" : "text-slate-600 group-hover:text-slate-400"}`}>
+                        {tab.icon}
+                      </span>
+                      <span className="relative z-10">
+                        {tab.label}
+                      </span>
+
+                      {isActive && (
+                        <motion.div
+                          layoutId="active-dot-indicator"
+                          className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_15px_rgba(34,211,238,1)]"
+                        />
+                      )}
+                    </motion.button>
+                  );
+                })}
               </div>
             </div>
           </motion.div>
 
           {loading ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1,2,3,4,5,6].map(i => <ProjectSkeleton key={i} />)}
+              {[1, 2, 3, 4, 5, 6].map(i => <ProjectSkeleton key={i} />)}
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-32 text-center">
               <div className="text-7xl mb-6 opacity-20"><FaCode /></div>
-              <h3 className="text-2xl font-black text-slate-500 mb-2">Sin proyectos en esta categorÃƒÆ’Ã‚Â­a</h3>
-              <p className="text-slate-600">Prueba con otro filtro o contÃƒÆ’Ã‚Â¡ctanos para proyectos personalizados.</p>
+              <h3 className="text-2xl font-black text-slate-500 mb-4">No se encontraron despliegues en esta categoría</h3>
+              <p className="text-slate-600 max-w-md mx-auto">Nuestra experiencia es vasta; si no visualiza un caso similar al suyo, consulte por nuestras **Soluciones de Ingeniería a Medida**.</p>
             </div>
           ) : (
             <div className="space-y-10">
@@ -1620,13 +1672,8 @@ export default function ProyectosPage() {
 
               {filtered.length > PROJECTS_PER_PAGE && (
                 <div className="rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="text-sm text-slate-400">
-                    Mostrando{" "}
-                    <span className="text-cyan-300 font-bold">{(portfolioPage - 1) * PROJECTS_PER_PAGE + 1}</span>
-                    {" "}a{" "}
-                    <span className="text-cyan-300 font-bold">{Math.min(portfolioPage * PROJECTS_PER_PAGE, filtered.length)}</span>
-                    {" "}de{" "}
-                    <span className="text-white font-semibold">{filtered.length}</span> proyectos
+                  <div className="text-[11px] uppercase tracking-widest text-slate-500 font-bold">
+                    Visualizando <span className="text-cyan-400">{(portfolioPage - 1) * PROJECTS_PER_PAGE + 1} - {Math.min(portfolioPage * PROJECTS_PER_PAGE, filtered.length)}</span> de <span className="text-white">{filtered.length}</span> Soluciones Tecnológicas
                   </div>
 
                   <div className="flex items-center gap-2 flex-wrap justify-start md:justify-end">
@@ -1646,11 +1693,10 @@ export default function ProyectosPage() {
                           key={`page-${item}`}
                           type="button"
                           onClick={() => setPortfolioPage(item)}
-                          className={`min-w-[2.25rem] h-9 px-3 rounded-lg text-sm font-bold transition-all ${
-                            portfolioPage === item
-                              ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-[0_10px_20px_rgba(6,182,212,0.28)]"
-                              : "border border-white/15 bg-white/[0.02] text-slate-300 hover:border-cyan-300/40 hover:bg-cyan-500/[0.08]"
-                          }`}
+                          className={`min-w-[2.25rem] h-9 px-3 rounded-lg text-sm font-bold transition-all ${portfolioPage === item
+                            ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-[0_10px_20px_rgba(6,182,212,0.28)]"
+                            : "border border-white/15 bg-white/[0.02] text-slate-300 hover:border-cyan-300/40 hover:bg-cyan-500/[0.08]"
+                            }`}
                           aria-label={`Ir a pagina ${item}`}
                         >
                           {item}
@@ -1738,11 +1784,10 @@ export default function ProyectosPage() {
                         key={`project-media-thumb-${item.resource_type}-${item.url}-${index}`}
                         type="button"
                         onClick={() => setSelectedMediaIndex(index)}
-                        className={`relative h-14 w-20 overflow-hidden rounded-lg border transition-all ${
-                          selectedMediaIndex === index
-                            ? "border-cyan-300/80 ring-2 ring-cyan-400/40"
-                            : "border-white/20 hover:border-cyan-300/45"
-                        }`}
+                        className={`relative h-14 w-20 overflow-hidden rounded-lg border transition-all ${selectedMediaIndex === index
+                          ? "border-cyan-300/80 ring-2 ring-cyan-400/40"
+                          : "border-white/20 hover:border-cyan-300/45"
+                          }`}
                         aria-label={`Ver media ${index + 1}`}
                       >
                         {item.resource_type === "video" ? (
@@ -1784,10 +1829,7 @@ export default function ProyectosPage() {
                   <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
                     <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black mb-1">Enlaces</p>
                     <p className="text-sm text-slate-100 font-semibold">
-                      {[selectedProject.demo_url, selectedProject.repo_url].filter((value) => {
-                        const trimmed = String(value || "").trim().toLowerCase();
-                        return trimmed.length > 0 && trimmed !== "#";
-                      }).length} disponibles
+                      {[selectedProject.demo_url, selectedProject.repo_url].filter((value) => hasExternalUrl(value)).length} disponibles
                     </p>
                   </div>
                 </div>
@@ -1802,7 +1844,7 @@ export default function ProyectosPage() {
                         .slice(0, 4)
                         .map((item) => (
                           <div key={item} className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-slate-200">
-                            <span className="text-cyan-300 mr-2">Ã¢â‚¬Â¢</span>{item}
+                            <span className="text-cyan-300 mr-2">•</span>{item}
                           </div>
                         ))}
                     </div>
@@ -1813,11 +1855,18 @@ export default function ProyectosPage() {
                   <div className="mb-6">
                     <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 mb-3">Stack tecnico</p>
                     <div className="flex flex-wrap gap-2">
-                      {selectedProject.stack.map((tech) => (
-                        <span key={tech} className="px-3 py-1.5 rounded-lg border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-xs font-bold">
-                          {tech}
-                        </span>
-                      ))}
+                      {selectedProject.stack.map((s) => {
+                        const tech = TECH_COLORS[s];
+                        return tech ? (
+                          <span key={s} style={{ backgroundColor: tech.bg, borderColor: tech.border, color: tech.text, boxShadow: `0 2px 10px ${tech.bg}` }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold">
+                            <span className="text-sm">{tech.icon}</span> {s}
+                          </span>
+                        ) : (
+                          <span key={s} className="px-3 py-1.5 rounded-lg border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-xs font-bold">
+                            {s}
+                          </span>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -1828,9 +1877,14 @@ export default function ProyectosPage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => openProjectRepo(selectedProject)}
-                    className="rounded-2xl border border-amber-400/45 bg-gradient-to-b from-[#17120d] to-[#090807] px-4 py-3 hover:border-amber-300 hover:from-amber-300 hover:to-amber-500 transition-all flex items-center justify-center gap-2 text-amber-300 hover:text-black font-sans font-semibold text-sm tracking-normal"
+                    disabled={!hasExternalUrl(selectedProject.repo_url)}
+                    className={`rounded-2xl border px-4 py-3 transition-all flex items-center justify-center gap-2 font-sans font-semibold text-sm tracking-normal ${
+                      hasExternalUrl(selectedProject.repo_url)
+                        ? "border-amber-400/45 bg-gradient-to-b from-[#17120d] to-[#090807] hover:border-amber-300 hover:from-amber-300 hover:to-amber-500 text-amber-300 hover:text-black"
+                        : "border-white/10 bg-white/[0.04] text-slate-500 cursor-not-allowed opacity-60"
+                    }`}
                   >
-                    <SiGithub className="text-base" /> Ver GitHub
+                    <SiGithub className="text-base" /> {hasExternalUrl(selectedProject.repo_url) ? "Ver GitHub" : "GitHub no disponible"}
                   </motion.button>
 
                   <motion.button
@@ -1838,9 +1892,14 @@ export default function ProyectosPage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => openProjectDemo(selectedProject)}
-                    className="rounded-2xl border border-amber-400/45 bg-gradient-to-b from-[#17120d] to-[#090807] px-4 py-3 hover:border-amber-300 hover:from-amber-300 hover:to-amber-500 transition-all shadow-[0_10px_24px_rgba(245,158,11,0.16)] flex items-center justify-center gap-2 text-amber-300 hover:text-black font-sans font-semibold text-sm tracking-normal"
+                    disabled={!hasExternalUrl(selectedProject.demo_url)}
+                    className={`rounded-2xl border px-4 py-3 transition-all shadow-[0_10px_24px_rgba(245,158,11,0.16)] flex items-center justify-center gap-2 font-sans font-semibold text-sm tracking-normal ${
+                      hasExternalUrl(selectedProject.demo_url)
+                        ? "border-amber-400/45 bg-gradient-to-b from-[#17120d] to-[#090807] hover:border-amber-300 hover:from-amber-300 hover:to-amber-500 text-amber-300 hover:text-black"
+                        : "border-white/10 bg-white/[0.04] text-slate-500 cursor-not-allowed opacity-60 shadow-none"
+                    }`}
                   >
-                    <SiGooglechrome className="text-base" /> Ver Demo
+                    <SiGooglechrome className="text-base" /> {hasExternalUrl(selectedProject.demo_url) ? "Ver Demo" : "Demo no disponible"}
                   </motion.button>
 
                   <motion.button
@@ -1867,117 +1926,108 @@ export default function ProyectosPage() {
         )}
       </AnimatePresence>
 
-      <section className="py-32 px-6 relative border-t border-white/[0.04] overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_85%_70%_at_50%_45%,rgba(16,185,129,0.05),transparent)]" />
-        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[520px] h-[520px] rounded-full bg-cyan-500/10 blur-[120px] pointer-events-none" />
+      {/* --- 4. MODELO DE EVALUACION --- */}
+      {/* --- 4. AUTORIDAD TECNICA (AGENCIA ELITE) --- */}
+      <section className="py-40 px-6 relative border-t border-white/[0.04] bg-[#030303]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(16,185,129,0.03),transparent_50%),radial-gradient(circle_at_80%_70%,rgba(6,182,212,0.03),transparent_50%)]" />
 
-        <div className="max-w-6xl mx-auto relative z-10">
+        <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-14"
+            className="mb-20"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/25 bg-emerald-500/8 text-emerald-300 text-xs font-bold uppercase tracking-widest mb-6">
-              Modelo de evaluacion
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-[2px] bg-emerald-500" />
+              <span className="text-emerald-400 text-sm font-black uppercase tracking-[0.3em]">Expertise de Agencia</span>
             </div>
-            <h2 className="text-5xl font-black text-white mb-4 tracking-tight">
-              Como leemos cada <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">caso real</span>
+            <h2 className="text-6xl md:text-7xl font-black text-white leading-[0.9] tracking-tighter mb-8 max-w-4xl">
+              Ingeniería que escala <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500">al ritmo de tu negocio.</span>
             </h2>
-            <p className="text-slate-400 text-lg max-w-3xl mx-auto">
-              Este bloque resume exactamente que informacion encontrara un cliente dentro de cada proyecto publicado.
+            <p className="text-slate-500 text-xl max-w-2xl leading-relaxed">
+              No construimos simples sitios web. Desarrollamos arquitecturas digitales robustas diseñadas para dominar el mercado y garantizar la continuidad operativa.
             </p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-12 gap-8 items-start">
-            <motion.aside
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 h-auto">
+            {/* Lado Izquierdo - Card Grande (Ecosistemas) */}
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="lg:col-span-4 lg:sticky lg:top-24"
+              className="md:col-span-7 group relative overflow-hidden rounded-[2.5rem] border border-white/[0.06] bg-[#080808] p-10 md:p-14 hover:border-emerald-500/30 transition-all duration-500"
             >
-              <div className="rounded-3xl border border-cyan-300/20 bg-gradient-to-br from-slate-950/90 via-slate-900/75 to-cyan-950/40 p-6 md:p-7 shadow-[0_24px_60px_rgba(8,145,178,0.2)]">
-                <div className="text-[11px] font-black uppercase tracking-[0.25em] text-cyan-300/90 mb-3">Lectura ejecutiva</div>
-                <h3 className="text-2xl font-black text-white leading-tight mb-4">
-                  Portafolio con enfoque
-                  <span className="text-cyan-300"> comercial y tecnico</span>
-                </h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-5">
-                  Cada ficha esta preparada para que el cliente entienda rapido: problema, solucion aplicada, arquitectura y resultado final.
-                </p>
-                <div className="space-y-2.5 mb-6">
-                  {[
-                    "Objetivo del negocio claro",
-                    "Implementacion visible y verificable",
-                    "Metricas reales antes y despues",
-                  ].map((item) => (
-                    <div key={item} className="flex items-start gap-2 text-sm text-slate-200">
-                      <span className="mt-0.5 text-emerald-300"><FaCheck className="text-[11px]" /></span>
-                      <span>{item}</span>
-                    </div>
+              <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/5 blur-[100px] -mr-20 -mt-20 group-hover:bg-emerald-500/10 transition-colors duration-500" />
+              <div className="relative z-10 flex flex-col h-full justify-between">
+                <div>
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl mb-8 group-hover:scale-110 transition-transform duration-500">
+                    <FaCogs />
+                  </div>
+                  <h3 className="text-3xl md:text-4xl font-black text-white mb-6">Ecosistemas de <br />Ingeniería Modular</h3>
+                  <p className="text-slate-400 text-lg leading-relaxed max-w-md">
+                    Implementamos arquitecturas desacopladas (Headless) y microservicios que permiten a su empresa escalar vertical y horizontalmente sin deudas técnicas.
+                  </p>
+                </div>
+                <div className="mt-12 flex flex-wrap gap-4">
+                  {["Performance < 1s", "Microservicios", "Escalabilidad Elástica"].map(tag => (
+                    <span key={tag} className="px-5 py-2 rounded-full border border-emerald-500/15 bg-emerald-500/5 text-emerald-300 text-xs font-bold uppercase tracking-widest">
+                      {tag}
+                    </span>
                   ))}
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                    <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500 font-black mb-1">Formato</div>
-                    <div className="text-sm font-bold text-cyan-200">Caso completo</div>
+              </div>
+            </motion.div>
+
+            {/* Lado Derecho - Stack vertical de 2 cards */}
+            <div className="md:col-span-5 grid grid-rows-2 gap-6">
+              {/* Card Seguridad */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="group relative overflow-hidden rounded-[2.5rem] border border-white/[0.06] bg-[#080808] p-10 hover:border-blue-500/30 transition-all duration-500"
+              >
+                <div className="flex items-start gap-6">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-xl group-hover:rotate-[360deg] transition-transform duration-1000">
+                    <FaShieldAlt />
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                    <div className="text-[10px] uppercase tracking-[0.22em] text-slate-500 font-black mb-1">Lectura</div>
-                    <div className="text-sm font-bold text-cyan-200">Rapida</div>
+                  <div>
+                    <h3 className="text-2xl font-black text-white mb-3">Seguridad Corporativa</h3>
+                    <p className="text-slate-500 text-base leading-relaxed">
+                      Cifrado de grado militar y protocolos de auditoría constante. Protegemos su activo más valioso: la información.
+                    </p>
                   </div>
                 </div>
-              </div>
-            </motion.aside>
+              </motion.div>
 
-            <div className="lg:col-span-8 space-y-4">
-              {PROCESS_STEPS.map((step, i) => (
-                <motion.article
-                  key={step.num}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }}
-                  className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-slate-950/85 via-slate-900/75 to-slate-950/90 p-5 md:p-6 shadow-[0_20px_44px_rgba(2,6,23,0.45)] hover:border-cyan-300/35 hover:shadow-[0_26px_56px_rgba(6,182,212,0.18)] transition-all duration-300"
-                >
-                  <div className={`absolute -right-12 -top-12 h-40 w-40 rounded-full bg-gradient-to-br ${step.color} opacity-[0.12] blur-2xl`} />
-
-                  <div className="relative flex flex-col md:flex-row md:items-start gap-4">
-                    <div className="flex items-center md:flex-col md:items-start gap-3 md:w-28">
-                      <span className="inline-flex h-10 min-w-[2.75rem] items-center justify-center rounded-xl border border-white/15 bg-white/[0.04] text-slate-200 font-black">
-                        {step.num}
-                      </span>
-                      <span className={`inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${step.color} text-white shadow-lg`}>
-                        {step.icon}
-                      </span>
-                    </div>
-
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-2 mb-2.5">
-                        <h3 className="text-xl md:text-2xl font-black text-white tracking-tight">{step.title}</h3>
-                        <span className="px-2.5 py-1 rounded-full border border-cyan-300/30 bg-cyan-500/10 text-cyan-200 text-[11px] font-bold uppercase tracking-wider">
-                          {step.focus}
-                        </span>
-                      </div>
-                      <p className="text-slate-300 leading-relaxed text-sm md:text-base">{step.desc}</p>
-
-                      <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
-                        <span className="text-xs md:text-sm text-slate-400">{step.evidence}</span>
-                        <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-200">
-                          Caso {step.num}
-                          <FaArrowRight className="text-[10px]" />
-                        </span>
-                      </div>
-                    </div>
+              {/* Card UX / Conversión */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="group relative overflow-hidden rounded-[2.5rem] border border-white/[0.06] bg-[#080808] p-10 hover:border-amber-500/30 transition-all duration-500"
+              >
+                <div className="flex items-start gap-6">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-xl group-hover:scale-110 transition-transform duration-500">
+                    <FaLightbulb />
                   </div>
-                </motion.article>
-              ))}
+                  <div>
+                    <h3 className="text-2xl font-black text-white mb-3">Conversión UX Elite</h3>
+                    <p className="text-slate-500 text-base leading-relaxed">
+                      Diseñamos interfaces que no solo se ven bien, sino que están optimizadas neuro-estéticamente para convertir cada visita en negocio.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ 5. TECH STACK ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
+      {/* --- 5. TECH STACK --- */}
       <section className="py-16 px-0 border-t border-white/[0.04]">
         <div
           className="relative overflow-hidden border-y border-cyan-300/20 bg-gradient-to-r from-slate-950/90 via-[#070b16]/95 to-slate-950/90 py-4 md:py-5 shadow-[0_24px_60px_rgba(3,7,18,0.55)]"
@@ -2022,77 +2072,129 @@ export default function ProyectosPage() {
         </div>
       </section>
 
-      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ 6. RESULTADOS / MÃƒÆ’Ã¢â‚¬Â°TRICAS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
-      <section className="py-32 px-6 border-t border-white/[0.04] relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_55%_at_50%_48%,rgba(16,185,129,0.05),transparent)]" />
-        <div className="max-w-6xl mx-auto relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyan-400/25 bg-cyan-500/8 text-cyan-300 text-xs font-bold uppercase tracking-widest mb-6">
-              Enfoque de agencia
+      {/* --- 6. IMPACTO ESTRATEGICO Y ROI --- */}
+      <section className="py-40 px-6 border-t border-white/[0.04] relative overflow-hidden bg-[#050505]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.02),transparent_70%)]" />
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20"
+          >
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/5 text-cyan-400 text-[10px] font-black uppercase tracking-[0.2em] mb-6">
+                Business Value & ROI
+              </div>
+              <h2 className="text-5xl md:text-6xl font-black text-white leading-none tracking-tighter mb-6">
+                Sistemas que transforman <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">el rendimiento de tu activo.</span>
+              </h2>
             </div>
-            <h2 className="text-5xl font-black text-white mb-4 tracking-tight">
-              Sistemas que hacen crecer tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">negocio</span>
-            </h2>
-            <p className="text-slate-400 text-lg max-w-3xl mx-auto">
-              Cada proyecto presenta el problema de negocio, la solucion implementada, el stack aplicado y el impacto esperado en tiempo, costo operativo y crecimiento comercial.
+            <p className="text-slate-500 text-lg max-w-md leading-relaxed border-l border-white/10 pl-6">
+              Cada ejecución técnica está diseñada para impactar directamente en el balance final: más ventas, menos costos operativos y escalabilidad real.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                icon: <FaGlobe className="text-base" />,
-                title: "Captacion y ventas",
-                desc: "Problema comun: llegan contactos por web o WhatsApp y se enfria la venta por falta de seguimiento.",
-                sub: "Solucion real: Landing + formulario + CRM + pipeline. Resultado esperado: respuesta mas rapida y mejor tasa de cierre.",
-                color: "from-cyan-500 to-blue-600",
-              },
-              {
-                icon: <FaCalendarCheck className="text-base" />,
-                title: "Gestion y reservas",
-                desc: "Problema comun: agenda manual, cruces de horarios y ausencias que afectan ingresos.",
-                sub: "Solucion real: Reservas online + recordatorios + panel de disponibilidad. Resultado esperado: menos no-show y menos carga administrativa.",
-                color: "from-violet-500 to-fuchsia-500",
-              },
-              {
-                icon: <FaCogs className="text-base" />,
-                title: "Automatizacion",
-                desc: "Problema comun: cotizaciones y tareas repetitivas hechas a mano, con errores y retrasos.",
-                sub: "Solucion real: reglas de negocio + cotizacion automatica + alertas internas. Resultado esperado: menos errores y ahorro de horas operativas.",
-                color: "from-emerald-500 to-teal-500",
-              },
-              {
-                icon: <FaRocket className="text-base" />,
-                title: "Escalabilidad tecnica",
-                desc: "Problema comun: sistemas que crecen desordenados y obligan a rehacer todo cuando aumenta la demanda.",
-                sub: "Solucion real: arquitectura modular + integraciones + analitica. Resultado esperado: crecer por etapas con control de costos.",
-                color: "from-amber-500 to-orange-500",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 26 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                className="relative p-7 rounded-3xl border border-white/[0.08] bg-[#0a0a12] overflow-hidden hover:border-cyan-300/35 transition-all duration-300"
-              >
-                <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${item.color}`} />
-                <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br ${item.color} text-white shadow-lg mb-5`}>
-                  {item.icon}
+          {/* Bento Grid de Impacto */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[240px]">
+            {/* 1. Captación y Ventas (Grande - 8 cols) */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="md:col-span-8 md:row-span-2 group relative overflow-hidden rounded-[2.5rem] border border-white/[0.06] bg-[#0a0a0a] p-10 md:p-14 hover:border-cyan-500/30 transition-all duration-500"
+            >
+              <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-cyan-500/5 blur-[120px] group-hover:bg-cyan-500/10 transition-colors duration-500" />
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 text-2xl mb-8">
+                  <FaGlobe />
                 </div>
-                <h3 className="text-white font-black text-xl leading-tight mb-3">{item.title}</h3>
-                <p className="text-slate-300 text-sm leading-relaxed mb-4">{item.desc}</p>
-                <div className="pt-3 border-t border-white/10">
-                  <p className="text-xs text-cyan-200/90 font-semibold">{item.sub}</p>
+                <div className="flex-1">
+                  <h3 className="text-3xl md:text-4xl font-black text-white mb-6">Optimización de <br />Embudo Comercial</h3>
+                  <div className="grid md:grid-cols-2 gap-10">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 block mb-2">Problema Crítico</span>
+                      <p className="text-slate-400 text-base leading-relaxed">Fuga de leads por falta de respuesta inmediata y desorden en el seguimiento manual de consultas.</p>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-cyan-500 block mb-2">Ingeniería Aplicada</span>
+                      <p className="text-slate-300 text-base leading-relaxed">Centralización en CRM, automatización de WhatsApp y scoring de leads para priorizar el cierre.</p>
+                    </div>
+                  </div>
                 </div>
-              </motion.div>
-            ))}
+                <div className="mt-10 pt-8 border-t border-white/5 flex items-center gap-6">
+                  <div className="text-2xl font-black text-white">45% <span className="text-cyan-400 text-xs uppercase tracking-widest ml-1 font-bold">Más Cierres</span></div>
+                  <div className="w-px h-6 bg-white/10" />
+                  <div className="text-2xl font-black text-white">0s <span className="text-cyan-400 text-xs uppercase tracking-widest ml-1 font-bold">Respuesta Automatizada</span></div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 2. Gestión y Reservas (Vertical - 4 cols) */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="md:col-span-4 md:row-span-2 group relative overflow-hidden rounded-[2.5rem] border border-white/[0.06] bg-[#0a0a0a] p-10 hover:border-violet-500/30 transition-all duration-500"
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="w-14 h-14 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400 text-2xl mb-8">
+                  <FaCalendarCheck />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-black text-white mb-6 leading-tight">Gestión Operativa <br />& Booking</h3>
+                <p className="text-slate-500 text-base leading-relaxed mb-10 flex-1">
+                  Eliminamos el caos de la agenda manual instalando sistemas de reserva inteligentes con sincronización bidireccional y depósitos de garantía.
+                </p>
+                <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/5">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-violet-400 block mb-2">Impacto Directo</span>
+                  <p className="text-white font-bold text-sm">Eliminación de No-Shows y 40% ahorro en horas administrativas.</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 3. Automatización (Horizontal - 6 cols) */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="md:col-span-6 md:row-span-1 group relative overflow-hidden rounded-[2.5rem] border border-white/[0.06] bg-[#0a0a0a] p-8 md:p-10 hover:border-emerald-500/30 transition-all duration-500"
+            >
+              <div className="flex gap-8 items-center h-full">
+                <div className="w-16 h-16 shrink-0 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-2xl">
+                  <FaCogs />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Automatización de Procesos</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">Adiós a las tareas repetitivas. Ingeniería de reglas de negocio para cotizaciones y flujos internos desatendidos.</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 4. Escalabilidad (Horizontal - 6 cols) */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="md:col-span-6 md:row-span-1 group relative overflow-hidden rounded-[2.5rem] border border-white/[0.06] bg-[#0a0a0a] p-8 md:p-10 hover:border-amber-500/30 transition-all duration-500"
+            >
+              <div className="flex gap-8 items-center h-full">
+                <div className="w-16 h-16 shrink-0 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-2xl">
+                  <FaRocket />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white mb-2 uppercase tracking-tight">Arquitectura de Crecimiento</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">Sistemas que no mueren al crecer. Diseñados desde el día 1 para soportar aumentos de tráfico de hasta 10x sin fricciones.</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ 7. TESTIMONIALS ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ÃƒÂ¢Ã¢â‚¬ÂÃ¢â€šÂ¬ */}
       <section className="py-32 px-6 border-t border-white/[0.04]">
         <div className="max-w-7xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-16">
@@ -2101,10 +2203,15 @@ export default function ProyectosPage() {
               <span className="text-amber-400 text-xs font-bold uppercase tracking-widest">Testimonios</span>
             </div>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <h2 className="text-5xl font-black text-white tracking-tight">
-                Lo Que Dicen<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400">Nuestros Clientes</span>
-              </h2>
+              <div className="max-w-2xl">
+                <h2 className="text-5xl font-black text-white tracking-tight mb-4">
+                  RESEÑAS QUE ACREDITAN NUESTRA<br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400 uppercase">AUTORIDAD DIGITAL</span>
+                </h2>
+                <p className="text-slate-500 text-lg leading-relaxed">
+                  Casos de éxito y experiencias de socios estratégicos que han transformado su presencia digital con nuestra ingeniería.
+                </p>
+              </div>
               {/* Summary stats */}
               <div className="flex items-center gap-6 p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
                 <div className="text-center">
@@ -2280,7 +2387,7 @@ export default function ProyectosPage() {
                             <div>
                               <label className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3 block">Calificacion *</label>
                               <div className="flex gap-2">
-                                {[1,2,3,4,5].map((s) => (
+                                {[1, 2, 3, 4, 5].map((s) => (
                                   <button
                                     key={s}
                                     type="button"

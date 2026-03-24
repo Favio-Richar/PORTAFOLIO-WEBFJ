@@ -12,9 +12,10 @@ import {
   FaNewspaper,
   FaRegLightbulb,
 } from 'react-icons/fa';
+import API_BASE from "@/lib/apiBase";
 import '@/styles/home-elite.scss';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = API_BASE;
 
 interface BackendBlogRecord {
   id: number;

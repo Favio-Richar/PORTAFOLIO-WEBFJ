@@ -26,7 +26,7 @@ interface InteractiveMapProps {
 export default function InteractiveMap({
     center,
     zoom = 13,
-    popupTitle = "FJ Digital Systems",
+    popupTitle = "Next Level Software Pro",
     popupStreet = "Av. Sta. Rosa 3573",
     popupArea = "San Miguel, Región Metropolitana",
     popupSchedule = "Lun–Vie 08:00–19:00",

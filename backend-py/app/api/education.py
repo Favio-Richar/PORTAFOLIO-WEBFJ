@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from app.db import engine
 from app.models import Education
+from app.core.admin_auth import require_admin
 from typing import List, Optional
 from pydantic import BaseModel
 
@@ -39,7 +40,10 @@ def get_education():
 
 
 @router.post("", response_model=Education)
-def create_education(edu_data: EducationCreate):
+def create_education(
+    edu_data: EducationCreate,
+    current_user=Depends(require_admin),
+):
     try:
         with Session(engine) as session:
             edu = Education(
@@ -62,7 +66,11 @@ def create_education(edu_data: EducationCreate):
 
 
 @router.put("/{edu_id}", response_model=Education)
-def update_education(edu_id: int, edu_data: EducationUpdate):
+def update_education(
+    edu_id: int,
+    edu_data: EducationUpdate,
+    current_user=Depends(require_admin),
+):
     try:
         with Session(engine) as session:
             edu = session.get(Education, edu_id)
@@ -90,7 +98,10 @@ def update_education(edu_id: int, edu_data: EducationUpdate):
 
 
 @router.delete("/{edu_id}")
-def delete_education(edu_id: int):
+def delete_education(
+    edu_id: int,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         edu = session.get(Education, edu_id)
         if not edu:

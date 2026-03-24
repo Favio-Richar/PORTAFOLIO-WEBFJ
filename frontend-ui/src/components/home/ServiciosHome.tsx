@@ -22,7 +22,7 @@ const servicios: ServiceCard[] = [
   {
     icon: FaGlobe,
     title: 'Desarrollo Web',
-    desc: 'Sitios y aplicaciones web modernos para ventas, operacion y crecimiento digital.',
+    desc: 'Plataformas enfocadas en conversión, velocidad y experiencia consistente para tus clientes.',
     borderGradient: 'linear-gradient(135deg, rgba(56,189,248,0.7), rgba(14,116,144,0.35))',
     cardBackground: 'linear-gradient(170deg, rgba(8,47,73,0.35), rgba(8,14,28,0.94) 60%)',
     iconBackground: 'rgba(56,189,248,0.2)',
@@ -32,7 +32,7 @@ const servicios: ServiceCard[] = [
   {
     icon: FaCogs,
     title: 'Sistemas a Medida',
-    desc: 'Plataformas empresariales personalizadas alineadas a procesos y objetivos reales.',
+    desc: 'Automatiza operaciones internas con sistemas hechos para tus procesos críticos.',
     borderGradient: 'linear-gradient(135deg, rgba(34,197,94,0.7), rgba(21,128,61,0.35))',
     cardBackground: 'linear-gradient(170deg, rgba(6,78,59,0.34), rgba(8,14,28,0.94) 60%)',
     iconBackground: 'rgba(34,197,94,0.2)',
@@ -41,8 +41,8 @@ const servicios: ServiceCard[] = [
   },
   {
     icon: FaRobot,
-    title: 'Automatizacion e IA',
-    desc: 'Integracion de inteligencia artificial para ahorrar tiempo y reducir errores.',
+    title: 'Automatización e IA',
+    desc: 'Bots, integraciones y analítica que reducen tiempos y multiplican eficiencia.',
     borderGradient: 'linear-gradient(135deg, rgba(168,85,247,0.7), rgba(126,34,206,0.35))',
     cardBackground: 'linear-gradient(170deg, rgba(76,29,149,0.33), rgba(8,14,28,0.94) 60%)',
     iconBackground: 'rgba(168,85,247,0.2)',
@@ -52,7 +52,7 @@ const servicios: ServiceCard[] = [
   {
     icon: FaServer,
     title: 'Backend y APIs',
-    desc: 'Arquitectura robusta para integraciones seguras, escalables y listas para produccion.',
+    desc: 'Integraciones seguras con ERP/CRM, pagos y servicios externos listos para escalar.',
     borderGradient: 'linear-gradient(135deg, rgba(244,114,182,0.7), rgba(190,24,93,0.35))',
     cardBackground: 'linear-gradient(170deg, rgba(131,24,67,0.32), rgba(8,14,28,0.94) 60%)',
     iconBackground: 'rgba(244,114,182,0.2)',
@@ -61,8 +61,8 @@ const servicios: ServiceCard[] = [
   },
   {
     icon: FaUserTie,
-    title: 'Consultoria Tecnologica',
-    desc: 'Acompanamiento estrategico para decidir mejor, ordenar tecnologia y escalar con control.',
+    title: 'Consultoría Tecnológica',
+    desc: 'Diagnóstico, roadmap y decisiones técnicas con foco en impacto de negocio.',
     borderGradient: 'linear-gradient(135deg, rgba(250,204,21,0.72), rgba(202,138,4,0.35))',
     cardBackground: 'linear-gradient(170deg, rgba(120,53,15,0.34), rgba(8,14,28,0.94) 60%)',
     iconBackground: 'rgba(250,204,21,0.22)',
@@ -71,8 +71,8 @@ const servicios: ServiceCard[] = [
   },
   {
     icon: FaRocket,
-    title: 'Optimizacion',
-    desc: 'Mejora de velocidad, calidad tecnica y rendimiento para sostener resultados.',
+    title: 'Optimización',
+    desc: 'Performance, SEO técnico y estabilidad operativa para sostener resultados.',
     borderGradient: 'linear-gradient(135deg, rgba(45,212,191,0.7), rgba(13,148,136,0.35))',
     cardBackground: 'linear-gradient(170deg, rgba(17,94,89,0.34), rgba(8,14,28,0.94) 60%)',
     iconBackground: 'rgba(45,212,191,0.2)',
@@ -92,11 +92,11 @@ export default function ServiciosHome() {
           </div>
 
           <h2 className="text-3xl md:text-4xl font-bold mb-4 font-display text-white">
-            Soluciones que <span className="gradient-text">escalan tu negocio</span>
+            Soluciones digitales para <span className="gradient-text">crecer con control</span>
           </h2>
 
           <p className="max-w-3xl mx-auto text-base md:text-lg text-slate-300 font-display leading-relaxed">
-            En Digital Systems FJ, liderado por Favio Jimenez, diseno e implemento servicios tecnologicos para empresas que necesitan orden, eficiencia y crecimiento sostenido.
+            Diseñamos, automatizamos y mantenemos sistemas que venden, integran operaciones y sostienen el crecimiento con métricas claras.
           </p>
         </div>
 

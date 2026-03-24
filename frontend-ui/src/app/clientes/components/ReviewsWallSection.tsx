@@ -3,7 +3,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaCheckCircle, FaStar } from "react-icons/fa";
+import { FaStar } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
 
 function FadeInUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   return (
@@ -36,8 +37,6 @@ export default function ReviewsWallSection({
 }: ReviewsWallSectionProps) {
   const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({ average: 4.9, total: 0 });
   const [approvedReviews, setApprovedReviews] = useState<any[]>([]);
-  const [visibleReviewCount, setVisibleReviewCount] = useState(7);
-  const [expandedReviewKeys, setExpandedReviewKeys] = useState<string[]>([]);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showReviewVerifyModal, setShowReviewVerifyModal] = useState(false);
   const [reviewFormSubmitting, setReviewFormSubmitting] = useState(false);
@@ -52,9 +51,6 @@ export default function ReviewsWallSection({
     content: "",
     rating: 5,
   });
-
-  const REVIEW_BATCH = 4;
-  const REVIEW_PREVIEW_CHARS = 138;
 
   const ensureGoogleSdkLoaded = useCallback(async () => {
     if (typeof window === "undefined") return false;
@@ -137,7 +133,7 @@ export default function ReviewsWallSection({
     const loadReviews = async () => {
       try {
         const context = encodeURIComponent((pageContext || "").trim().toLowerCase());
-        const res = await fetch(`http://localhost:8000/api/reviews?page=1&page_size=40&page_context=${context}`);
+        const res = await fetch(`${API_BASE}/api/reviews?page=1&page_size=40&page_context=${context}`);
         if (!res.ok) return;
         const payload = await res.json();
         const reviews = Array.isArray(payload?.items) ? payload.items : [];
@@ -170,7 +166,6 @@ export default function ReviewsWallSection({
             author_image: sanitizeReviewAvatar(item?.user?.avatar_url || item?.author_image || null),
           }))
         );
-        setVisibleReviewCount(7);
       } catch (error) {
         console.error("Error loading reviews:", error);
       }
@@ -193,22 +188,6 @@ export default function ReviewsWallSection({
     return () => clearTimeout(timer);
   }, [reviewToast]);
 
-  const toggleReviewExpanded = useCallback((reviewKey: string) => {
-    setExpandedReviewKeys((prev) =>
-      prev.includes(reviewKey) ? prev.filter((key) => key !== reviewKey) : [...prev, reviewKey]
-    );
-  }, []);
-
-  const getReviewDateLabel = (rawDate?: string) => {
-    if (!rawDate) return "Recently";
-    const parsed = new Date(rawDate);
-    if (Number.isNaN(parsed.getTime())) return "Recently";
-    return parsed.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   const getReviewInitials = (review: any) => {
     if (review.initials && String(review.initials).trim()) return String(review.initials).trim().slice(0, 2).toUpperCase();
     const name = String(review?.user?.name || review.display_name || review.author_name || "").trim();
@@ -218,14 +197,6 @@ export default function ReviewsWallSection({
     return `${tokens[0][0]}${tokens[1][0]}`.toUpperCase();
   };
 
-  const reviewInsightBullets = [
-    `${reviewSummary.total} customer reviews`,
-    `${reviewSummary.average.toFixed(1)} average rating across projects`,
-    "Clients highlight delivery quality, communication and measurable impact",
-  ];
-
-  const visibleReviews = approvedReviews.slice(0, visibleReviewCount);
-  const hasMoreReviews = visibleReviewCount < approvedReviews.length;
   const reviewFormIsError = Boolean(reviewFormMessage);
 
   const handleReviewInputChange = (field: string, value: string | number) => {
@@ -235,7 +206,6 @@ export default function ReviewsWallSection({
   const pushReviewToTop = (review: any) => {
     const normalized = normalizeReview(review);
     setApprovedReviews((prev) => [normalized, ...prev]);
-    setVisibleReviewCount((prev) => Math.max(prev, 8));
     setReviewSummary((prev) => {
       const previousTotal = Number(prev.total || 0);
       const previousAverage = Number(prev.average || 0);
@@ -258,7 +228,7 @@ export default function ReviewsWallSection({
     setReviewFormMessage("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/reviews", {
+      const response = await fetch(`${API_BASE}/api/reviews`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -403,8 +373,37 @@ export default function ReviewsWallSection({
   };
 
   return (
-    <section className="py-32 px-6 bg-[#050608] border-t border-white/[0.04]">
-      <div className="max-w-[1480px] mx-auto">
+    <section className="py-32 px-6 bg-[#050608] border-t border-white/[0.04] overflow-hidden">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+        
+        .testimonial-wall-wrapper * {
+            font-family: "Geist", sans-serif;
+        }
+
+        @keyframes scroll-up {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+
+        .animate-scroll-up-1 {
+            animation: scroll-up 25s linear infinite;
+        }
+        .animate-scroll-up-2 {
+            animation: scroll-up 35s linear infinite;
+        }
+        .animate-scroll-up-3 {
+            animation: scroll-up 30s linear infinite; 
+        }
+
+        .testimonial-wall-wrapper:hover .animate-scroll-up-1,
+        .testimonial-wall-wrapper:hover .animate-scroll-up-2,
+        .testimonial-wall-wrapper:hover .animate-scroll-up-3 {
+            animation-play-state: paused;
+        }
+      `}</style>
+
+      <div className="max-w-[1480px] mx-auto testimonial-wall-wrapper relative">
         <AnimatePresence>
           {reviewToast && (
             <motion.div
@@ -415,11 +414,10 @@ export default function ReviewsWallSection({
               className="fixed top-6 right-6 z-[160] max-w-sm"
             >
               <div
-                className={`rounded-2xl border px-4 py-3 backdrop-blur-xl shadow-[0_20px_45px_rgba(0,0,0,0.45)] ${
-                  reviewToast.type === "success"
-                    ? "border-emerald-500/35 bg-emerald-900/35 text-emerald-100"
-                    : "border-rose-500/35 bg-rose-900/35 text-rose-100"
-                }`}
+                className={`rounded-2xl border px-4 py-3 backdrop-blur-xl shadow-[0_20px_45px_rgba(0,0,0,0.45)] ${reviewToast.type === "success"
+                  ? "border-emerald-500/35 bg-emerald-900/35 text-emerald-100"
+                  : "border-rose-500/35 bg-rose-900/35 text-rose-100"
+                  }`}
               >
                 <p className="text-sm font-semibold leading-relaxed">{reviewToast.message}</p>
               </div>
@@ -428,22 +426,32 @@ export default function ReviewsWallSection({
         </AnimatePresence>
 
         <FadeInUp>
-          <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-6 mb-10">
-            <h2 className="text-center md:text-left text-4xl md:text-5xl font-black text-white tracking-tight">
-              What our customers say
+          <div className="flex flex-col items-center justify-center text-center gap-6 mb-20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyan-500/30 bg-cyan-950/10 mb-2">
+              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-200">Testimonios Reales</span>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-[1.1]">
+              Experiencias que validan <br />
+              nuestra <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-500 text-glow-cyan">Ingeniería</span>
             </h2>
+            <p className="text-slate-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+              Opiniones de equipos de tecnología, founders y directores de operaciones
+              sobre automatización, sistemas a medida y soporte continuo.
+            </p>
+
             <button
               type="button"
               onClick={() => {
                 setShowReviewForm((prev) => !prev);
                 setReviewFormMessage("");
               }}
-              className={`group inline-flex items-center gap-2 px-6 py-3 rounded-full border font-black uppercase tracking-[0.12em] text-xs transition-all duration-300 transform-gpu hover:-translate-y-0.5 active:translate-y-px active:scale-95 ${showReviewForm
-                ? "border-amber-400/70 bg-amber-900/20 text-amber-200 shadow-[0_0_0_1px_rgba(251,191,36,0.25),0_14px_28px_rgba(0,0,0,0.35)]"
-                : "border-amber-500/45 text-amber-300 hover:bg-amber-900/20 hover:shadow-[0_12px_30px_rgba(0,0,0,0.35)]"}`}
+              className={`mt-4 group inline-flex items-center gap-2 px-7 py-3.5 rounded-full border font-black uppercase tracking-[0.15em] text-[10px] transition-all duration-500 transform-gpu hover:-translate-y-1 active:scale-95 ${showReviewForm
+                ? "border-amber-400/70 bg-amber-900/20 text-amber-200 shadow-[0_0_25px_rgba(251,191,36,0.15)]"
+                : "border-amber-500/45 text-amber-300 hover:bg-amber-900/20 hover:shadow-[0_15px_35px_rgba(0,0,0,0.4)]"}`}
             >
-              <span className={`text-base leading-none transition-transform duration-300 ${showReviewForm ? "rotate-45" : "group-hover:scale-125"}`}>+</span>
-              {showReviewForm ? "Cerrar Formulario" : "Agregar Resena"}
+              <span className={`text-base leading-none transition-transform duration-500 ${showReviewForm ? "rotate-45" : "group-hover:rotate-90"}`}>+</span>
+              {showReviewForm ? "Cerrar Panel" : "Agregar Reseña"}
             </button>
           </div>
         </FadeInUp>
@@ -601,121 +609,69 @@ export default function ReviewsWallSection({
             <p>Aun no hay resenas aprobadas para mostrar.</p>
           </div>
         ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-              <FadeInUp delay={0.02}>
-                <article className="space-y-5">
-                  <div className="relative min-h-[250px] p-7 rounded-[2rem] border border-white/10 bg-[linear-gradient(145deg,#1a1d24,#15171c)] shadow-[0_22px_50px_rgba(0,0,0,0.45)]">
-                    <div className="absolute -bottom-2 left-8 w-5 h-5 rotate-45 border-r border-b border-white/10 bg-[#15171c]" />
-                    <div className="flex items-center gap-1 text-yellow-400 mb-5 text-lg">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <FaStar key={`summary-star-${star}`} />
-                      ))}
-                    </div>
-                    <ul className="space-y-4">
-                      {reviewInsightBullets.map((item, idx) => (
-                        <li key={`insight-${idx}`} className="flex items-start gap-3 text-white/90 leading-relaxed">
-                          <FaCheckCircle className="text-white/85 mt-1 text-sm flex-shrink-0" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-lg font-black border border-violet-300/25">
-                      *
-                    </div>
-                    <div>
-                      <p className="text-violet-400 font-black text-2xl leading-none">AI-Generated Summary</p>
-                      <p className="text-white/55 text-sm">Based on {reviewSummary.total} approved reviews</p>
-                    </div>
-                  </div>
-                </article>
-              </FadeInUp>
+          <div className="relative w-full overflow-hidden mt-10">
+            {/* Gradient Masks */}
+            <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#050608] to-transparent z-10 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#050608] to-transparent z-10 pointer-events-none" />
 
-              {visibleReviews.map((review: any, idx: number) => {
-                const reviewKey = String(review.id ?? `review-${idx}`);
-                const isExpanded = expandedReviewKeys.includes(reviewKey);
-                const content = String(review.comment || review.content || "").trim();
-                const isLong = content.length > REVIEW_PREVIEW_CHARS;
-                const displayContent = isExpanded || !isLong
-                  ? content
-                  : `${content.slice(0, REVIEW_PREVIEW_CHARS)}...`;
-                const rating = Math.max(1, Math.min(5, Number(review.rating) || 5));
-                const reviewerName = String(review?.user?.name || review.display_name || review.author_name || "Anonymous").trim();
-                const reviewerAvatar = sanitizeReviewAvatar(review?.user?.avatar_url || review.author_image || null);
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 h-[700px] overflow-hidden">
+              {[0, 1, 2].map((colIndex) => {
+                const colReviews = approvedReviews.filter((_, i) => i % 3 === colIndex);
+                if (colReviews.length === 0) return null;
+
+                // Duplicate for infinite effect
+                const displayColReviews = [...colReviews, ...colReviews, ...colReviews];
+                const animClass = colIndex === 0 ? "animate-scroll-up-1" : colIndex === 1 ? "animate-scroll-up-2" : "animate-scroll-up-3";
 
                 return (
-                  <FadeInUp key={reviewKey} delay={0.06 + idx * 0.05}>
-                    <article className="space-y-5">
-                      <div className="relative min-h-[250px] p-7 rounded-[2rem] border border-white/10 bg-[linear-gradient(145deg,#1a1d24,#15171c)] shadow-[0_22px_50px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 hover:border-white/20">
-                        <div className="absolute -bottom-2 left-8 w-5 h-5 rotate-45 border-r border-b border-white/10 bg-[#15171c]" />
-                        <div className="flex items-center gap-1 text-yellow-400 mb-4 text-lg">
-                          {Array.from({ length: 5 }).map((_, starIndex) => (
-                            <FaStar key={`${reviewKey}-star-${starIndex}`} className={starIndex < rating ? "text-yellow-400" : "text-slate-700"} />
-                          ))}
-                        </div>
-                        <p className="text-white text-[1.08rem] md:text-[1.18rem] leading-relaxed break-words [overflow-wrap:anywhere]">
-                          {displayContent || "Great place to stay"}
-                        </p>
-                        {isLong && (
-                          <button
-                            type="button"
-                            onClick={() => toggleReviewExpanded(reviewKey)}
-                            className="mt-2 text-slate-400 hover:text-slate-200 transition-colors"
-                          >
-                            {isExpanded ? "Read less" : "Read more"}
-                          </button>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {reviewerAvatar ? (
-                          <img
-                            src={reviewerAvatar}
-                            alt={reviewerName || "Reviewer"}
-                            className="w-12 h-12 rounded-full object-cover border border-white/20"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-[#1b1f2a] border border-white/20 text-white font-black flex items-center justify-center">
-                            {getReviewInitials(review)}
+                  <div key={`col-${colIndex}`} className={`${animClass} flex flex-col gap-6 ${colIndex > 0 ? 'hidden md:flex' : ''} ${colIndex > 1 ? 'lg:flex' : ''}`}>
+                    {displayColReviews.map((review, rIdx) => {
+                      const reviewerName = String(review?.user?.name || review.display_name || review.author_name || "Anonymous").trim();
+                      const reviewerAvatar = sanitizeReviewAvatar(review?.user?.avatar_url || review.author_image || null);
+                      const rating = Math.max(1, Math.min(5, Number(review.rating) || 5));
+
+                      return (
+                        <article
+                          key={`col-${colIndex}-rev-${rIdx}`}
+                          className="bg-gradient-to-b from-[#0a0f1a] to-[#050608] border border-white/5 rounded-2xl p-7 hover:border-white/20 transition-all duration-300 shadow-xl"
+                        >
+                          <div className="flex items-center gap-1 text-yellow-400 mb-6 text-sm">
+                            {Array.from({ length: 5 }).map((_, starIndex) => (
+                              <FaStar key={`star-${starIndex}`} className={starIndex < rating ? "text-yellow-400" : "text-slate-700"} />
+                            ))}
                           </div>
-                        )}
-                        <div>
-                          <p className="text-amber-50 font-black text-xl leading-none">{reviewerName || "Anonymous"}</p>
-                          <p className="mt-1 text-xs text-white/55">
-                            {getReviewDateLabel(review.created_at)} on <span className="text-sky-400">Portfolio</span>
+
+                          <p className="text-slate-300 text-[1.05rem] leading-relaxed mb-8">
+                            &quot;{review.comment || review.content}&quot;
                           </p>
-                          <div className="mt-2 flex items-center flex-wrap gap-2 text-xs">
-                            <span
-                              className={`inline-flex items-center px-2.5 py-1 rounded-full border font-black uppercase tracking-[0.1em] ${
-                                review.is_verified
-                                  ? "border-emerald-500/45 bg-emerald-900/30 text-emerald-200"
-                                  : "border-white/15 bg-white/5 text-white/65"
-                              }`}
-                            >
-                              {review.is_verified ? "Verificada" : "No verificada"}
-                            </span>
+
+                          <div className="flex items-center gap-4">
+                            {reviewerAvatar ? (
+                              <img
+                                src={reviewerAvatar}
+                                alt={reviewerName}
+                                className="w-11 h-11 rounded-full object-cover border border-white/10"
+                              />
+                            ) : (
+                              <div className="w-11 h-11 rounded-full bg-cyan-900/40 border border-cyan-500/20 text-cyan-200 font-black flex items-center justify-center text-xs">
+                                {getReviewInitials(review)}
+                              </div>
+                            )}
+                            <div>
+                              <p className="text-white font-bold text-sm leading-none">{reviewerName}</p>
+                              <p className="mt-1.5 text-[10px] text-slate-500 uppercase tracking-widest font-black">
+                                {review.author_company || "Verified Client"}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    </article>
-                  </FadeInUp>
+                        </article>
+                      );
+                    })}
+                  </div>
                 );
               })}
             </div>
-
-            {hasMoreReviews && (
-              <div className="mt-16 flex justify-center">
-                <button
-                  type="button"
-                  onClick={() => setVisibleReviewCount((prev) => prev + REVIEW_BATCH)}
-                  className="min-w-[220px] px-8 py-3 rounded-xl bg-[#1b1f24] border border-white/10 text-white/90 font-bold transition-all duration-300 transform-gpu hover:bg-[#242933] hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(0,0,0,0.35)] active:scale-95 active:translate-y-px active:shadow-[0_6px_16px_rgba(0,0,0,0.3)]"
-                >
-                  Load More
-                </button>
-              </div>
-            )}
-          </>
+          </div>
         )}
       </div>
     </section>

@@ -1,13 +1,24 @@
+import os
 from datetime import datetime, timedelta
 from typing import Optional
+
 from jose import jwt
 from passlib.context import CryptContext
-import os
 
 # --- CONFIG ---
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-it") # Should come from .env
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-it")  # Should come from .env
+if SECRET_KEY == "your-secret-key-change-it":
+    print("[SECURITY] WARNING: SECRET_KEY is using the default value. Configure SECRET_KEY in .env for production.")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 # 1 day
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 1 day
+
+
+def is_default_secret_key() -> bool:
+    return SECRET_KEY == "your-secret-key-change-it"
+
+
+def is_strict_production_mode() -> bool:
+    return os.getenv("SECURITY_STRICT_MODE", "").strip().lower() == "true"
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

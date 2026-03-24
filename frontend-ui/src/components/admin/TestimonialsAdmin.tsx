@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { FaCheck, FaClock, FaEdit, FaStar, FaTimes, FaTrash } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 type ReviewStatus = "pending" | "approved" | "rejected";
 
@@ -17,7 +19,7 @@ interface ReviewItem {
   created_at?: string | null;
 }
 
-const API_BASE = "http://localhost:8000/api/services-page/reviews";
+const API_ROOT = `${API_BASE}/api/services-page/reviews`;
 const KNOWN_REVIEW_ORIGINS = ["blog", "clientes", "servicios", "proyectos", "sobre-mi"] as const;
 
 function normalizePageContext(value?: string | null) {
@@ -74,7 +76,7 @@ export default function TestimonialsAdmin() {
     try {
       setLoading(true);
       setError("");
-      const res = await fetch(`${API_BASE}/admin`);
+      const res = await adminFetch(`${API_ROOT}/admin`);
       if (!res.ok) throw new Error("No se pudo cargar reviews");
       const data = await res.json();
       setReviews(Array.isArray(data) ? data : []);
@@ -125,7 +127,7 @@ export default function TestimonialsAdmin() {
   async function updateReview(review: ReviewItem, patch: Partial<ReviewItem>) {
     try {
       setSavingId(review.id);
-      const res = await fetch(`${API_BASE}/${review.id}`, {
+      const res = await adminFetch(`${API_ROOT}/${review.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(patch),
@@ -183,7 +185,7 @@ export default function TestimonialsAdmin() {
 
     try {
       setSavingId(id);
-      const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+      const res = await adminFetch(`${API_ROOT}/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("No se pudo eliminar");
       setReviews((prev) => prev.filter((r) => r.id !== id));
     } catch (err) {

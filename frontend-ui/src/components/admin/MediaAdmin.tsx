@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { FaImages, FaPlus, FaTrash, FaPlayCircle, FaImage, FaUpload, FaChevronRight, FaRegObjectGroup } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 interface MediaItem {
     id?: number;
@@ -30,7 +32,7 @@ export default function MediaAdmin() {
 
     const fetchMedia = async () => {
         try {
-            const res = await fetch("http://localhost:8000/api/media");
+            const res = await adminFetch(`${API_BASE}/api/media`);
             if (res.ok) {
                 const data = await res.json();
                 setMediaItems(data.sort((a: any, b: any) => (a.order_index || 0) - (b.order_index || 0)));
@@ -53,7 +55,7 @@ export default function MediaAdmin() {
         formData.append("file", file);
 
         try {
-            const res = await fetch("http://localhost:8000/api/upload", {
+            const res = await adminFetch(`${API_BASE}/api/upload`, {
                 method: "POST",
                 body: formData
             });
@@ -79,7 +81,7 @@ export default function MediaAdmin() {
     const handleSave = async () => {
         if (!newItem.url) return alert("La URL es obligatoria");
         try {
-            const res = await fetch("http://localhost:8000/api/media", {
+            const res = await adminFetch(`${API_BASE}/api/media`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newItem)
@@ -97,7 +99,7 @@ export default function MediaAdmin() {
     const handleDelete = async (id: number) => {
         if (!confirm("¿Eliminar este elemento?")) return;
         try {
-            const res = await fetch(`http://localhost:8000/api/media/${id}`, {
+            const res = await adminFetch(`${API_BASE}/api/media/${id}`, {
                 method: "DELETE"
             });
             if (res.ok) fetchMedia();

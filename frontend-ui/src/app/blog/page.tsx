@@ -9,6 +9,7 @@ import {
   FaRocket, FaUserCircle,
   FaCalendarAlt, FaEnvelopeOpenText, FaStar
 } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
 import "@/styles/blog-elite.scss";
 
 // --- Types ---
@@ -93,21 +94,21 @@ interface BlogCommentFormState {
   rating: number;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = API_BASE;
 
 const DEFAULT_HERO_TEXT_CONFIG: BlogHeroTextConfig = {
-  badge_text: "Blog tecnico para negocios digitales",
-  headline_prefix: "Estrategia, arquitectura y",
-  headline_highlight: "ejecucion real",
-  headline_suffix: "para escalar tu producto web",
-  description: "Publicamos casos reales, guias accionables y decisiones tecnicas aplicadas a proyectos de reservas, ecommerce y servicios web.",
-  cta_text: "Agendar diagnostico",
+  badge_text: "Insights para líderes digitales",
+  headline_prefix: "Automatización, sistemas y",
+  headline_highlight: "decisiones con impacto",
+  headline_suffix: "para crecer con tecnología real",
+  description: "Casos reales, frameworks y guías para convertir procesos manuales en plataformas escalables.",
+  cta_text: "Agendar diagnóstico",
   cta_url: "/contacto",
-  read_time_text: "Respuesta tecnica en menos de 24 horas",
-  card_kicker: "Hoja de ruta recomendada",
-  card_title: "Prioridades tecnicas para crecer sin friccion",
-  card_description: "Arquitectura modular, automatizacion y seguridad operativa para equipos en crecimiento.",
-  card_tags: '["ARQUITECTURA","AUTOMATIZACION","SEGURIDAD"]',
+  read_time_text: "Respuesta técnica en menos de 24 horas",
+  card_kicker: "Guía ejecutiva",
+  card_title: "Prioridades técnicas para escalar sin fricción",
+  card_description: "Arquitectura modular, automatización y seguridad para operaciones críticas.",
+  card_tags: '["AUTOMATIZACION","ARQUITECTURA","SEGURIDAD"]',
   media_type: "video",
   background_image_url: "",
   background_video_url: "",
@@ -120,9 +121,9 @@ const DEFAULT_HERO_MEDIA_SLIDE: BlogHeroMediaSlide = {
 };
 
 const HERO_LEAD_SERVICE_OPTIONS = [
-  "Diagnostico de arquitectura",
+  "Diagnóstico de arquitectura",
   "Desarrollo de plataforma web",
-  "Automatizacion y analitica",
+  "Automatización y analítica",
   "Integraciones y APIs",
   "Ciberseguridad y hardening",
 ];
@@ -227,6 +228,16 @@ const stripMarkup = (content: string): string =>
     .replace(/[^\S\r\n]+/g, " ")
     .trim();
 
+const buildEditorialPlainFallback = (title: string, category?: string): string => {
+  const cleanTitle = (title || "este tema").trim();
+  const cleanCategory = (category || "General").trim();
+  return [
+    `Contexto ${cleanCategory}: ${cleanTitle}.`,
+    "Diagnostico practico del escenario actual con foco en conversion, operacion y escalabilidad.",
+    "Recomendaciones accionables para implementar mejoras por etapas y medir impacto de forma semanal.",
+  ].join(" ");
+};
+
 const estimateReadTime = (content: string): string => {
   const plain = stripMarkup(content);
   const words = plain ? plain.split(/\s+/).length : 0;
@@ -287,18 +298,20 @@ const resolveCategoryImage = (category?: string): string => {
 
 const mapBackendBlogToPost = (item: BackendBlogRecord): BlogPost => {
   const plainContent = stripMarkup(item.content || "");
-  const excerpt = plainContent.length > 170 ? `${plainContent.slice(0, 169)}...` : plainContent;
+  const editorialFallback = buildEditorialPlainFallback(item.title || "Articulo", item.category);
+  const richPlainContent = plainContent.length >= 140 ? plainContent : `${plainContent} ${editorialFallback}`.trim();
+  const excerpt = richPlainContent.length > 190 ? `${richPlainContent.slice(0, 189)}...` : richPlainContent;
   const resolvedImage = extractFirstImage(item.content || "") || resolveCategoryImage(item.category);
 
   return {
     id: item.id,
     title: item.title || "Articulo sin titulo",
-    excerpt: excerpt || "Contenido tecnico y practico para apoyar decisiones reales de negocio.",
+    excerpt: excerpt || editorialFallback,
     date: formatPostDate(item.created_at),
     category: item.category || "General",
     readTime: estimateReadTime(item.content || ""),
     image: resolvedImage,
-    content: item.content || "",
+    content: richPlainContent,
   };
 };
 
@@ -404,6 +417,8 @@ export default function BlogPage() {
   const [heroLeadStatus, setHeroLeadStatus] = useState<HeroLeadStatus>("idle");
   const [heroLeadError, setHeroLeadError] = useState("");
   const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterHoneypot, setNewsletterHoneypot] = useState("");
+  const [newsletterFormStartedAt] = useState<number>(() => Date.now());
   const [newsletterStatus, setNewsletterStatus] = useState<NewsletterStatus>("idle");
   const [newsletterMessage, setNewsletterMessage] = useState("");
   const [activeCategory, setActiveCategory] = useState("Todas");
@@ -641,27 +656,48 @@ export default function BlogPage() {
     setNewsletterMessage("");
 
     try {
-      const response = await fetch("/api/enviar-cotizacion", {
+      const response = await fetch(`${BACKEND_URL}/api/subscribers/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          nombre: "Suscriptor blog",
           email,
-          telefono: "No informado",
-          servicio: "Newsletter Blog",
-          descripcion: "[Origen: Blog Newsletter] Solicitud de suscripcion al boletin tecnico.",
+          source: "blog",
+          tags: ["blog", "newsletter"],
+          notes: "Registro desde formulario publico del blog.",
+          company_website: newsletterHoneypot,
+          submitted_at_ms: newsletterFormStartedAt,
         }),
       });
 
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
-        const detail = typeof payload?.error === "string" ? payload.error : "No se pudo completar la suscripcion.";
+        const detail =
+          typeof payload?.detail === "string"
+            ? payload.detail
+            : typeof payload?.error === "string"
+              ? payload.error
+              : "No se pudo completar la suscripcion.";
         throw new Error(detail);
       }
 
+      const payload = await response.json().catch(() => ({}));
+      const requiresConfirmation = Boolean(payload?.requires_confirmation);
+      const message =
+        typeof payload?.message === "string"
+          ? payload.message
+          : requiresConfirmation
+            ? "Revisa tu correo para confirmar la suscripcion."
+            : "Suscripcion registrada. Te enviaremos contenido tecnico de alto valor.";
+
       setNewsletterStatus("success");
-      setNewsletterMessage("Suscripcion registrada. Te enviaremos contenido tecnico de alto valor.");
+      setNewsletterMessage(message);
       setNewsletterEmail("");
+      setNewsletterHoneypot("");
+      if (requiresConfirmation) {
+        window.alert("Te enviamos un correo de confirmacion para activar tu suscripcion.");
+      } else {
+        window.alert("Suscripcion confirmada. Ya quedaste registrado en el newsletter.");
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : "No se pudo completar la suscripcion.";
       setNewsletterStatus("error");
@@ -1631,6 +1667,18 @@ export default function BlogPage() {
               {/* Newsletter Inline Form */}
               <div id="newsletter-inline-form" className="mt-16 w-full max-w-lg px-6">
                 <form onSubmit={handleNewsletterSubmit} className="space-y-5">
+                  <div className="hidden" aria-hidden="true">
+                    <label htmlFor="website-field">Website</label>
+                    <input
+                      id="website-field"
+                      name="website"
+                      type="text"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={newsletterHoneypot}
+                      onChange={(event) => setNewsletterHoneypot(event.target.value)}
+                    />
+                  </div>
                   <div className="relative group">
                     <input
                       type="email"

@@ -1,0 +1,107 @@
+commit d68755bfd75798a6b97d7a81a4d7be4430128274
+Author: Favio Jimenez <favio4515@gmail.com>
+Date:   Tue Feb 24 01:22:07 2026 -0300
+
+    mensaje claro del cambio
+
+ README.md                                          |    2 +-
+ backend-py/.env.example                            |   45 +
+ backend-py/README.md                               |   15 +
+ backend-py/app/api/about_stack.py                  |  227 ++
+ backend-py/app/api/asesoria.py                     |  768 +++++
+ backend-py/app/api/auth.py                         |   25 +
+ backend-py/app/api/chat.py                         |  131 +
+ backend-py/app/api/proyectos.py                    |  142 +-
+ backend-py/app/api/reviews.py                      |   10 +-
+ backend-py/app/api/services_page.py                |  446 ++-
+ backend-py/app/api/team.py                         |   68 +
+ backend-py/app/api/upload.py                       |  201 +-
+ backend-py/app/core/advisory_reminders.py          |  200 ++
+ backend-py/app/core/meeting_integrations.py        |  366 ++
+ backend-py/app/db.py                               |  302 +-
+ backend-py/app/main.py                             |   16 +-
+ backend-py/app/models.py                           |   85 +
+ backend-py/app/utils/__init__.py                   |    1 +
+ backend-py/app/utils/cloudinary_helper.py          |    7 +
+ backend-py/fix_blog_publication.py                 |   26 +
+ backend-py/seed_blog.py                            |  113 +
+ frontend-ui/package-lock.json                      |  223 +-
+ frontend-ui/package.json                           |    4 +-
+ frontend-ui/public/img/about-hero-candidate-1.jpg  |  Bin 0 -> 294362 bytes
+ frontend-ui/public/img/about-hero-candidate-2.jpg  |  Bin 0 -> 665637 bytes
+ frontend-ui/src/app/admin/page.tsx                 |  220 +-
+ frontend-ui/src/app/asesoria/page.tsx              |  837 +++++
+ frontend-ui/src/app/blog/[id]/page.tsx             |    2 +-
+ frontend-ui/src/app/blog/page.tsx                  | 1789 ++++++----
+ .../app/clientes/components/ClientDetailModal.tsx  |   16 +-
+ frontend-ui/src/app/layout.tsx                     |    2 +
+ frontend-ui/src/app/page.tsx                       |    5 -
+ frontend-ui/src/app/proyectos/page.tsx             | 2846 +++++++++++++---
+ frontend-ui/src/app/servicios/combos/page.tsx      |  668 ++++
+ frontend-ui/src/app/servicios/page.tsx             | 3579 ++++++++++++++++----
+ frontend-ui/src/app/simular-cotizacion/page.tsx    |  280 --
+ frontend-ui/src/app/sobre-mi/_CertModal.tsx        |  198 +-
+ frontend-ui/src/app/sobre-mi/_modal.tsx            |    2 +-
+ frontend-ui/src/app/sobre-mi/page.tsx              | 2141 ++++++++++--
+ frontend-ui/src/components/admin/AboutAdmin.tsx    |   89 +
+ .../src/components/admin/AboutStackAdmin.tsx       |  376 ++
+ .../src/components/admin/AdvisoriesAdmin.tsx       | 1735 ++++++++++
+ frontend-ui/src/components/admin/BlogAdmin.tsx     |  667 +++-
+ .../src/components/admin/CertificationsAdmin.tsx   |  491 ++-
+ frontend-ui/src/components/admin/MediaAdmin.tsx    |   65 +-
+ frontend-ui/src/components/admin/ProjectsAdmin.tsx | 2001 ++++++++---
+ frontend-ui/src/components/admin/ServicesAdmin.tsx | 2165 ++++++++++++
+ frontend-ui/src/components/admin/TeamAdmin.tsx     |  229 ++
+ .../src/components/admin/TestimonialsAdmin.tsx     |   11 +-
+ .../src/components/admin/layout/AdminHeader.tsx    |   27 +-
+ .../src/components/admin/layout/AdminSidebar.tsx   |   12 +-
+ frontend-ui/src/components/home/BlogHome.tsx       |  460 ++-
+ frontend-ui/src/components/home/ContactO.tsx       |  133 +-
+ frontend-ui/src/components/home/Experiencia.tsx    |  142 +-
+ frontend-ui/src/components/home/Hero.tsx           |  163 +-
+ frontend-ui/src/components/home/Metodologia.tsx    |  263 +-
+ frontend-ui/src/components/home/ProyectosHome.tsx  |  750 +++-
+ frontend-ui/src/components/home/ServiciosHome.tsx  |  181 +-
+ frontend-ui/src/components/home/Testimonios.tsx    |  674 +++-
+ frontend-ui/src/components/layout/FloatingChat.tsx |  344 +-
+ frontend-ui/src/components/layout/Footer.tsx       |   93 +-
+ frontend-ui/src/components/layout/Navbar.tsx       |  119 +-
+ .../src/components/reviews/AboutReviewsSection.tsx |  652 ++++
+ frontend-ui/src/lib/data/certifications.ts         |   35 +-
+ frontend-ui/src/styles/about-elite.scss            | 1158 ++++---
+ frontend-ui/src/styles/blog-elite.scss             |  956 +++++-
+ frontend-ui/src/styles/floating-chat.scss          |  252 ++
+ frontend-ui/src/styles/home-elite.scss             |  226 +-
+ frontend-ui/tsconfig.tsbuildinfo                   |    2 +-
+ stripe_backup_code.txt                             |    3 +
+ 70 files changed, 25747 insertions(+), 4735 deletions(-)
+
+commit ebd5f752f0e4dd516efb4fdda10d87e4ae719d73
+Author: Favio Jimenez <favio4515@gmail.com>
+Date:   Mon Feb 16 01:34:20 2026 -0300
+
+    mensaje claro del cambio
+
+ backend-py/app/api/blog.py                     |  227 ++++-
+ backend-py/app/db.py                           |    2 +-
+ backend-py/app/models.py                       |   17 +
+ frontend-ui/src/app/blog/[id]/page.tsx         |  327 ++++++
+ frontend-ui/src/app/blog/page.tsx              | 1277 +++++++++++++++---------
+ frontend-ui/src/components/admin/BlogAdmin.tsx | 1010 +++++++++++--------
+ frontend-ui/src/styles/blog-elite.scss         |  670 ++++++++++++-
+ 7 files changed, 2652 insertions(+), 878 deletions(-)
+
+commit 2b6805e5eb8f10959ba6478708dcb0815920483e
+Author: Favio Jimenez <favio4515@gmail.com>
+Date:   Sun Feb 15 16:23:22 2026 -0300
+
+    mensaje claro del cambio
+
+ backend-py/app/api/blog.py                     |  72 +++-
+ backend-py/app/db.py                           |   2 +-
+ backend-py/app/models.py                       |  24 ++
+ frontend-ui/src/app/admin/page.tsx             |   2 +
+ frontend-ui/src/app/blog/page.tsx              | 184 +++++++--
+ frontend-ui/src/components/admin/BlogAdmin.tsx | 506 +++++++++++++++++++++++++
+ frontend-ui/src/styles/blog-elite.scss         | 184 ++++++++-
+ 7 files changed, 946 insertions(+), 28 deletions(-)

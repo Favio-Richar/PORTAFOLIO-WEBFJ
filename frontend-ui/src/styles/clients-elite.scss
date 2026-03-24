@@ -18,7 +18,7 @@ $elite-white: $elite-silk;
 .clients-elite-wrapper {
     background: $elite-obsidian;
     color: $elite-silk;
-    font-family: 'Inter', sans-serif;
+    font-family: var(--font-geist-sans), sans-serif;
     overflow-x: hidden;
 
     // --- REUSABLE UTILITIES ---

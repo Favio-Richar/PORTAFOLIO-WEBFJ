@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaQuoteLeft, FaStar } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
 
 type ReviewPublishMode = "idle" | "google" | "guest";
 
@@ -178,7 +179,7 @@ export default function AboutReviewsSection({ pageContext }: AboutReviewsSection
         const groups = await Promise.all(
           contexts.map(async (ctx) => {
             const encodedContext = encodeURIComponent(ctx);
-            const res = await fetch(`http://localhost:8000/api/reviews?page=1&page_size=40&page_context=${encodedContext}`);
+            const res = await fetch(`${API_BASE}/api/reviews?page=1&page_size=40&page_context=${encodedContext}`);
             if (!res.ok) return [];
             const payload = await res.json();
             return Array.isArray(payload?.items) ? payload.items : [];
@@ -248,7 +249,7 @@ export default function AboutReviewsSection({ pageContext }: AboutReviewsSection
     setReviewFormMessage("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/reviews", {
+      const response = await fetch(`${API_BASE}/api/reviews`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

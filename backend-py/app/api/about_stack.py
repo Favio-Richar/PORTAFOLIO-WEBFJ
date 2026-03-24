@@ -2,12 +2,13 @@ from datetime import datetime
 import re
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from app.db import engine
 from app.models import AboutStackItem
+from app.core.admin_auth import require_admin
 
 router = APIRouter()
 
@@ -166,7 +167,10 @@ def get_about_stack_items():
 
 
 @router.post("", response_model=AboutStackItem)
-def create_about_stack_item(payload: AboutStackCreate):
+def create_about_stack_item(
+    payload: AboutStackCreate,
+    current_user=Depends(require_admin),
+):
     name = payload.name.strip()
     if not name:
         raise HTTPException(status_code=400, detail="El nombre es requerido.")
@@ -190,7 +194,11 @@ def create_about_stack_item(payload: AboutStackCreate):
 
 
 @router.put("/{item_id}", response_model=AboutStackItem)
-def update_about_stack_item(item_id: int, payload: AboutStackUpdate):
+def update_about_stack_item(
+    item_id: int,
+    payload: AboutStackUpdate,
+    current_user=Depends(require_admin),
+):
     name = payload.name.strip()
     if not name:
         raise HTTPException(status_code=400, detail="El nombre es requerido.")
@@ -217,7 +225,10 @@ def update_about_stack_item(item_id: int, payload: AboutStackUpdate):
 
 
 @router.delete("/{item_id}")
-def delete_about_stack_item(item_id: int):
+def delete_about_stack_item(
+    item_id: int,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         item = session.get(AboutStackItem, item_id)
         if not item:

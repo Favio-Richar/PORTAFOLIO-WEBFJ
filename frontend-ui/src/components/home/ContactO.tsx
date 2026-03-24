@@ -4,9 +4,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaWhatsapp, FaEnvelope, FaPhoneAlt, FaLinkedinIn, FaCalendarAlt } from 'react-icons/fa';
 import { defaultContact, type ContactData } from '@/lib/data/contact';
+import API_BASE from "@/lib/apiBase";
 import '@/styles/home-elite.scss';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = API_BASE;
 
 const normalizeSocialUrl = (value: string): string => {
   const normalized = String(value || '').trim();

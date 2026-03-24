@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from app.db import get_session
+from app.core.admin_auth import require_admin
 from app.models import CasoExitoCompleto
 
 router = APIRouter()
@@ -128,7 +129,11 @@ def get_caso_completo(case_id: int, session: Session = Depends(get_session)):
 
 
 @router.post("/casos-completos", response_model=CasoExitoCompleto)
-def create_caso_completo(payload: CasoCompletoCreate, session: Session = Depends(get_session)):
+def create_caso_completo(
+    payload: CasoCompletoCreate,
+    session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
+):
     data = _payload_dict(payload, exclude_unset=False)
 
     base_slug = data.get("slug") or data.get("company_name") or data.get("headline") or "caso-cliente"
@@ -143,7 +148,12 @@ def create_caso_completo(payload: CasoCompletoCreate, session: Session = Depends
 
 
 @router.put("/casos-completos/{case_id}", response_model=CasoExitoCompleto)
-def update_caso_completo(case_id: int, payload: CasoCompletoUpdate, session: Session = Depends(get_session)):
+def update_caso_completo(
+    case_id: int,
+    payload: CasoCompletoUpdate,
+    session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
+):
     case = session.get(CasoExitoCompleto, case_id)
     if not case:
         raise HTTPException(status_code=404, detail="Caso completo no encontrado")
@@ -167,7 +177,11 @@ def update_caso_completo(case_id: int, payload: CasoCompletoUpdate, session: Ses
 
 
 @router.delete("/casos-completos/{case_id}")
-def delete_caso_completo(case_id: int, session: Session = Depends(get_session)):
+def delete_caso_completo(
+    case_id: int,
+    session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
+):
     case = session.get(CasoExitoCompleto, case_id)
     if not case:
         raise HTTPException(status_code=404, detail="Caso completo no encontrado")

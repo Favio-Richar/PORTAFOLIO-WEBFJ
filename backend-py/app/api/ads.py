@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from app.db import get_session
 from app.models import Ad
+from app.core.admin_auth import require_admin
 from pydantic import BaseModel
 from typing import Optional, List, Any, Union
 from datetime import datetime
@@ -36,13 +37,20 @@ def get_public_ads(position: Optional[str] = None, session: Session = Depends(ge
     return ads
 
 @router.get("/", response_model=List[Ad])
-def get_all_ads(session: Session = Depends(get_session)):
+def get_all_ads(
+    session: Session = Depends(get_session),
+    _current_user=Depends(require_admin),
+):
     """Obtener todos los anuncios (Admin)"""
     ads = session.exec(select(Ad)).all()
     return ads
 
 @router.post("/", response_model=Ad)
-def create_ad(ad: AdCreate, session: Session = Depends(get_session)):
+def create_ad(
+    ad: AdCreate,
+    session: Session = Depends(get_session),
+    _current_user=Depends(require_admin),
+):
     """Crear un nuevo anuncio"""
     # Convert list to JSON string for storage
     media_json = json.dumps(ad.media)
@@ -61,7 +69,12 @@ def create_ad(ad: AdCreate, session: Session = Depends(get_session)):
     return new_ad
 
 @router.patch("/{ad_id}", response_model=Ad)
-def update_ad(ad_id: int, ad_update: AdUpdate, session: Session = Depends(get_session)):
+def update_ad(
+    ad_id: int,
+    ad_update: AdUpdate,
+    session: Session = Depends(get_session),
+    _current_user=Depends(require_admin),
+):
     """Actualizar un anuncio existente"""
     ad = session.get(Ad, ad_id)
     if not ad:
@@ -80,7 +93,11 @@ def update_ad(ad_id: int, ad_update: AdUpdate, session: Session = Depends(get_se
     return ad
 
 @router.delete("/{ad_id}")
-def delete_ad(ad_id: int, session: Session = Depends(get_session)):
+def delete_ad(
+    ad_id: int,
+    session: Session = Depends(get_session),
+    _current_user=Depends(require_admin),
+):
     """Eliminar un anuncio"""
     ad = session.get(Ad, ad_id)
     if not ad:

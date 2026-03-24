@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import API_BASE from "@/lib/apiBase";
 
-const API_BASE = (process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000').replace(/\/$/, '');
-const DEFAULT_WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '56952402170';
+const DEFAULT_WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '56971464296';
 const TIMEZONE_LABEL = 'America/Santiago';
 
 const API = {
@@ -15,7 +15,7 @@ const API = {
   contact: '/api/contact',
 } as const;
 
-type MeetingProvider = 'google_meet' | 'teams';
+type MeetingProvider = 'google_meet' | 'teams' | 'jitsi';
 
 type AdvisoryService = {
   id: string;
@@ -214,14 +214,26 @@ function TeamsIcon({ className }: { className?: string }) {
   );
 }
 
+function JitsiIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <circle cx="12" cy="12" r="10" fill="#0064FF" />
+      <path d="M7 9l7 0l0 6l-7 0z" fill="white" />
+      <path d="M14 10l3 -2l0 8l-3 -2z" fill="white" />
+    </svg>
+  );
+}
+
 function ProviderIcon({ provider, className }: { provider: MeetingProvider; className?: string }) {
   if (provider === 'google_meet') return <GoogleMeetIcon className={className} />;
-  return <TeamsIcon className={className} />;
+  if (provider === 'teams') return <TeamsIcon className={className} />;
+  return <JitsiIcon className={className} />;
 }
 
 export default function AsesoriaPage() {
   const bookRef = useRef<HTMLDivElement | null>(null);
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [services, setServices] = useState<AdvisoryService[]>([]);
   const [servicesLoading, setServicesLoading] = useState(true);
@@ -266,6 +278,7 @@ export default function AsesoriaPage() {
   const [providers, setProviders] = useState<ProviderOption[]>([
     { id: 'google_meet', label: 'Google Meet', enabled: false },
     { id: 'teams', label: 'Teams', enabled: false },
+    { id: 'jitsi', label: 'Jitsi Meet', enabled: false },
   ]);
 
   const hasEnabledProvider = useMemo(() => providers.some((provider) => provider.enabled), [providers]);
@@ -440,6 +453,7 @@ export default function AsesoriaPage() {
         }),
       });
       setSubmitSuccess(response);
+      router.push('/gracias');
 
       setSlots((prev) => prev.filter((slot) => slot !== selectedTime));
       setMonthAvailabilityMap((prev) => ({
@@ -467,10 +481,10 @@ export default function AsesoriaPage() {
               Sistema de reservas real
             </p>
             <h1 className="mt-4 text-4xl font-black leading-tight !text-[#39A9FF] drop-shadow-[0_10px_30px_rgba(14,165,233,0.45)] md:text-6xl">
-              Agenda tu asesoria de forma profesional
+              Agenda tu asesoría estratégica
             </h1>
             <p className="mt-4 text-slate-300/95">
-              Flujo real: servicios en BD, calendario con dias disponibles y horas en tiempo real.
+              Diagnóstico para automatización, sistemas y soporte, con agenda real y disponibilidad en tiempo real.
             </p>
             <button
               onClick={() => bookRef.current?.scrollIntoView({ behavior: 'smooth' })}
@@ -691,7 +705,7 @@ export default function AsesoriaPage() {
               ) : null}
 
               <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-300">Plataforma de reunion</p>
-              <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-2">
+              <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-3">
                 {providers.map((provider) => (
                   <button
                     key={provider.id}
@@ -713,7 +727,14 @@ export default function AsesoriaPage() {
                       'border-[#6264A7]/70 bg-gradient-to-r from-[#6264A7]/25 to-[#7B83EB]/20 text-[#E6E8FF] shadow-[0_8px_28px_rgba(98,100,167,0.3)]',
                       provider.id === 'teams' &&
                       (meetingProvider !== provider.id || !provider.enabled) &&
-                      'border-white/15 bg-slate-900/65 hover:border-[#6264A7]/45 hover:bg-[#6264A7]/12'
+                      'border-white/15 bg-slate-900/65 hover:border-[#6264A7]/45 hover:bg-[#6264A7]/12',
+                      provider.id === 'jitsi' &&
+                      meetingProvider === provider.id &&
+                      provider.enabled &&
+                      'border-[#0064FF]/70 bg-gradient-to-r from-[#0064FF]/25 to-[#00C2FF]/20 text-[#E6F3FF] shadow-[0_8px_28px_rgba(0,100,255,0.3)]',
+                      provider.id === 'jitsi' &&
+                      (meetingProvider !== provider.id || !provider.enabled) &&
+                      'border-white/15 bg-slate-900/65 hover:border-[#0064FF]/45 hover:bg-[#0064FF]/12'
                     )}
                   >
                     <ProviderIcon provider={provider.id} className="h-4 w-4" />

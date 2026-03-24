@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from app.db import engine
 from app.models import Profile
+from app.core.admin_auth import require_admin
 
 router = APIRouter()
 
@@ -26,7 +27,7 @@ def get_profile():
 
 
 @router.post("")
-def update_profile(profile_data: Profile):
+def update_profile(profile_data: Profile, _current_user=Depends(require_admin)):
     """Actualizar o crear perfil"""
     with Session(engine) as session:
         # Buscar perfil existente

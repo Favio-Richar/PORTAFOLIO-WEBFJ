@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FaEnvelope, FaSpinner, FaArrowLeft, FaCheckCircle, FaKey, FaLock } from "react-icons/fa";
 import AdCarousel from "@/components/auth/AdCarousel";
+import API_BASE from "@/lib/apiBase";
 
 export default function ForgotPasswordPage() {
     const router = useRouter();
@@ -23,7 +24,7 @@ export default function ForgotPasswordPage() {
         const emailInput = formData.get("email") as string;
 
         try {
-            const res = await fetch("http://localhost:8000/api/auth/recover-password", {
+            const res = await fetch(`${API_BASE}/api/auth/recover-password`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: emailInput }),
@@ -58,7 +59,7 @@ export default function ForgotPasswordPage() {
         }
 
         try {
-            const res = await fetch("http://localhost:8000/api/auth/reset-password", {
+            const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, code, new_password: newPassword }),

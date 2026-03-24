@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaPaperPlane, FaRobot, FaTimes, FaWhatsapp } from "react-icons/fa";
 import { usePathname } from "next/navigation";
+import API_BASE from "@/lib/apiBase";
 import "@/styles/floating-chat.scss";
 
 interface Message {
@@ -16,7 +17,7 @@ type FloatingChatProps = {
   pageContext?: string;
 };
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = API_BASE;
 
 export default function FloatingChat({ pageContext = "sitio-web" }: FloatingChatProps) {
   const pathname = usePathname();
@@ -59,42 +60,69 @@ export default function FloatingChat({ pageContext = "sitio-web" }: FloatingChat
     const trimmedText = text.trim();
     if (!trimmedText || isSending) return;
 
+    // 1. Agregar mensaje del usuario a la UI
     setMessages((prev) => [...prev, { id: getNextMessageId(), text: trimmedText, sender: "user" }]);
     setInputValue("");
     setIsSending(true);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/chat/messages`, {
+      // 2. Llamada al nuevo endpoint de IA
+      const response = await fetch(`${BACKEND_URL}/api/ai/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: trimmedText,
-          source: "floating-chat",
-          page: resolvedPageContext,
+          history: messages.map(m => ({
+            role: m.sender === "agent" ? "assistant" : "user",
+            content: m.text
+          }))
         }),
       });
 
-      const payload = (await response.json().catch(() => null)) as { detail?: string } | null;
+      const data = await response.json();
+      
       if (!response.ok) {
-        throw new Error(payload?.detail || "No se pudo enviar el mensaje en este momento.");
+        throw new Error(data.detail || "Error en la comunicacion con la IA");
       }
 
+      // 3. Agregar respuesta de la IA
       setMessages((prev) => [
         ...prev,
         {
           id: getNextMessageId(),
           sender: "agent",
-          text: "Mensaje enviado correctamente. Te responderemos pronto.",
+          text: data.response,
         },
       ]);
+
+      // 4. Manejar acciones automáticas (WhatsApp o Booking)
+      if (data.action === "whatsapp") {
+        setTimeout(() => {
+          setMessages(prev => [...prev, {
+            id: getNextMessageId(),
+            sender: "agent",
+            text: "Redirigiéndote a WhatsApp..."
+          }]);
+          window.open("https://wa.me/56971464296", "_blank");
+        }, 1500);
+      } else if (data.action === "booking") {
+        setTimeout(() => {
+          setMessages(prev => [...prev, {
+            id: getNextMessageId(),
+            sender: "agent",
+            text: "Puedes agendar aquí: /asesoria"
+          }]);
+        }, 1000);
+      }
+
     } catch (error) {
-      const fallbackMessage = error instanceof Error ? error.message : "No se pudo enviar el mensaje.";
+      console.error("Chat Error:", error);
       setMessages((prev) => [
         ...prev,
         {
           id: getNextMessageId(),
           sender: "agent",
-          text: fallbackMessage,
+          text: "Lo siento, tuve un problema técnico. ¿Prefieres contactarnos por WhatsApp?",
         },
       ]);
     } finally {

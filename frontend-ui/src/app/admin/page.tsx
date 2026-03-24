@@ -17,7 +17,11 @@ import TestimonialsAdmin from "@/components/admin/TestimonialsAdmin";
 import BlogAdmin from "@/components/admin/BlogAdmin";
 import ServicesAdmin from "@/components/admin/ServicesAdmin";
 import AdvisoriesAdmin from "@/components/admin/AdvisoriesAdmin";
-import TeamAdmin from "@/components/admin/TeamAdmin";
+import QuotesAdmin from "@/components/admin/QuotesAdmin";
+import SettingsAdmin from "@/components/admin/SettingsAdmin";
+import SubscribersAdmin from "@/components/admin/SubscribersAdmin";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 import { initialCertifications, Certification } from "@/lib/data/certifications";
 import { defaultContact, ContactData } from "@/lib/data/contact";
@@ -45,7 +49,7 @@ export default function AdminPanel() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const certRes = await fetch("http://localhost:8000/api/certifications");
+        const certRes = await adminFetch(`${API_BASE}/api/certifications`);
         if (certRes.ok) {
           const certData = (await certRes.json()) as RawCertification[];
           if (Array.isArray(certData) && certData.length > 0) {
@@ -66,7 +70,7 @@ export default function AdminPanel() {
           }
         }
 
-        const contactRes = await fetch("http://localhost:8000/api/contact");
+        const contactRes = await adminFetch(`${API_BASE}/api/contact`);
         if (contactRes.ok) setContact(await contactRes.json());
       } catch (error) {
         console.error("Error cargando datos:", error);
@@ -101,6 +105,10 @@ export default function AdminPanel() {
         return <BlogAdmin />;
       case "clients":
         return <ClientsAdmin />;
+      case "quotes":
+        return <QuotesAdmin />;
+      case "subscribers":
+        return <SubscribersAdmin />;
       case "contact":
         return <ContactAdmin contact={contact} onSave={saveContact} />;
       case "media":
@@ -109,6 +117,8 @@ export default function AdminPanel() {
         return <AdsAdmin />;
       case "testimonials":
         return <TestimonialsAdmin />;
+      case "settings":
+        return <SettingsAdmin />;
       default:
         return <PlaceholderSection name={activeSection} />;
     }

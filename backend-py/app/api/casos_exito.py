@@ -3,6 +3,7 @@ from sqlmodel import Session, select
 from typing import List
 from datetime import datetime
 from app.db import get_session
+from app.core.admin_auth import require_admin
 from app.models import CasoExito
 
 router = APIRouter()
@@ -25,7 +26,11 @@ def get_caso_exito(caso_id: int, session: Session = Depends(get_session)):
 
 # ========== CREATE CASO DE ÉXITO ==========
 @router.post("/casos-exito", response_model=CasoExito)
-def create_caso_exito(caso: CasoExito, session: Session = Depends(get_session)):
+def create_caso_exito(
+    caso: CasoExito,
+    session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
+):
     """Crear un nuevo caso de éxito"""
     session.add(caso)
     session.commit()
@@ -34,7 +39,12 @@ def create_caso_exito(caso: CasoExito, session: Session = Depends(get_session)):
 
 # ========== UPDATE CASO DE ÉXITO ==========
 @router.put("/casos-exito/{caso_id}", response_model=CasoExito)
-def update_caso_exito(caso_id: int, caso_data: CasoExito, session: Session = Depends(get_session)):
+def update_caso_exito(
+    caso_id: int,
+    caso_data: CasoExito,
+    session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
+):
     """Actualizar un caso de éxito"""
     caso = session.get(CasoExito, caso_id)
     if not caso:
@@ -54,7 +64,11 @@ def update_caso_exito(caso_id: int, caso_data: CasoExito, session: Session = Dep
 
 # ========== DELETE CASO DE ÉXITO ==========
 @router.delete("/casos-exito/{caso_id}")
-def delete_caso_exito(caso_id: int, session: Session = Depends(get_session)):
+def delete_caso_exito(
+    caso_id: int,
+    session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
+):
     """Eliminar un caso de éxito"""
     caso = session.get(CasoExito, caso_id)
     if not caso:

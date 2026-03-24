@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 export default function AdminLayout({
     children,
@@ -17,7 +19,7 @@ export default function AdminLayout({
             router.push("/auth/login");
         } else {
             // Verificar token contra el servidor
-            fetch("http://localhost:8000/api/auth/verify", {
+            adminFetch(`${API_BASE}/api/auth/verify`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ token })

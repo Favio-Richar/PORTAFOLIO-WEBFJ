@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { FaSave, FaTrash, FaUpload, FaImage, FaVideo, FaPlus, FaEdit, FaTimes, FaLayerGroup, FaImages, FaPlayCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import ClientFullCasesAdmin from "./ClientFullCasesAdmin";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 type MediaType = "image" | "video";
 
@@ -113,7 +115,7 @@ export default function ClientsAdmin() {
     setLoadingCases(true);
     try {
       // Load Hero Media
-      const heroRes = await fetch("http://localhost:8000/api/media");
+      const heroRes = await adminFetch(`${API_BASE}/api/media`);
       if (heroRes.ok) {
         const all = await heroRes.json();
         const filtered = (all as MediaItem[])
@@ -128,14 +130,14 @@ export default function ClientsAdmin() {
           setSeeding(true);
           await Promise.all(
             DEFAULT_CLIENTS_HERO_MEDIA.map((m) =>
-              fetch("http://localhost:8000/api/media", {
+              adminFetch(`${API_BASE}/api/media`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ ...m, description: withTag(m.description) }),
               })
             )
           );
-          const refresh = await fetch("http://localhost:8000/api/media");
+          const refresh = await adminFetch(`${API_BASE}/api/media`);
           if (refresh.ok) {
             const refreshedAll = await refresh.json();
             setItems((refreshedAll as MediaItem[]).filter(m => (m.description || "").includes(CLIENTS_HERO_TAG)).sort(byOrder));
@@ -147,7 +149,7 @@ export default function ClientsAdmin() {
       }
 
       // Load Cases (Casos de Éxito)
-      const casesRes = await fetch("http://localhost:8000/api/casos-exito");
+      const casesRes = await adminFetch(`${API_BASE}/api/casos-exito`);
       if (casesRes.ok) {
         const data = await casesRes.json();
         setCases(data.map((c: any) => ({
@@ -173,7 +175,7 @@ export default function ClientsAdmin() {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch("http://localhost:8000/api/upload", { method: "POST", body: fd });
+      const res = await adminFetch(`${API_BASE}/api/upload`, { method: "POST", body: fd });
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
       setNewItem((prev) => ({
@@ -198,7 +200,7 @@ export default function ClientsAdmin() {
     };
 
     try {
-      const res = await fetch("http://localhost:8000/api/media", {
+      const res = await adminFetch(`${API_BASE}/api/media`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -232,7 +234,7 @@ export default function ClientsAdmin() {
 
     if (!previewUrl) return;
     try {
-      await fetch(`http://localhost:8000/api/upload/delete?url=${encodeURIComponent(previewUrl)}`, {
+      await adminFetch(`${API_BASE}/api/upload/delete?url=${encodeURIComponent(previewUrl)}`, {
         method: "DELETE",
       });
     } catch (_e) {
@@ -244,7 +246,7 @@ export default function ClientsAdmin() {
     setSaving(true);
     try {
       const updates = items.map((item, idx) =>
-        fetch(`http://localhost:8000/api/media/${item.id}`, {
+        adminFetch(`${API_BASE}/api/media/${item.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...item, order_index: idx, description: withTag(item.description) }),
@@ -265,11 +267,11 @@ export default function ClientsAdmin() {
     if (!confirm("¿Eliminar este media del hero de Clientes?")) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/api/media/${item.id}`, { method: "DELETE" });
+      const res = await adminFetch(`${API_BASE}/api/media/${item.id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("delete failed");
 
       if (item.url?.includes("/uploads/")) {
-        await fetch(`http://localhost:8000/api/upload/delete?url=${encodeURIComponent(item.url)}`, {
+        await adminFetch(`${API_BASE}/api/upload/delete?url=${encodeURIComponent(item.url)}`, {
           method: "DELETE",
         });
       }
@@ -308,7 +310,7 @@ export default function ClientsAdmin() {
   const handleDeleteCase = async (id: number) => {
     if (!confirm("¿Eliminar este Caso de Éxito?")) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/casos-exito/${id}`, { method: "DELETE" });
+      const res = await adminFetch(`${API_BASE}/api/casos-exito/${id}`, { method: "DELETE" });
       if (res.ok) {
         await loadData();
       }
@@ -321,7 +323,7 @@ export default function ClientsAdmin() {
     if (!editingCase) return;
     try {
       const isNew = !editingCase.id;
-      const endpoint = isNew ? "http://localhost:8000/api/casos-exito" : `http://localhost:8000/api/casos-exito/${editingCase.id}`;
+      const endpoint = isNew ? `${API_BASE}/api/casos-exito` : `${API_BASE}/api/casos-exito/${editingCase.id}`;
       const method = isNew ? "POST" : "PUT";
 
       // Prepare payload
@@ -335,7 +337,7 @@ export default function ClientsAdmin() {
       };
       if (isNew) delete (payload as any).id;
 
-      const res = await fetch(endpoint, {
+      const res = await adminFetch(endpoint, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -622,7 +624,7 @@ function CaseModal({ item, onClose, onSave, onChange }: {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch("http://localhost:8000/api/upload", { method: "POST", body: fd });
+      const res = await adminFetch(`${API_BASE}/api/upload`, { method: "POST", body: fd });
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
 
@@ -784,7 +786,7 @@ function CaseModal({ item, onClose, onSave, onChange }: {
                         try {
                           const fd = new FormData();
                           fd.append("file", file);
-                          const res = await fetch("http://localhost:8000/api/upload", { method: "POST", body: fd });
+                          const res = await adminFetch(`${API_BASE}/api/upload`, { method: "POST", body: fd });
                           const data = await res.json();
                           const newMedia = [...item.media];
                           newMedia[idx] = { type: file.type.startsWith("video/") ? "video" : "image", url: data.url };

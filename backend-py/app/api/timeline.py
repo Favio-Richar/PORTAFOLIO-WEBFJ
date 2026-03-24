@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from app.db import engine
 from app.models import Timeline
+from app.core.admin_auth import require_admin
 from typing import List, Optional
 from pydantic import BaseModel
 
@@ -33,7 +34,10 @@ def get_timeline():
 
 
 @router.post("", response_model=Timeline)
-def create_timeline(item_data: TimelineCreate):
+def create_timeline(
+    item_data: TimelineCreate,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         item = Timeline(
             year=item_data.year,
@@ -49,7 +53,11 @@ def create_timeline(item_data: TimelineCreate):
 
 
 @router.put("/{item_id}", response_model=Timeline)
-def update_timeline(item_id: int, item_data: TimelineUpdate):
+def update_timeline(
+    item_id: int,
+    item_data: TimelineUpdate,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         item = session.get(Timeline, item_id)
         if not item:
@@ -68,7 +76,10 @@ def update_timeline(item_id: int, item_data: TimelineUpdate):
 
 
 @router.delete("/{item_id}")
-def delete_timeline(item_id: int):
+def delete_timeline(
+    item_id: int,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         item = session.get(Timeline, item_id)
         if not item:

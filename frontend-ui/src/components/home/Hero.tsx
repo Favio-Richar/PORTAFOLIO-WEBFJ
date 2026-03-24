@@ -1,5 +1,3 @@
-"use client";
-
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -19,7 +17,7 @@ export default function Hero() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-6"
             >
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-              <span className="text-sm text-gray-300">Disponible para proyectos</span>
+              <span className="text-sm text-gray-300">Agenda abierta · Diagnostico en 24h</span>
             </motion.div>
 
             <motion.h1
@@ -29,7 +27,8 @@ export default function Hero() {
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-5 font-display leading-tight"
               id="hero-name"
             >
-              <span className="gradient-text block">Digital Systems FJ</span>
+              <span className="gradient-text block">FJ Digital</span>
+              <span className="text-slate-100 block">Engineering</span>
             </motion.h1>
 
             <motion.p
@@ -39,7 +38,7 @@ export default function Hero() {
               className="text-xl sm:text-2xl md:text-3xl text-gray-300 mb-6 font-display"
               id="hero-role"
             >
-              Ingeniero <span className="text-indigo-400">Full Stack</span> y <span className="text-cyan-400">Consultor Tecnologico</span>
+              Ingenieria <span className="text-indigo-400">digital</span>, <span className="text-cyan-400">automatizacion</span> y consultoria tecnologica
             </motion.p>
 
             <motion.p
@@ -48,7 +47,7 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="text-lg text-gray-400 max-w-xl mb-4 font-display"
             >
-              En Digital Systems FJ ayudamos a empresas a construir soluciones digitales solidas, escalables y enfocadas en resultados reales.
+              En FJ Digital Engineering ayudamos a empresas a construir plataformas que venden, automatizar procesos criticos y escalar operaciones con criterio tecnico senior.
             </motion.p>
 
             <motion.p
@@ -57,7 +56,7 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.35 }}
               className="text-base sm:text-lg text-gray-500 max-w-xl mb-10 font-display"
             >
-              Diseno y desarrollo plataformas web modernas, automatizo procesos clave y entrego consultoria estrategica para acelerar crecimiento con orden tecnico.
+              Disenamos sistemas a medida, automatizaciones de alto impacto e integraciones seguras, con foco en conversion, control operativo y continuidad real.
             </motion.p>
 
             <motion.div
@@ -78,7 +77,7 @@ export default function Hero() {
                   letterSpacing: '0.01em',
                 }}
               >
-                <span>Iniciar proyecto</span>
+                <span>Agendar diagnostico</span>
                 <FaArrowRight size={18} />
               </Link>
               <Link
@@ -93,9 +92,26 @@ export default function Hero() {
                   letterSpacing: '0.01em',
                 }}
               >
-                <span>Ver portafolio</span>
+                <span>Ver casos reales</span>
                 <FaChevronDown size={18} className="-rotate-90" />
               </Link>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="flex flex-wrap items-center gap-3 text-xs text-slate-400 font-semibold"
+            >
+              <span className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5">
+                Respuesta &lt; 24h
+              </span>
+              <span className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5">
+                Sistemas en produccion
+              </span>
+              <span className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5">
+                Soporte y evolucion continua
+              </span>
             </motion.div>
           </div>
 
@@ -108,7 +124,7 @@ export default function Hero() {
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/15 via-indigo-500/10 to-fuchsia-500/15 blur-3xl opacity-70"></div>
             <motion.img
               src="/img/webdev.jpg"
-              alt="Ingeniero de Digital Systems FJ"
+              alt="Ingenieria de FJ Digital Engineering"
               className="relative w-full max-w-[660px] h-auto select-none pointer-events-none"
               draggable={false}
               style={{

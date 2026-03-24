@@ -9,6 +9,8 @@ import {
   FaTimes,
   FaTrashAlt,
 } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 type AboutStackItem = {
   id: number;
@@ -26,7 +28,7 @@ type StackDraft = {
   active: boolean;
 };
 
-const API_BASE = "http://localhost:8000/api/about-stack";
+const STACK_API = `${API_BASE}/api/about-stack`;
 
 export default function AboutStackAdmin() {
   const [items, setItems] = useState<AboutStackItem[]>([]);
@@ -46,7 +48,7 @@ export default function AboutStackAdmin() {
     try {
       setLoading(true);
       setError("");
-      const res = await fetch(API_BASE, { cache: "no-store" });
+      const res = await adminFetch(STACK_API, { cache: "no-store" });
       if (!res.ok) throw new Error("No se pudo cargar el stack.");
       const data = await res.json();
       setItems(Array.isArray(data) ? data : []);
@@ -72,7 +74,7 @@ export default function AboutStackAdmin() {
       }
 
       setError("");
-      const res = await fetch(API_BASE, {
+      const res = await adminFetch(STACK_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -126,7 +128,7 @@ export default function AboutStackAdmin() {
       setSavingId(id);
       setError("");
 
-      const res = await fetch(`${API_BASE}/${id}`, {
+      const res = await adminFetch(`${STACK_API}/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -154,7 +156,7 @@ export default function AboutStackAdmin() {
     try {
       setSavingId(id);
       setError("");
-      const res = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+      const res = await adminFetch(`${STACK_API}/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("No se pudo eliminar.");
       setItems((prev) => prev.filter((item) => item.id !== id));
       if (editingId === id) {

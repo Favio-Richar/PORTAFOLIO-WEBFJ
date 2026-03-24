@@ -1,5 +1,3 @@
-"use client";
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import type { IconType } from 'react-icons';
@@ -67,13 +65,13 @@ export default function Experiencia() {
             </div>
 
             <h2 className="text-3xl md:text-4xl font-bold leading-tight font-display" id="about-title">
-              Digital Systems FJ con arquitectura con proposito.
+              FJ Digital Engineering con arquitectura con proposito.
               <br />
               <span className="gradient-text">Tecnologia que impulsa negocios reales.</span>
             </h2>
 
             <p className="text-lg text-slate-300 leading-relaxed font-display">
-              Soy Favio Jimenez, ingeniero full stack y consultor tecnologico. Lidero Digital Systems FJ para construir soluciones web y empresariales que mejoran la operacion, el control y la toma de decisiones.
+              Soy Favio Jimenez, ingeniero full stack y consultor tecnologico. Lidero FJ Digital Engineering para construir soluciones web y empresariales que mejoran la operacion, el control y la toma de decisiones.
             </p>
 
             <p className="text-base text-slate-400 leading-relaxed font-display">
@@ -114,11 +112,11 @@ export default function Experiencia() {
                   <div className="w-3 h-3 rounded-full bg-green-500"></div>
                 </div>
                 <div className="text-slate-300 text-xs overflow-x-auto">
-                  <span className="text-cyan-300">const</span> <span className="text-amber-200">digitalSystemsFJ</span> = {'{'}
+                  <span className="text-cyan-300">const</span> <span className="text-amber-200">fjDigitalEngineering</span> = {'{'}
                   <br />
                   &nbsp;&nbsp;<span className="text-sky-300">founder</span>: <span className="text-emerald-300">&quot;Favio Jimenez&quot;</span>,
                   <br />
-                  &nbsp;&nbsp;<span className="text-sky-300">profile</span>: <span className="text-emerald-300">&quot;Full Stack + Consultoria&quot;</span>,
+                  &nbsp;&nbsp;<span className="text-sky-300">profile</span>: <span className="text-emerald-300">&quot;Ingenieria Full Stack + Consultoria&quot;</span>,
                   <br />
                   &nbsp;&nbsp;<span className="text-sky-300">focus</span>: [<span className="text-emerald-300">&quot;Web&quot;</span>, <span className="text-emerald-300">&quot;Automatizacion&quot;</span>, <span className="text-emerald-300">&quot;Escalamiento&quot;</span>]
                   <br />
@@ -138,7 +136,7 @@ export default function Experiencia() {
                   {'}'}
                 </div>
                 <div className="mt-4 rounded-xl border border-emerald-400/35 bg-emerald-500/10 px-4 py-3 text-[11px]">
-                  <span className="text-emerald-300">$ resultado =&gt; EXITO_TOTAL | Plataforma operativa y cliente satisfecho</span>
+                  <span className="text-emerald-300">$ resultado =&gt; EXITO_TOTAL | Plataforma operativa, marca solida y cliente satisfecho</span>
                 </div>
               </div>
             </div>

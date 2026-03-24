@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaCertificate, FaSave, FaPlusCircle, FaEdit, FaTrashAlt, FaFileUpload, FaSearchPlus, FaSpinner, FaAward, FaCalendarAlt } from "react-icons/fa";
 import type { Certification } from "@/lib/data/certifications";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 interface Props {
     certifications: Certification[];
@@ -14,8 +16,6 @@ type RawCertificationResponse = Omit<Certification, "id" | "credentialUrl"> & {
     id: number | string;
     credential_url?: string | null;
 };
-
-const API_BASE = "http://localhost:8000";
 
 const STUDY_LEVEL_OPTIONS = [
     "Titulo Profesional",
@@ -111,9 +111,9 @@ export default function CertificationsAdmin({ certifications: initialCerts, onSa
     }, [initialCerts]);
 
     const deletePhysicalFile = async (url: string) => {
-        if (!url || (!url.includes("localhost:8000/uploads/") && !url.includes("cloudinary.com"))) return;
+        if (!url || (!url.includes("/uploads/") && !url.includes("cloudinary.com"))) return;
         try {
-            await fetch(`${API_BASE}/api/upload/delete?url=${encodeURIComponent(url)}`, {
+            await adminFetch(`${API_BASE}/api/upload/delete?url=${encodeURIComponent(url)}`, {
                 method: "DELETE",
             });
         } catch (error) {
@@ -157,10 +157,10 @@ export default function CertificationsAdmin({ certifications: initialCerts, onSa
                 await deletePhysicalFile(itemToDelete.credentialUrl);
             }
 
-            const res = await fetch(`${API_BASE}/api/certifications/${id}`, { method: "DELETE" });
+            const res = await adminFetch(`${API_BASE}/api/certifications/${id}`, { method: "DELETE" });
             if (!res.ok) throw new Error("No se pudo eliminar en el servidor");
 
-            const response = await fetch(`${API_BASE}/api/certifications`);
+            const response = await adminFetch(`${API_BASE}/api/certifications`);
             const data = await response.json();
             const mappedData = (data as RawCertificationResponse[]).map((c) => ({
                 ...c,
@@ -194,7 +194,7 @@ export default function CertificationsAdmin({ certifications: initialCerts, onSa
             const endpoint = isNew ? `${API_BASE}/api/certifications` : `${API_BASE}/api/certifications/${item.id}`;
             const method = isNew ? "POST" : "PUT";
 
-            const res = await fetch(endpoint, {
+            const res = await adminFetch(endpoint, {
                 method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -202,7 +202,7 @@ export default function CertificationsAdmin({ certifications: initialCerts, onSa
 
             if (!res.ok) throw new Error("Error al guardar");
 
-            const response = await fetch(`${API_BASE}/api/certifications`);
+            const response = await adminFetch(`${API_BASE}/api/certifications`);
             const data = await response.json();
             const mappedData = (data as RawCertificationResponse[]).map((c) => ({
                 ...c,
@@ -303,9 +303,9 @@ function CertificationModal({ item, onClose, onSave }: { item: Certification, on
     const [uploading, setUploading] = useState(false);
 
     const deletePhysicalFile = async (url: string) => {
-        if (!url || (!url.includes("localhost:8000/uploads/") && !url.includes("cloudinary.com"))) return;
+        if (!url || (!url.includes("/uploads/") && !url.includes("cloudinary.com"))) return;
         try {
-            await fetch(`${API_BASE}/api/upload/delete?url=${encodeURIComponent(url)}`, {
+            await adminFetch(`${API_BASE}/api/upload/delete?url=${encodeURIComponent(url)}`, {
                 method: "DELETE",
             });
         } catch (error) {
@@ -322,7 +322,7 @@ function CertificationModal({ item, onClose, onSave }: { item: Certification, on
         formData.append("file", file);
 
         try {
-            const res = await fetch(`${API_BASE}/api/upload`, {
+            const res = await adminFetch(`${API_BASE}/api/upload`, {
                 method: "POST",
                 body: formData,
             });

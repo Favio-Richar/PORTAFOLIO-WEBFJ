@@ -18,12 +18,14 @@ import {
   FaTimesCircle,
   FaTrashAlt,
 } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = API_BASE;
 
 type MeetingProvider = "google_meet" | "zoom" | "teams" | "jitsi" | "whereby" | "other";
 type BookingStatus = "pending" | "confirmed" | "cancelled" | "rescheduled";
-type SupportedMeetingProvider = "google_meet" | "teams";
+type SupportedMeetingProvider = "google_meet" | "teams" | "jitsi";
 
 type AdminBooking = {
   id: string;
@@ -207,7 +209,7 @@ function formatLocalDateTime(value?: string | null) {
 }
 
 async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${BACKEND_URL}${path}`, {
+  const response = await adminFetch(`${BACKEND_URL}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
@@ -355,12 +357,12 @@ export default function AdvisoriesAdmin() {
     () =>
       Boolean(
         rescheduleBookingId &&
-          rescheduleServiceId &&
-          rescheduleDate &&
-          rescheduleTime &&
-          !rescheduleTimesLoading &&
-          hasEnabledRescheduleProvider &&
-          isRescheduleTimeAvailable
+        rescheduleServiceId &&
+        rescheduleDate &&
+        rescheduleTime &&
+        !rescheduleTimesLoading &&
+        hasEnabledRescheduleProvider &&
+        isRescheduleTimeAvailable
       ),
     [
       hasEnabledRescheduleProvider,
@@ -466,7 +468,7 @@ export default function AdvisoriesAdmin() {
       }
 
       if (Array.isArray(providersData)) {
-        const clean = providersData.filter((item): item is MeetingProviderPublic => item?.id === "google_meet" || item?.id === "teams");
+        const clean = providersData.filter((item): item is MeetingProviderPublic => item?.id === "google_meet" || item?.id === "teams" || item?.id === "jitsi");
         setProviderOptions(clean);
         const firstEnabled = clean.find((item) => item.enabled);
         if (firstEnabled) setRescheduleProvider(firstEnabled.id);
@@ -671,7 +673,10 @@ export default function AdvisoriesAdmin() {
         originalDate: booking.date,
         originalTime: booking.time,
       });
-      const normalizedProvider = booking.meeting_provider === "teams" ? "teams" : "google_meet";
+      let normalizedProvider: SupportedMeetingProvider = "google_meet";
+      if (booking.meeting_provider === "teams") normalizedProvider = "teams";
+      else if (booking.meeting_provider === "jitsi") normalizedProvider = "jitsi";
+
       const preferredProvider =
         providerOptions.find((item) => item.id === normalizedProvider && item.enabled)?.id ||
         providerOptions.find((item) => item.enabled)?.id ||
@@ -728,13 +733,13 @@ export default function AdvisoriesAdmin() {
         prev.map((item) =>
           item.id === response.id
             ? {
-                ...item,
-                date: response.date,
-                time: response.time,
-                status: response.status,
-                meeting_provider: response.meeting_provider,
-                meeting_link: response.meeting_link || item.meeting_link,
-              }
+              ...item,
+              date: response.date,
+              time: response.time,
+              status: response.status,
+              meeting_provider: response.meeting_provider,
+              meeting_link: response.meeting_link || item.meeting_link,
+            }
             : item
         )
       );
@@ -919,22 +924,20 @@ export default function AdvisoriesAdmin() {
               <button
                 type="button"
                 onClick={() => setAgendaMode("day")}
-                className={`px-3 py-2 text-xs font-black uppercase tracking-[0.12em] border ${
-                  agendaMode === "day"
+                className={`px-3 py-2 text-xs font-black uppercase tracking-[0.12em] border ${agendaMode === "day"
                     ? "border-emerald-300/60 bg-emerald-500/30 text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.25)]"
                     : "border-white/15 bg-white/5 text-white/75 hover:bg-white/10"
-                }`}
+                  }`}
               >
                 Dia
               </button>
               <button
                 type="button"
                 onClick={() => setAgendaMode("week")}
-                className={`px-3 py-2 text-xs font-black uppercase tracking-[0.12em] border ${
-                  agendaMode === "week"
+                className={`px-3 py-2 text-xs font-black uppercase tracking-[0.12em] border ${agendaMode === "week"
                     ? "border-emerald-300/60 bg-emerald-500/30 text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.25)]"
                     : "border-white/15 bg-white/5 text-white/75 hover:bg-white/10"
-                }`}
+                  }`}
               >
                 Semana
               </button>
@@ -983,9 +986,8 @@ export default function AdvisoriesAdmin() {
           {agendaByDate.map(({ date, items }) => (
             <article
               key={date}
-              className={`border bg-[#041122]/80 p-3 backdrop-blur-sm ${
-                date === todayIso ? "border-emerald-300/45 ring-1 ring-emerald-300/25" : "border-emerald-400/20"
-              }`}
+              className={`border bg-[#041122]/80 p-3 backdrop-blur-sm ${date === todayIso ? "border-emerald-300/45 ring-1 ring-emerald-300/25" : "border-emerald-400/20"
+                }`}
             >
               <div className="flex items-center justify-between gap-2 mb-2">
                 <p className="text-sm font-black text-emerald-50 uppercase tracking-[0.08em]">{formatAgendaDateLabel(date)}</p>
@@ -1428,9 +1430,9 @@ export default function AdvisoriesAdmin() {
                       <option key={slot} value={slot}>
                         {slot}
                         {rescheduleSelection &&
-                        rescheduleSelection.bookingId === rescheduleBookingId &&
-                        rescheduleSelection.originalDate === rescheduleDate &&
-                        rescheduleSelection.originalTime === slot
+                          rescheduleSelection.bookingId === rescheduleBookingId &&
+                          rescheduleSelection.originalDate === rescheduleDate &&
+                          rescheduleSelection.originalTime === slot
                           ? " (hora actual)"
                           : ""}
                       </option>

@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { FaArrowLeft, FaCalendarAlt, FaClock, FaFire, FaTag, FaUserCircle } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
+import { sanitizeHtmlContent } from "@/lib/sanitizeHtml";
 import "@/styles/blog-elite.scss";
 
 interface BackendBlogRecord {
@@ -26,8 +28,6 @@ interface BlogDetailPost {
   author: string;
   tags: string[];
 }
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 const BLOG_CATEGORY_IMAGE_FALLBACK: Record<string, string> = {
   reservas: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1600",
@@ -218,28 +218,62 @@ const ensureHtmlContent = (content: string): string => {
     .join("");
 };
 
+const ensureRichHtmlContent = (
+  content: string,
+  title: string,
+  category: string,
+  author: string
+): string => {
+  const baseHtml = ensureHtmlContent(content);
+  const plain = stripMarkup(baseHtml);
+  if (plain.length >= 420) return baseHtml;
+
+  const cleanTitle = (title || "este articulo").trim();
+  const cleanCategory = (category || "General").trim();
+  const cleanAuthor = (author || "Equipo Editorial").trim();
+  const contextLine = plain || "Se desarrolla una guia practica para resolver necesidades reales de negocio.";
+
+  const generatedHtml = `
+<h3>Contexto estrategico</h3>
+<p><strong>${cleanCategory}</strong> | ${cleanAuthor}</p>
+<p>${contextLine}</p>
+<h3>Puntos clave de implementacion</h3>
+<ul>
+  <li>Definir una meta operativa concreta para ${cleanTitle.toLowerCase()}.</li>
+  <li>Priorizar acciones de alto impacto con baja complejidad inicial.</li>
+  <li>Medir avance con indicadores semanales y ajustes iterativos.</li>
+</ul>
+<h3>Plan de accion sugerido</h3>
+<p>Aplicar un enfoque por etapas: diagnostico, implementacion controlada y optimizacion continua para sostener resultados.</p>
+`;
+  return `${baseHtml}${generatedHtml}`;
+};
+
 const mapBackendBlogToDetail = (item: BackendBlogRecord): BlogDetailPost => {
   const resolvedImage = extractFirstImage(item.content || "") || resolveCategoryImage(item.category);
   const fallbackViews = `${(3 + ((item.id || 1) % 6) * 0.7).toFixed(1)}K`;
   const tagList = parseTags(item.tags);
+  const author = (item.author || "Equipo Editorial").trim() || "Equipo Editorial";
+  const category = item.category || "General";
+  const richContent = ensureRichHtmlContent(item.content || "", item.title || "Articulo", category, author);
 
   return {
     id: item.id,
     title: item.title || "Articulo sin titulo",
-    content: ensureHtmlContent(item.content || ""),
-    category: item.category || "General",
+    content: richContent,
+    category,
     image: resolvedImage,
     date: formatPostDate(item.created_at),
-    readTime: estimateReadTime(item.content || ""),
+    readTime: estimateReadTime(richContent),
     views: fallbackViews,
-    author: (item.author || "Equipo Editorial").trim() || "Equipo Editorial",
+    author,
     tags: tagList,
   };
 };
 
 const getBlogPostById = async (id: number): Promise<BlogDetailPost | null> => {
   try {
-    const response = await fetch(`${BACKEND_URL}/api/blog/${id}`, { cache: "no-store" });
+    const response = await fetch(`${API_BASE}/api/blog/${id}`, { cache: "no-store" });
     if (response.ok) {
       const payload = (await response.json()) as BackendBlogRecord;
       return mapBackendBlogToDetail(payload);
@@ -248,7 +282,12 @@ const getBlogPostById = async (id: number): Promise<BlogDetailPost | null> => {
     // Fallback below.
   }
 
-  return MOCK_DETAIL_POSTS.find((post) => post.id === id) || null;
+  const fallback = MOCK_DETAIL_POSTS.find((post) => post.id === id) || null;
+  if (!fallback) return null;
+  return {
+    ...fallback,
+    content: ensureRichHtmlContent(fallback.content || "", fallback.title, fallback.category, fallback.author),
+  };
 };
 
 export const dynamic = "force-dynamic";
@@ -264,6 +303,10 @@ export default async function BlogPostDetailPage({
 
   const post = await getBlogPostById(postId);
   if (!post) notFound();
+
+  const safeHtml = sanitizeHtmlContent(
+    ensureRichHtmlContent(post.content, post.title, post.category, post.author)
+  );
 
   return (
     <div className="blog-page-wrapper min-h-screen py-16 md:py-24 bg-slate-950">
@@ -317,7 +360,7 @@ export default async function BlogPostDetailPage({
 
             <div
               className="blog-content-rich text-[1.02rem] leading-8 text-slate-200 space-y-6"
-              dangerouslySetInnerHTML={{ __html: ensureHtmlContent(post.content) }}
+              dangerouslySetInnerHTML={{ __html: safeHtml }}
             />
           </div>
         </article>

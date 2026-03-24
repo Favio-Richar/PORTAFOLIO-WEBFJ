@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaPlay, FaVolumeMute, FaVolumeUp } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
 
 interface MediaItem {
     type: 'image' | 'video';
@@ -35,7 +36,7 @@ export default function AdCarousel({
     const [isMuted, setIsMuted] = useState(true);
 
     useEffect(() => {
-        fetch(`http://localhost:8000/api/ads/public?position=${position}`)
+        fetch(`${API_BASE}/api/ads/public?position=${position}`)
             .then((res) => {
                 if (!res.ok) throw new Error("Failed to fetch");
                 return res.json();

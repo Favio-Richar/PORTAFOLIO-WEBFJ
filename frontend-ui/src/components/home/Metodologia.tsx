@@ -250,8 +250,8 @@ export default function Metodologia() {
                     </div>
 
                     <motion.div whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.98 }}>
-                        <Link href="/cotizar" className="services-cta-animated inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold">
-                            <span>Agendar diagnostico</span>
+                        <Link href="/asesoria" className="services-cta-animated inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold">
+                            <span>Agendar asesoria</span>
                             <FaArrowRight size={14} />
                         </Link>
                     </motion.div>

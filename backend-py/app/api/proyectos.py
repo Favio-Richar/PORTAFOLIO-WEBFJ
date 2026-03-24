@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from typing import Optional
 import json
 import logging
@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 from app.db import engine
 from app.models import Proyecto
+from app.core.admin_auth import require_admin
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +134,10 @@ def get_proyecto(item_id: int):
 
 
 @router.post("")
-def create_proyecto(data: ProyectoCreate):
+def create_proyecto(
+    data: ProyectoCreate,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         payload = data.model_dump()
 
@@ -150,7 +154,11 @@ def create_proyecto(data: ProyectoCreate):
 
 
 @router.put("/{item_id}")
-def update_proyecto(item_id: int, data: ProyectoUpdate):
+def update_proyecto(
+    item_id: int,
+    data: ProyectoUpdate,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         item = session.get(Proyecto, item_id)
         if not item:
@@ -175,7 +183,10 @@ def update_proyecto(item_id: int, data: ProyectoUpdate):
 
 
 @router.delete("/{item_id}")
-def delete_proyecto(item_id: int):
+def delete_proyecto(
+    item_id: int,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         item = session.get(Proyecto, item_id)
         if not item:

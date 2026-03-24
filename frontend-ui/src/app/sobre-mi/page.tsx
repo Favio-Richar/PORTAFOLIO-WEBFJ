@@ -53,10 +53,11 @@ import {
 import AboutReviewsSection from "@/components/reviews/AboutReviewsSection";
 import CertModal from "@/app/sobre-mi/_CertModal";
 import { defaultContact, type ContactData } from "@/lib/data/contact";
+import API_BASE from "@/lib/apiBase";
 import "@/styles/about-elite.scss";
 
 const EASE_ELITE: [number, number, number, number] = [0.25, 0.4, 0.25, 1];
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = API_BASE;
 
 type CertificationItem = {
   id: string;
@@ -663,6 +664,49 @@ const AnimatedCounter = ({ target, suffix = "" }: { target: number; suffix?: str
   );
 };
 
+const TechMarquee = ({ items }: { items: AboutStackEntry[] }) => {
+  // Duplicate items for seamless infinite scroll
+  const marqueeItems = [...items, ...items, ...items, ...items];
+
+  return (
+    <div className="relative py-12 bg-zinc-950/50 border-y border-white/5 overflow-hidden group">
+      {/* Horizontal Fades */}
+      <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-zinc-950 to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-zinc-950 to-transparent z-10 pointer-events-none" />
+
+      <div className="flex overflow-hidden">
+        <motion.div
+          className="flex gap-8 px-4"
+          animate={{ x: [0, -1035] }}
+          transition={{
+            duration: 35,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+        >
+          {marqueeItems.map((tech, i) => (
+            <div
+              key={`${tech.name}-${i}`}
+              className="flex items-center gap-3 px-6 py-3 rounded-xl bg-slate-800/20 border border-white/5 hover:border-amber-300/30 hover:bg-slate-800/40 transition-all cursor-default whitespace-nowrap min-w-fit"
+            >
+              <div className="w-8 h-8 rounded-lg bg-slate-700/45 flex items-center justify-center">
+                <StackTechIcon
+                  name={tech.name}
+                  iconKey={tech.icon_key}
+                  color={tech.color}
+                />
+              </div>
+              <span className="text-slate-300 font-semibold text-sm tracking-wide">
+                {tech.name}
+              </span>
+            </div>
+          ))}
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
 const VideoBackground = () => {
   return (
     <div className="absolute inset-0 bg-[#040404]">
@@ -1078,14 +1122,14 @@ export default function SobreNosotrosPage() {
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-amber-300/10 border border-amber-300/25 text-amber-100 text-sm font-medium backdrop-blur-md mb-8"
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Sobre mi
+            Ingeniería y consultoría
           </motion.span>
 
           <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-[0.95] tracking-tight">
-            <RevealText delay={0.2}>Tecnologia con</RevealText>
+            <RevealText delay={0.2}>Tecnología con</RevealText>
             <br />
             <RevealText delay={0.4} className="gradient-text">
-              criterio y resultado
+              criterio y resultados empresariales
             </RevealText>
           </h1>
 
@@ -1095,8 +1139,8 @@ export default function SobreNosotrosPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.8 }}
           >
-            Soy ingeniero de software y acompano a equipos que necesitan tecnologia estable para ordenar su operacion,
-            mejorar decisiones y crecer con control.
+            Soy ingeniero de software y acompaño a empresas que necesitan automatizar, integrar y escalar operaciones
+            con soporte experto y métricas claras.
           </motion.p>
 
           <motion.div
@@ -1136,6 +1180,8 @@ export default function SobreNosotrosPage() {
           </motion.div>
         </div>
       </section>
+
+      <TechMarquee items={stackForRender} />
 
       <section id="identidad" className="about-section-identity py-28 px-4 border-y border-white/5">
         <div className="max-w-7xl mx-auto">
@@ -1680,44 +1726,6 @@ export default function SobreNosotrosPage() {
         <AboutReviewsSection pageContext="sobre-mi" />
       </section>
 
-      <section className="about-section-stack pt-20 md:pt-24 pb-28 md:pb-32 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-20">
-            <motion.h2 className="font-display text-5xl font-bold text-white mb-6" {...fadeInUp}>
-              Stack <span className="gradient-text">Tecnologico</span>
-            </motion.h2>
-            <motion.p className="text-slate-400 max-w-2xl mx-auto text-lg" {...fadeInUp}>
-              Herramientas que usamos para construir productos robustos y preparados para evolucion.
-            </motion.p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {stackForRender.map((tech, i) => {
-              return (
-                <motion.div
-                  key={tech.id ?? `${tech.name}-${i}`}
-                  className="premium-card stack-card group p-6 rounded-2xl bg-slate-800/20 border border-white/10 hover:border-amber-300/50 hover:bg-slate-800/40 transition-all cursor-default text-center"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
-                  whileHover={{ scale: 1.04, y: -4 }}
-                >
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-slate-700/45 flex items-center justify-center group-hover:bg-slate-700/65 transition-colors">
-                    <StackTechIcon
-                      name={tech.name}
-                      iconKey={tech.icon_key}
-                      color={tech.color}
-                    />
-                  </div>
-                  <span className="text-slate-300 font-semibold group-hover:text-white transition-colors">{tech.name}</span>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
       <section id="equipo" className="py-24 px-4 bg-black/40 border-y border-white/5">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left Content - Text and Button */}
@@ -1726,16 +1734,16 @@ export default function SobreNosotrosPage() {
             {...fadeInUp}
           >
             <h2 className="text-center lg:text-left text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white max-w-lg leading-tight">
-              Conozca al equipo que está <span className="gradient-text">dando forma al futuro.</span>
+              Conozca al equipo que <span className="gradient-text">impulsa tu transformación digital.</span>
             </h2>
             <p className="text-center lg:text-left text-lg text-slate-300 max-w-md leading-relaxed">
-              Nuestro diverso equipo de ingenieros, diseñadores e innovadores se dedica a crear agentes de IA que simplifican el trabajo y empoderan a las empresas de todo el mundo.
+              Un equipo senior de ingeniería, diseño y producto dedicado a crear soluciones digitales sólidas, escalables y enfocadas en resultados.
             </p>
             <Link
               href="#contacto"
               className="inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-full font-bold transition-all hover:scale-105 shadow-xl shadow-indigo-500/20"
             >
-              Únete a nuestro equipo
+              Agendar consultoría
               <FaArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
@@ -1761,8 +1769,8 @@ export default function SobreNosotrosPage() {
                     alt={member?.name || "Team Member"}
                   />
                   <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent translate-y-full group-hover:translate-y-0 transition-transform">
-                    <p className="text-white text-sm font-bold">{member?.name || "Experto IA"}</p>
-                    <p className="text-slate-300 text-xs">{member?.role || "Engineering"}</p>
+                    <p className="text-white text-sm font-bold">{member?.name || "Especialista Senior"}</p>
+                    <p className="text-slate-300 text-xs">{member?.role || "Ingeniería"}</p>
                   </div>
                 </motion.div>
               ))}
@@ -1787,8 +1795,8 @@ export default function SobreNosotrosPage() {
                     alt={member?.name || "Team Member"}
                   />
                   <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent translate-y-full group-hover:translate-y-0 transition-transform">
-                    <p className="text-white text-sm font-bold">{member?.name || "Experto IA"}</p>
-                    <p className="text-slate-300 text-xs">{member?.role || "Design"}</p>
+                    <p className="text-white text-sm font-bold">{member?.name || "Especialista Senior"}</p>
+                    <p className="text-slate-300 text-xs">{member?.role || "Diseño"}</p>
                   </div>
                 </motion.div>
               ))}
@@ -1813,7 +1821,7 @@ export default function SobreNosotrosPage() {
                     alt={member?.name || "Team Member"}
                   />
                   <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent translate-y-full group-hover:translate-y-0 transition-transform">
-                    <p className="text-white text-sm font-bold">{member?.name || "Experto IA"}</p>
+                    <p className="text-white text-sm font-bold">{member?.name || "Especialista Senior"}</p>
                     <p className="text-slate-300 text-xs">{member?.role || "Innovación"}</p>
                   </div>
                 </motion.div>
@@ -1823,60 +1831,71 @@ export default function SobreNosotrosPage() {
         </div>
       </section>
 
-      <section id="contacto" className="about-section-contact py-28 px-4 relative overflow-hidden">
-        <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <motion.span
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-block px-4 py-2 rounded-full bg-amber-400/10 border border-amber-300/35 text-amber-300 text-sm font-semibold mb-8"
-          >
-            Contacto institucional
-          </motion.span>
+      <section className="relative py-20 px-6 mb-20 overflow-hidden">
+        <div className="max-w-[1400px] mx-auto relative z-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between text-left rounded-[3rem] py-14 md:py-16 px-10 md:px-24 bg-[url('/img/about-hero-candidate-2.jpg')] bg-cover bg-center bg-no-repeat relative overflow-hidden shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] border border-white/10 group">
+            {/* Dark gradient overlay for extreme horizontal legibility */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0f1a]/95 via-[#0a0f1a]/70 to-[#0a0f1a]/40 backdrop-blur-[1px] group-hover:via-[#0a0f1a]/60 transition-all duration-1000" />
 
-          <motion.h2 className="font-display text-5xl md:text-6xl font-bold text-white mb-8 leading-tight" {...fadeInUp}>
-            Si buscas un equipo serio, conversemos
-          </motion.h2>
-          <motion.p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto" {...fadeInUp}>
-            Podemos revisar tu contexto, identificar prioridades y proponer una hoja de ruta realista para avanzar.
-          </motion.p>
+            {/* Ambient Glows */}
+            <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[600px] h-[400px] bg-indigo-600/20 blur-[130px] rounded-full pointer-events-none" />
 
-          <div className="flex flex-wrap gap-4 justify-center mb-10">
-            <Link
-              href={`mailto:${emailText}`}
-              className="contact-primary-btn group px-10 py-5 bg-gradient-to-r from-amber-200 via-yellow-300 to-orange-300 text-zinc-950 rounded-full font-bold text-lg transition-all hover:scale-105 flex items-center gap-3"
-            >
-              <FaEnvelope className="group-hover:scale-110 transition-transform" />
-              {emailText}
-            </Link>
-
-            <Link
-              href={`tel:${phoneText.replace(/\s+/g, "")}`}
-              className="contact-secondary-btn px-10 py-5 border border-amber-300/30 text-amber-100 rounded-full font-bold text-lg hover:bg-amber-400/10 transition-all flex items-center gap-3"
-            >
-              <FaPhone className="animate-pulse" />
-              {phoneText}
-            </Link>
-          </div>
-
-          <div className="flex justify-center gap-6">
-            {socialLinks.map(({ icon: Icon, url, color }, i) => (
-              <motion.a
-                key={i}
-                href={url}
-                target="_blank"
-                rel="noreferrer"
-                className="social-orb w-14 h-14 rounded-full bg-slate-900/70 border flex items-center justify-center transition-all"
-                style={{
-                  color,
-                  borderColor: `${color}66`,
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 20px rgba(0,0,0,0.35)",
-                }}
-                whileHover={{ y: -5, scale: 1.1, boxShadow: `0 0 24px ${color}66` }}
+            <div className="relative z-10 flex-1 max-w-3xl">
+              <motion.h2
+                className="text-3xl md:text-5xl lg:text-5xl font-bold text-white mb-6 leading-[1.1] tracking-tight"
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
               >
-                <Icon className="w-6 h-6" style={{ filter: `drop-shadow(0 0 8px ${color}66)` }} />
-              </motion.a>
-            ))}
+                Potencie ventas y marketing con una <br className="hidden xl:block" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-violet-200 to-blue-300">
+                  estrategia digital de alto impacto
+                </span>
+              </motion.h2>
+
+              <motion.div
+                className="h-[3px] w-32 my-6 bg-gradient-to-r from-indigo-500 to-transparent"
+                initial={{ width: 0 }}
+                whileInView={{ width: 128 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1, delay: 0.3 }}
+              />
+
+              <motion.p
+                className="text-base md:text-xl text-slate-100/80 leading-relaxed font-medium contrast-125"
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 }}
+              >
+                Integramos automatización, CRM y analítica para acelerar la captación, mejorar la conversión y escalar la experiencia del cliente.
+              </motion.p>
+            </div>
+
+            <motion.div
+              className="relative z-10 mt-10 lg:mt-0 flex flex-col sm:flex-row items-center gap-4 shrink-0"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.7 }}
+            >
+              {/* Primary Action: Asesoría */}
+              <Link
+                href="/asesoria"
+                className="group relative px-10 py-5 text-sm font-black bg-gradient-to-r from-indigo-600 via-violet-600 to-blue-600 hover:scale-105 transition-all duration-500 text-white rounded-2xl shadow-[0_20px_50px_-10px_rgba(79,70,229,0.5)] overflow-hidden text-center min-w-[200px]"
+              >
+                <span className="relative z-10 uppercase tracking-[0.2em]">Solicitar Asesoría</span>
+                <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-500" />
+              </Link>
+
+              {/* Secondary Action: Contacto */}
+              <Link
+                href="/contacto"
+                className="group relative px-10 py-5 text-sm font-black border border-white/20 bg-white/5 hover:bg-white/10 backdrop-blur-md transition-all duration-500 text-white rounded-2xl hover:border-white/40 text-center min-w-[200px]"
+              >
+                <span className="relative z-10 uppercase tracking-[0.2em]">Contáctanos</span>
+              </Link>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -1886,4 +1905,3 @@ export default function SobreNosotrosPage() {
     </div>
   );
 }
-

@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Bloquear rutas de administración y autenticación
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://nextlevelsoftwarepro.com/sitemap.xml

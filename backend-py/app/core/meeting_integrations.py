@@ -352,13 +352,25 @@ def provision_meeting(payload: MeetingProvisionRequest) -> MeetingProvisionResul
         return MeetingProvisionResult(meeting_link=None, status="pending", detail="Proveedor no soportado.")
     except Exception as exc:
         logger.exception("Fallo integracion de meeting para provider=%s: %s", provider, exc)
+        
+        # Fallback forzado si el principal falla y tenemos configurado jitsi o google_meet_personal_workaround
         fallback_link = _fallback_meeting(provider, payload)
+        
+        # Si el usuario pidio google_meet y fallo (por ser cuenta personal), 
+        # intentamos forzar jitsi aunque no este configurado explicitamente como fallback 'none'
+        if provider == "google_meet" and not fallback_link:
+            env_fallback = (os.getenv("BOOKING_MEETING_FALLBACK_PROVIDER") or "").strip().lower()
+            if env_fallback != "none":
+                logger.info("Forzando fallback a Jitsi debido a fallo en Google Meet.")
+                fallback_link = _create_jitsi_meeting(payload)
+
         if fallback_link:
             return MeetingProvisionResult(
                 meeting_link=fallback_link,
                 status="confirmed",
-                detail="No se pudo crear reunion en proveedor principal. Se genero enlace alternativo.",
+                detail="No se pudo crear reunion en proveedor principal. Se genero enlace alternativo (Jitsi).",
             )
+        
         return MeetingProvisionResult(
             meeting_link=None,
             status="pending",

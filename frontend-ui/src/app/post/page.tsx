@@ -7,11 +7,23 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import rehypeRaw from "rehype-raw";
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import "highlight.js/styles/atom-one-dark.css";
 import Link from "next/link";
 import Image from "next/image";
 import { FaArrowLeft, FaClock, FaCalendarAlt, FaShareAlt } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
 import "@/styles/blog-elite.scss";
+
+const markdownSchema = {
+  ...defaultSchema,
+  attributes: {
+    ...defaultSchema.attributes,
+    code: [...(defaultSchema.attributes?.code || []), ["className"]],
+    span: [...(defaultSchema.attributes?.span || []), ["className"]],
+    pre: [...(defaultSchema.attributes?.pre || []), ["className"]],
+  },
+};
 
 function PostContent() {
   const searchParams = useSearchParams();
@@ -22,7 +34,7 @@ function PostContent() {
   useEffect(() => {
     if (!id) return;
     setLoading(true);
-    fetch(`http://localhost:8000/api/blog/${id}`)
+    fetch(`${API_BASE}/api/blog/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setPost(data);
@@ -105,7 +117,10 @@ function PostContent() {
           >
             <div className="post-content-container">
               <article className="prose prose-invert max-w-none">
-                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight, rehypeRaw]}>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeHighlight, rehypeRaw, [rehypeSanitize, markdownSchema]]}
+                >
                   {post.content}
                 </ReactMarkdown>
               </article>

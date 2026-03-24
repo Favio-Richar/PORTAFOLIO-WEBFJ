@@ -24,15 +24,18 @@ from app.models import (
     AdvisoryWeeklyAvailability,
     ServiceAdvisoryCard,
 )
+from app.core.settings import get_setting_value
+from app.core.admin_auth import require_admin
 
 router = APIRouter()
 
 TIMEZONE_LABEL = "America/Santiago"
 ALLOWED_STATUSES = {"pending", "confirmed", "cancelled", "rescheduled"}
-ALLOWED_MEETING_PROVIDERS = {"google_meet", "teams"}
+ALLOWED_MEETING_PROVIDERS = {"google_meet", "teams", "jitsi"}
 PROVIDER_LABELS = {
     "google_meet": "Google Meet",
     "teams": "Teams",
+    "jitsi": "Jitsi Meet",
 }
 
 
@@ -250,7 +253,23 @@ def _send_booking_confirmation_email(booking: AdvisoryBooking) -> bool:
     {meeting_html}
     <p>Si necesitas reagendar, responde este correo o contactanos por WhatsApp.</p>
     """
-    return bool(send_email(booking.customer_email, f"Confirmacion asesoria {booking.booking_code}", body))
+    # Notificacion al cliente
+    sent_client = bool(send_email(booking.customer_email, f"Confirmacion asesoria {booking.booking_code}", body))
+
+    # Notificacion redundante al admin (Copia de seguridad)
+    try:
+        import os
+        admin_email = os.getenv("EMAIL_RECEIVER")
+        if admin_email and admin_email != booking.customer_email:
+            send_email(
+                admin_email,
+                f"COPIA ADMIN: Nueva reserva {booking.booking_code} - {booking.customer_name}",
+                f"<p>Hola Favio, se ha generado una nueva reserva. Aquí tienes la copia del enlace por si el cliente no la recibe:</p>{body}"
+            )
+    except Exception:
+        pass # No bloquear el flujo principal si falla la copia al admin
+
+    return sent_client
 
 
 def _load_service_or_404(session: Session, service_id: str) -> ServiceAdvisoryCard:
@@ -403,7 +422,22 @@ def create_advisory_booking(payload: BookingCreatePayload, session: Session = De
     if hhmm not in available_slots:
         raise HTTPException(status_code=409, detail="Ese horario ya no esta disponible.")
 
+    # Validar horas mínimas de anticipación desde GlobalSettings
+    min_advance_str = get_setting_value(session, "booking_min_advance_hours", "2")
+    try:
+        min_advance_hours = int(min_advance_str)
+    except ValueError:
+        min_advance_hours = 2
+
+    if target_date.date() == now.date():
+        if slot_minutes < (now.hour * 60 + now.minute + (min_advance_hours * 60)):
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Las reservas requieren al menos {min_advance_hours} horas de anticipación."
+            )
+
     booking_code = _generate_booking_code(session)
+    
     meeting_result = provision_meeting(
         MeetingProvisionRequest(
             booking_code=booking_code,
@@ -419,7 +453,14 @@ def create_advisory_booking(payload: BookingCreatePayload, session: Session = De
     )
 
     reminders = payload.reminders if isinstance(payload.reminders, dict) else {}
+    
+    # Prioridad: Configuracion Global de Auto-Confirmacion
+    auto_confirm = get_setting_value(session, "booking_auto_confirm", "true") == "true"
+    
     status = meeting_result.status if meeting_result.status in ALLOWED_STATUSES else "pending"
+    if not auto_confirm:
+        status = "pending"
+        
     booking = AdvisoryBooking(
         booking_code=booking_code,
         service_id=service.id,
@@ -458,7 +499,10 @@ def create_advisory_booking(payload: BookingCreatePayload, session: Session = De
 
 
 @router.get("/admin/bookings", response_model=List[AdminBookingResponse])
-def get_admin_bookings(session: Session = Depends(get_session)):
+def get_admin_bookings(
+    session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
+):
     rows = session.exec(select(AdvisoryBooking).order_by(AdvisoryBooking.created_at.desc())).all()
     return [
         AdminBookingResponse(
@@ -488,6 +532,7 @@ def patch_admin_booking_status(
     booking_id: str,
     payload: BookingStatusUpdatePayload,
     session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
 ):
     next_status = str(payload.status or "").strip().lower()
     if next_status not in ALLOWED_STATUSES:
@@ -514,6 +559,7 @@ def patch_admin_booking_status(
 def delete_admin_booking(
     booking_id: str,
     session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
 ):
     booking = session.exec(select(AdvisoryBooking).where(AdvisoryBooking.booking_code == booking_id).limit(1)).first()
     if not booking:
@@ -530,6 +576,7 @@ def reschedule_admin_booking(
     booking_id: str,
     payload: RescheduleBookingPayload,
     session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
 ):
     booking = session.exec(select(AdvisoryBooking).where(AdvisoryBooking.booking_code == booking_id).limit(1)).first()
     if not booking:
@@ -615,7 +662,11 @@ def reschedule_admin_booking(
 
 
 @router.post("/admin/blocked-slots")
-def create_blocked_slot(payload: BlockSlotPayload, session: Session = Depends(get_session)):
+def create_blocked_slot(
+    payload: BlockSlotPayload,
+    session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
+):
     _validate_iso_date(payload.date)
     hhmm = _validate_hhmm(payload.time)
 
@@ -654,6 +705,7 @@ def get_admin_blocked_slots(
     date_from: Optional[str] = Query(None),
     date_to: Optional[str] = Query(None),
     session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
 ):
     statement = select(AdvisoryBlockedSlot)
     if active_only:
@@ -680,7 +732,11 @@ def get_admin_blocked_slots(
 
 
 @router.delete("/admin/blocked-slots/{slot_id}")
-def delete_admin_blocked_slot(slot_id: int, session: Session = Depends(get_session)):
+def delete_admin_blocked_slot(
+    slot_id: int,
+    session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
+):
     row = session.get(AdvisoryBlockedSlot, slot_id)
     if not row:
         raise HTTPException(status_code=404, detail="Bloqueo no encontrado.")
@@ -692,7 +748,10 @@ def delete_admin_blocked_slot(slot_id: int, session: Session = Depends(get_sessi
 
 
 @router.get("/admin/weekly-availability")
-def get_weekly_availability(session: Session = Depends(get_session)):
+def get_weekly_availability(
+    session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
+):
     rows = session.exec(select(AdvisoryWeeklyAvailability).order_by(AdvisoryWeeklyAvailability.weekday)).all()
     return [
         {
@@ -706,7 +765,11 @@ def get_weekly_availability(session: Session = Depends(get_session)):
 
 
 @router.put("/admin/weekly-availability")
-def update_weekly_availability(payload: WeeklyAvailabilityUpdatePayload, session: Session = Depends(get_session)):
+def update_weekly_availability(
+    payload: WeeklyAvailabilityUpdatePayload,
+    session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
+):
     if not payload.days:
         raise HTTPException(status_code=400, detail="Debes enviar al menos un dia.")
 
@@ -743,18 +806,26 @@ def update_weekly_availability(payload: WeeklyAvailabilityUpdatePayload, session
 
 
 @router.get("/admin/reminders/status")
-def get_admin_reminders_status():
+def get_admin_reminders_status(
+    current_user=Depends(require_admin),
+):
     return get_reminder_runtime_status()
 
 
 @router.post("/admin/reminders/run-now", response_model=ReminderRunResponse)
-def run_admin_reminders_now():
+def run_admin_reminders_now(
+    current_user=Depends(require_admin),
+):
     result = process_due_advisory_reminders()
     return ReminderRunResponse(ok=True, **result)
 
 
 @router.post("/admin/resend-confirmation")
-def resend_booking_confirmation(payload: ResendConfirmationPayload, session: Session = Depends(get_session)):
+def resend_booking_confirmation(
+    payload: ResendConfirmationPayload,
+    session: Session = Depends(get_session),
+    current_user=Depends(require_admin),
+):
     booking = session.exec(
         select(AdvisoryBooking).where(AdvisoryBooking.booking_code == payload.booking_id).limit(1)
     ).first()

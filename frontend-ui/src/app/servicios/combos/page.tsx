@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { FaArrowRight, FaCalendarCheck, FaCheckCircle, FaLayerGroup, FaRocket, FaWhatsapp } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
+
+type ComboSegment = "PYMEs" | "Empresarial";
 
 type Combo = {
   id: number;
+  segment: ComboSegment;
   title: string;
   ideal: string;
   includes: string[];
@@ -18,18 +22,106 @@ type Combo = {
   marketNote: string;
 };
 
+type ComboDiagnosticCard = {
+  id: number;
+  badge: string;
+  title: string;
+  description: string;
+  needsLabel: string;
+  needs: string[];
+  recommendationsLabel: string;
+  recommendationsText: string;
+  ctaText: string;
+  ctaHref: string;
+  theme: string;
+};
+
+type ComboHighlightCard = {
+  id: number;
+  title: string;
+  description: string;
+  items: string[];
+  footerNote: string;
+  theme: string;
+};
+
 type ReservationType = "asesoria" | "combo" | "plan" | "servicio";
 
 const solutionsBackdropImage =
   "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=2400&q=80";
 
-const DEFAULT_WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "56952402170";
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "";
+const DEFAULT_WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "56971464296";
+const BACKEND_URL = API_BASE;
 
 const normalizeWhatsappNumber = (value?: string | null): string =>
   String(value || "")
     .trim()
     .replace(/[^\d]/g, "");
+
+const normalizeComboSegment = (value?: string | null): ComboSegment =>
+  String(value || "").trim().toLowerCase() === "empresarial" ? "Empresarial" : "PYMEs";
+
+const parseListField = (value?: string | string[] | null): string[] => {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item || "").trim()).filter(Boolean);
+  }
+
+  const raw = String(value || "").trim();
+  if (!raw) return [];
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed.map((item) => String(item || "").trim()).filter(Boolean);
+    }
+  } catch {
+    // fallback to plain text parsing
+  }
+
+  return raw
+    .replace(/\r/g, "")
+    .split(/\n|,/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
+
+const mapApiCombo = (item: Record<string, unknown>): Combo => ({
+  id: Number(item.id) || 0,
+  segment: normalizeComboSegment(typeof item.segment === "string" ? item.segment : null),
+  title: String(item.title || ""),
+  ideal: String(item.ideal || ""),
+  includes: parseListField(typeof item.includes === "string" ? item.includes : null),
+  individualValue: String(item.individual_value || ""),
+  comboPrice: String(item.combo_price || ""),
+  note: String(item.note || ""),
+  deliverables: parseListField(typeof item.deliverables === "string" ? item.deliverables : null),
+  timeline: String(item.timeline || ""),
+  notIncluded: parseListField(typeof item.not_included === "string" ? item.not_included : null),
+  marketNote: String(item.market_note || ""),
+});
+
+const mapApiDiagnosticCard = (item: Record<string, unknown>): ComboDiagnosticCard => ({
+  id: Number(item.id) || 0,
+  badge: String(item.badge || ""),
+  title: String(item.title || ""),
+  description: String(item.description || ""),
+  needsLabel: String(item.needs_label || "Generalmente necesitas"),
+  needs: parseListField(typeof item.needs === "string" ? item.needs : null),
+  recommendationsLabel: String(item.recommendations_label || "Te recomendamos"),
+  recommendationsText: String(item.recommendations_text || ""),
+  ctaText: String(item.cta_text || ""),
+  ctaHref: String(item.cta_href || ""),
+  theme: String(item.theme || "emerald"),
+});
+
+const mapApiHighlightCard = (item: Record<string, unknown>): ComboHighlightCard => ({
+  id: Number(item.id) || 0,
+  title: String(item.title || ""),
+  description: String(item.description || ""),
+  items: parseListField(typeof item.items === "string" ? item.items : null),
+  footerNote: String(item.footer_note || ""),
+  theme: String(item.theme || "emerald"),
+});
 
 const buildReservationHref = (type: ReservationType, name: string, price?: string) => {
   const params = new URLSearchParams({
@@ -63,6 +155,7 @@ const buildWhatsappHref = (type: ReservationType, name: string, price?: string, 
 const pymeCombos: Combo[] = [
   {
     id: 1,
+    segment: "PYMEs",
     title: "Combo 1 - Presencia Digital Profesional",
     ideal: "Ideal para negocios que recien quieren profesionalizar su imagen.",
     includes: ["Branding completo", "Pack redes sociales", "Fotografia profesional"],
@@ -85,6 +178,7 @@ const pymeCombos: Combo[] = [
   },
   {
     id: 2,
+    segment: "PYMEs",
     title: "Combo 2 - Crecimiento Digital",
     ideal: "Para negocios que ya tienen web y quieren vender mas.",
     includes: ["SEO Local (1 mes)", "Google Ads setup", "Meta Ads setup", "Email marketing setup"],
@@ -107,6 +201,7 @@ const pymeCombos: Combo[] = [
   },
   {
     id: 3,
+    segment: "PYMEs",
     title: "Combo 3 - E-commerce Optimizado",
     ideal: "Para tiendas online que quieren vender en serio.",
     includes: ["Pasarela de pago", "Email automation", "SEO Local", "Mantenimiento 2 meses"],
@@ -132,6 +227,7 @@ const pymeCombos: Combo[] = [
 const enterpriseCombos: Combo[] = [
   {
     id: 4,
+    segment: "Empresarial",
     title: "Combo 4 - Automatizacion Empresarial",
     ideal: "Para empresas que necesitan orden comercial y operacion trazable.",
     includes: ["Bot WhatsApp API", "Integracion CRM", "Automatizacion email", "Capacitacion equipo"],
@@ -154,6 +250,7 @@ const enterpriseCombos: Combo[] = [
   },
   {
     id: 5,
+    segment: "Empresarial",
     title: "Combo 5 - Transformacion Digital Completa",
     ideal: "Para empresas que buscan estructura digital de alto impacto.",
     includes: ["Migracion WordPress a moderno", "Integracion CRM", "PWA empresarial", "SEO tecnico base"],
@@ -176,34 +273,154 @@ const enterpriseCombos: Combo[] = [
   },
 ];
 
-const pymePremiumItems = [
-  "SEO Local y posicionamiento en Google",
-  "Campanas Google y Meta Ads optimizadas",
-  "Automatizacion de email marketing",
-  "Branding profesional",
-  "Fotografia y contenido visual",
-  "Mantenimiento y soporte continuo",
+const fallbackCombos: Combo[] = [...pymeCombos, ...enterpriseCombos];
+
+const fallbackDiagnosticCards: ComboDiagnosticCard[] = [
+  {
+    id: 1,
+    badge: "1 - PYME",
+    title: "Soy emprendedor o pequena empresa",
+    description: "Estoy comenzando o tengo un negocio pequeno y quiero vender mas.",
+    needsLabel: "Generalmente necesitas",
+    needs: [
+      "Mejorar tu imagen digital",
+      "Aparecer en Google",
+      "Generar mas clientes",
+      "Automatizar tareas basicas",
+      "Ordenar tu presencia online",
+    ],
+    recommendationsLabel: "Te recomendamos",
+    recommendationsText: "SEO Local, Google Ads, Meta Ads, Email Marketing, Branding y Mantenimiento Web.",
+    ctaText: "Ver soluciones para PYMEs",
+    ctaHref: "#pyme-soluciones",
+    theme: "emerald",
+  },
+  {
+    id: 2,
+    badge: "2 - CRECIMIENTO",
+    title: "Soy una empresa en crecimiento",
+    description: "Ya tengo clientes, pero necesito orden, automatizacion y estructura.",
+    needsLabel: "Generalmente necesitas",
+    needs: [
+      "Automatizar procesos internos",
+      "Integrar sistemas",
+      "Centralizar clientes en CRM",
+      "Reducir errores manuales",
+      "Escalar operaciones",
+    ],
+    recommendationsLabel: "Te recomendamos",
+    recommendationsText: "Integracion CRM, Bot WhatsApp Business API, automatizacion avanzada, migracion moderna y App PWA.",
+    ctaText: "Ver soluciones empresariales",
+    ctaHref: "#empresarial-soluciones",
+    theme: "blue",
+  },
+  {
+    id: 3,
+    badge: "3 - CONSOLIDADA",
+    title: "Soy una empresa consolidada",
+    description: "Necesito optimizar, escalar y asegurar mi infraestructura tecnologica.",
+    needsLabel: "Generalmente necesitas",
+    needs: [
+      "Arquitectura tecnologica solida",
+      "Seguridad avanzada",
+      "Optimizacion de rendimiento",
+      "Sistemas personalizados",
+      "Integraciones complejas",
+    ],
+    recommendationsLabel: "Te recomendamos",
+    recommendationsText: "Auditoria de Seguridad, desarrollo a medida, ERP empresarial, hosting dedicado y automatizacion integral.",
+    ctaText: "Solicitar evaluacion estrategica",
+    ctaHref: buildReservationHref("asesoria", "Evaluacion estrategica de empresa"),
+    theme: "violet",
+  },
 ];
 
-const enterprisePremiumItems = [
-  "Integracion CRM avanzada",
-  "Automatizacion con WhatsApp Business API",
-  "Apps moviles PWA",
-  "Migracion tecnologica moderna",
-  "Auditoria de seguridad",
-  "Infraestructura y hosting profesional",
+const fallbackHighlightCards: ComboHighlightCard[] = [
+  {
+    id: 1,
+    title: "Para PYMEs que quieren crecer",
+    description: "Soluciones practicas y efectivas para aumentar ventas, mejorar presencia digital y profesionalizar tu negocio.",
+    items: [
+      "Branding Completo",
+      "Pack Redes Sociales",
+      "Fotografia Profesional",
+      "SEO Local Chile",
+      "Campanas Google Ads",
+      "Meta Ads Facebook Instagram",
+    ],
+    footerNote: "Disenados para negocios que necesitan crecer sin complicaciones tecnicas.",
+    theme: "emerald",
+  },
+  {
+    id: 2,
+    title: "Para Empresas que necesitan escalar",
+    description: "Arquitectura tecnologica, automatizacion y sistemas que ordenan y profesionalizan tu operacion.",
+    items: [
+      "Bot WhatsApp Business API",
+      "Integracion CRM Empresarial",
+      "Email Marketing Automation",
+      "Capacitacion Equipo Comercial",
+      "Migracion WordPress a Tecnologia Moderna",
+      "App Movil PWA Empresarial",
+    ],
+    footerNote: "Pensado para empresas que quieren estructura, control y crecimiento sostenido.",
+    theme: "blue",
+  },
 ];
 
 const parseClpValue = (value: string): number => Number(String(value || "").replace(/[^\d]/g, "")) || 0;
 const formatClp = (value: number): string => `$${value.toLocaleString("es-CL")} CLP`;
 
+const diagnosticThemeStyles: Record<string, { article: string; badge: string; label: string; cta: string; icon: string }> = {
+  emerald: {
+    article: "border-emerald-300/30 bg-emerald-500/10",
+    badge: "border-emerald-300/35 bg-emerald-500/15 text-emerald-100",
+    label: "text-emerald-100",
+    cta: "border-emerald-300/40 bg-emerald-500/20 text-emerald-100 hover:bg-emerald-500/30",
+    icon: "text-emerald-300",
+  },
+  blue: {
+    article: "border-blue-300/30 bg-blue-500/10",
+    badge: "border-blue-300/35 bg-blue-500/15 text-blue-100",
+    label: "text-blue-100",
+    cta: "border-blue-300/40 bg-blue-500/20 text-blue-100 hover:bg-blue-500/30",
+    icon: "text-blue-300",
+  },
+  violet: {
+    article: "border-violet-300/30 bg-violet-500/10",
+    badge: "border-violet-300/35 bg-violet-500/15 text-violet-100",
+    label: "text-violet-100",
+    cta: "border-violet-300/40 bg-violet-500/20 text-violet-100 hover:bg-violet-500/30",
+    icon: "text-violet-300",
+  },
+};
+
+const highlightThemeStyles: Record<string, { article: string; title: string; icon: string; footer: string }> = {
+  emerald: {
+    article: "border-emerald-300/30 bg-emerald-500/10",
+    title: "text-emerald-100",
+    icon: "text-emerald-300",
+    footer: "text-emerald-100/90",
+  },
+  blue: {
+    article: "border-blue-300/30 bg-blue-500/10",
+    title: "text-blue-100",
+    icon: "text-blue-300",
+    footer: "text-blue-100/90",
+  },
+  violet: {
+    article: "border-violet-300/30 bg-violet-500/10",
+    title: "text-violet-100",
+    icon: "text-violet-300",
+    footer: "text-violet-100/90",
+  },
+};
+
 function ComboCard({
   combo,
-  segment,
   whatsappNumber,
 }: {
   combo: Combo;
-  segment: "PYMEs" | "Empresarial";
   whatsappNumber: string;
 }) {
   const individualAmount = parseClpValue(combo.individualValue);
@@ -217,7 +434,7 @@ function ComboCard({
       <div className="relative z-10 space-y-4">
         <div className="flex items-center justify-between gap-2">
           <span className="rounded-full border border-cyan-300/35 bg-cyan-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-cyan-100">
-            {segment}
+            {combo.segment}
           </span>
           <span className="text-xs font-semibold text-slate-300">#{combo.id}</span>
         </div>
@@ -327,32 +544,81 @@ function ComboCard({
 
 export default function ServiciosCombosPage() {
   const [resolvedWhatsappNumber, setResolvedWhatsappNumber] = useState<string>(normalizeWhatsappNumber(DEFAULT_WHATSAPP_NUMBER));
+  const [liveCombos, setLiveCombos] = useState<Combo[]>([]);
+  const [liveDiagnosticCards, setLiveDiagnosticCards] = useState<ComboDiagnosticCard[]>([]);
+  const [liveHighlightCards, setLiveHighlightCards] = useState<ComboHighlightCard[]>([]);
 
   useEffect(() => {
     let cancelled = false;
 
-    const loadContactWhatsapp = async () => {
+    const loadPageData = async () => {
       try {
-        const response = await fetch(`${BACKEND_URL}/api/contact`);
-        if (!response.ok) return;
-        const payload = (await response.json().catch(() => null)) as
-          | { whatsapp?: string | null; phone?: string | null }
-          | null;
-        const fromContact = normalizeWhatsappNumber(payload?.whatsapp || payload?.phone);
-        if (!cancelled && fromContact) {
-          setResolvedWhatsappNumber(fromContact);
+        const [contactResponse, combosResponse, diagnosticResponse, highlightResponse] = await Promise.all([
+          fetch(`${BACKEND_URL}/api/contact`),
+          fetch(`${BACKEND_URL}/api/services-page/combos`),
+          fetch(`${BACKEND_URL}/api/services-page/combo-diagnostic-cards`),
+          fetch(`${BACKEND_URL}/api/services-page/combo-highlight-cards`),
+        ]);
+
+        if (contactResponse.ok) {
+          const payload = (await contactResponse.json().catch(() => null)) as
+            | { whatsapp?: string | null; phone?: string | null }
+            | null;
+          const fromContact = normalizeWhatsappNumber(payload?.whatsapp || payload?.phone);
+          if (!cancelled && fromContact) {
+            setResolvedWhatsappNumber(fromContact);
+          }
+        }
+
+        if (combosResponse.ok) {
+          const payload = (await combosResponse.json().catch(() => [])) as Record<string, unknown>[];
+          if (!cancelled && Array.isArray(payload) && payload.length > 0) {
+            setLiveCombos(payload.map(mapApiCombo).filter((item) => item.id > 0));
+          }
+        }
+
+        if (diagnosticResponse.ok) {
+          const payload = (await diagnosticResponse.json().catch(() => [])) as Record<string, unknown>[];
+          if (!cancelled && Array.isArray(payload) && payload.length > 0) {
+            setLiveDiagnosticCards(payload.map(mapApiDiagnosticCard).filter((item) => item.id > 0));
+          }
+        }
+
+        if (highlightResponse.ok) {
+          const payload = (await highlightResponse.json().catch(() => [])) as Record<string, unknown>[];
+          if (!cancelled && Array.isArray(payload) && payload.length > 0) {
+            setLiveHighlightCards(payload.map(mapApiHighlightCard).filter((item) => item.id > 0));
+          }
         }
       } catch {
-        // keep env fallback
+        // keep safe fallbacks
       }
     };
 
-    void loadContactWhatsapp();
+    void loadPageData();
 
     return () => {
       cancelled = true;
     };
   }, []);
+
+  const displayCombos = useMemo(() => (liveCombos.length > 0 ? liveCombos : fallbackCombos), [liveCombos]);
+  const displayPymeCombos = useMemo(
+    () => displayCombos.filter((combo) => combo.segment === "PYMEs"),
+    [displayCombos]
+  );
+  const displayEnterpriseCombos = useMemo(
+    () => displayCombos.filter((combo) => combo.segment === "Empresarial"),
+    [displayCombos]
+  );
+  const displayDiagnosticCards = useMemo(
+    () => (liveDiagnosticCards.length > 0 ? liveDiagnosticCards : fallbackDiagnosticCards),
+    [liveDiagnosticCards]
+  );
+  const displayHighlightCards = useMemo(
+    () => (liveHighlightCards.length > 0 ? liveHighlightCards : fallbackHighlightCards),
+    [liveHighlightCards]
+  );
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#040917] text-slate-100">
@@ -410,122 +676,44 @@ export default function ServiciosCombosPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <article className="rounded-2xl border border-emerald-300/30 bg-emerald-500/10 p-6">
-            <span className="inline-flex rounded-full border border-emerald-300/35 bg-emerald-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-100">
-              1 - PYME
-            </span>
-            <h3 className="mt-4 text-xl font-black text-white">Soy emprendedor o pequena empresa</h3>
-            <p className="mt-2 text-sm text-slate-200">Estoy comenzando o tengo un negocio pequeno y quiero vender mas.</p>
+          {displayDiagnosticCards.map((card) => {
+            const theme = diagnosticThemeStyles[card.theme] || diagnosticThemeStyles.emerald;
 
-            <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4">
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-emerald-100">Generalmente necesitas</p>
-              <ul className="mt-3 space-y-2 text-sm text-slate-200">
-                {[
-                  "Mejorar tu imagen digital",
-                  "Aparecer en Google",
-                  "Generar mas clientes",
-                  "Automatizar tareas basicas",
-                  "Ordenar tu presencia online",
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-2">
-                    <FaCheckCircle className="mt-0.5 shrink-0 text-emerald-300" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            return (
+              <article key={card.id} className={`rounded-2xl border p-6 ${theme.article}`}>
+                <span className={`inline-flex rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${theme.badge}`}>
+                  {card.badge}
+                </span>
+                <h3 className="mt-4 text-xl font-black text-white">{card.title}</h3>
+                <p className="mt-2 text-sm text-slate-200">{card.description}</p>
 
-            <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4">
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-emerald-100">Te recomendamos</p>
-              <p className="mt-2 text-sm text-slate-200">SEO Local, Google Ads, Meta Ads, Email Marketing, Branding y Mantenimiento Web.</p>
-            </div>
+                <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4">
+                  <p className={`text-[11px] font-black uppercase tracking-[0.16em] ${theme.label}`}>{card.needsLabel}</p>
+                  <ul className="mt-3 space-y-2 text-sm text-slate-200">
+                    {card.needs.map((item) => (
+                      <li key={item} className="flex items-start gap-2">
+                        <FaCheckCircle className={`mt-0.5 shrink-0 ${theme.icon}`} />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            <Link
-              href="#pyme-soluciones"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl border border-emerald-300/40 bg-emerald-500/20 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-emerald-100 transition hover:bg-emerald-500/30"
-            >
-              Ver soluciones para PYMEs
-              <FaArrowRight />
-            </Link>
-          </article>
+                <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4">
+                  <p className={`text-[11px] font-black uppercase tracking-[0.16em] ${theme.label}`}>{card.recommendationsLabel}</p>
+                  <p className="mt-2 text-sm text-slate-200">{card.recommendationsText}</p>
+                </div>
 
-          <article className="rounded-2xl border border-blue-300/30 bg-blue-500/10 p-6">
-            <span className="inline-flex rounded-full border border-blue-300/35 bg-blue-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-blue-100">
-              2 - CRECIMIENTO
-            </span>
-            <h3 className="mt-4 text-xl font-black text-white">Soy una empresa en crecimiento</h3>
-            <p className="mt-2 text-sm text-slate-200">Ya tengo clientes, pero necesito orden, automatizacion y estructura.</p>
-
-            <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4">
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-blue-100">Generalmente necesitas</p>
-              <ul className="mt-3 space-y-2 text-sm text-slate-200">
-                {[
-                  "Automatizar procesos internos",
-                  "Integrar sistemas",
-                  "Centralizar clientes en CRM",
-                  "Reducir errores manuales",
-                  "Escalar operaciones",
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-2">
-                    <FaCheckCircle className="mt-0.5 shrink-0 text-blue-300" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4">
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-blue-100">Te recomendamos</p>
-              <p className="mt-2 text-sm text-slate-200">Integracion CRM, Bot WhatsApp Business API, automatizacion avanzada, migracion moderna y App PWA.</p>
-            </div>
-
-            <Link
-              href="#empresarial-soluciones"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl border border-blue-300/40 bg-blue-500/20 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-blue-100 transition hover:bg-blue-500/30"
-            >
-              Ver soluciones empresariales
-              <FaArrowRight />
-            </Link>
-          </article>
-
-          <article className="rounded-2xl border border-violet-300/30 bg-violet-500/10 p-6">
-            <span className="inline-flex rounded-full border border-violet-300/35 bg-violet-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-violet-100">
-              3 - CONSOLIDADA
-            </span>
-            <h3 className="mt-4 text-xl font-black text-white">Soy una empresa consolidada</h3>
-            <p className="mt-2 text-sm text-slate-200">Necesito optimizar, escalar y asegurar mi infraestructura tecnologica.</p>
-
-            <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4">
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-violet-100">Generalmente necesitas</p>
-              <ul className="mt-3 space-y-2 text-sm text-slate-200">
-                {[
-                  "Arquitectura tecnologica solida",
-                  "Seguridad avanzada",
-                  "Optimizacion de rendimiento",
-                  "Sistemas personalizados",
-                  "Integraciones complejas",
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-2">
-                    <FaCheckCircle className="mt-0.5 shrink-0 text-violet-300" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4">
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-violet-100">Te recomendamos</p>
-              <p className="mt-2 text-sm text-slate-200">Auditoria de Seguridad, desarrollo a medida, ERP empresarial, hosting dedicado y automatizacion integral.</p>
-            </div>
-
-            <Link
-              href={buildReservationHref("asesoria", "Evaluacion estrategica de empresa")}
-              className="mt-5 inline-flex items-center gap-2 rounded-xl border border-violet-300/40 bg-violet-500/20 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-violet-100 transition hover:bg-violet-500/30"
-            >
-              Solicitar evaluacion estrategica
-              <FaArrowRight />
-            </Link>
-          </article>
+                <Link
+                  href={card.ctaHref}
+                  className={`mt-5 inline-flex items-center gap-2 rounded-xl border px-4 py-3 text-xs font-black uppercase tracking-[0.14em] transition ${theme.cta}`}
+                >
+                  {card.ctaText}
+                  <FaArrowRight />
+                </Link>
+              </article>
+            );
+          })}
         </div>
       </section>
 
@@ -537,8 +725,8 @@ export default function ServiciosCombosPage() {
           <h2 className="text-2xl font-black text-white md:text-3xl">Combos para PYMEs</h2>
         </div>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {pymeCombos.map((combo) => (
-            <ComboCard key={combo.id} combo={combo} segment="PYMEs" whatsappNumber={resolvedWhatsappNumber} />
+          {displayPymeCombos.map((combo) => (
+            <ComboCard key={combo.id} combo={combo} whatsappNumber={resolvedWhatsappNumber} />
           ))}
         </div>
       </section>
@@ -551,8 +739,8 @@ export default function ServiciosCombosPage() {
           <h2 className="text-2xl font-black text-white md:text-3xl">Combos Empresariales</h2>
         </div>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {enterpriseCombos.map((combo) => (
-            <ComboCard key={combo.id} combo={combo} segment="Empresarial" whatsappNumber={resolvedWhatsappNumber} />
+          {displayEnterpriseCombos.map((combo) => (
+            <ComboCard key={combo.id} combo={combo} whatsappNumber={resolvedWhatsappNumber} />
           ))}
         </div>
       </section>
@@ -587,42 +775,25 @@ export default function ServiciosCombosPage() {
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <article className="rounded-2xl border border-emerald-300/30 bg-emerald-500/10 p-6">
-            <h4 className="text-xl font-black text-emerald-100">Para PYMEs que quieren crecer</h4>
-            <p className="mt-2 text-sm text-slate-200">
-              Soluciones practicas y efectivas para aumentar ventas, mejorar presencia digital y profesionalizar tu
-              negocio.
-            </p>
-            <ul className="mt-4 space-y-2">
-              {pymePremiumItems.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-slate-100">
-                  <FaCheckCircle className="mt-0.5 text-emerald-300" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-4 text-xs uppercase tracking-[0.14em] text-emerald-100/90">
-              Disenados para negocios que necesitan crecer sin complicaciones tecnicas.
-            </p>
-          </article>
+          {displayHighlightCards.map((card) => {
+            const theme = highlightThemeStyles[card.theme] || highlightThemeStyles.emerald;
 
-          <article className="rounded-2xl border border-blue-300/30 bg-blue-500/10 p-6">
-            <h4 className="text-xl font-black text-blue-100">Para Empresas que necesitan escalar</h4>
-            <p className="mt-2 text-sm text-slate-200">
-              Arquitectura tecnologica, automatizacion y sistemas que ordenan y profesionalizan tu operacion.
-            </p>
-            <ul className="mt-4 space-y-2">
-              {enterprisePremiumItems.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm text-slate-100">
-                  <FaCheckCircle className="mt-0.5 text-blue-300" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-4 text-xs uppercase tracking-[0.14em] text-blue-100/90">
-              Pensado para empresas que quieren estructura, control y crecimiento sostenido.
-            </p>
-          </article>
+            return (
+              <article key={card.id} className={`rounded-2xl border p-6 ${theme.article}`}>
+                <h4 className={`text-xl font-black ${theme.title}`}>{card.title}</h4>
+                <p className="mt-2 text-sm text-slate-200">{card.description}</p>
+                <ul className="mt-4 space-y-2">
+                  {card.items.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm text-slate-100">
+                      <FaCheckCircle className={`mt-0.5 ${theme.icon}`} />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className={`mt-4 text-xs uppercase tracking-[0.14em] ${theme.footer}`}>{card.footerNote}</p>
+              </article>
+            );
+          })}
         </div>
       </section>
 

@@ -1,11 +1,10 @@
 ﻿export const INDUSTRIES = [
   "todos",
-  "tecnología",
-  "finanzas",
-  "salud",
-  "retail",
-  "educación",
-  "construcción",
+  "sistemas-web",
+  "crm-erp",
+  "infraestructura-cloud",
+  "apps-mobile",
+  "agencias-digitales",
 ];
 
 

@@ -1,0 +1,129 @@
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   README.md
+	modified:   backend-py/.env.example
+	modified:   backend-py/.vscode/settings.json
+	modified:   backend-py/app/api/about_stack.py
+	modified:   backend-py/app/api/ads.py
+	modified:   backend-py/app/api/asesoria.py
+	modified:   backend-py/app/api/auth.py
+	modified:   backend-py/app/api/blog.py
+	modified:   backend-py/app/api/casos_completos.py
+	modified:   backend-py/app/api/casos_exito.py
+	modified:   backend-py/app/api/certifications.py
+	modified:   backend-py/app/api/contact.py
+	modified:   backend-py/app/api/education.py
+	modified:   backend-py/app/api/enviar_cotizacion.py
+	modified:   backend-py/app/api/experience.py
+	modified:   backend-py/app/api/media.py
+	modified:   backend-py/app/api/profile.py
+	modified:   backend-py/app/api/proyectos.py
+	modified:   backend-py/app/api/reviews.py
+	modified:   backend-py/app/api/services_page.py
+	modified:   backend-py/app/api/team.py
+	modified:   backend-py/app/api/timeline.py
+	modified:   backend-py/app/api/upload.py
+	modified:   backend-py/app/core/email.py
+	modified:   backend-py/app/core/meeting_integrations.py
+	modified:   backend-py/app/core/security.py
+	modified:   backend-py/app/db.py
+	modified:   backend-py/app/main.py
+	modified:   backend-py/app/models.py
+	modified:   backend-py/force_cleanup.py
+	deleted:    backend-py/requirements.txt
+	modified:   backend-py/test_email.py
+	modified:   frontend-ui/package-lock.json
+	modified:   frontend-ui/package.json
+	modified:   frontend-ui/src/app/admin/layout.tsx
+	modified:   frontend-ui/src/app/admin/page.tsx
+	modified:   frontend-ui/src/app/asesoria/page.tsx
+	modified:   frontend-ui/src/app/auth/forgot-password/page.tsx
+	modified:   frontend-ui/src/app/auth/login/page.tsx
+	modified:   frontend-ui/src/app/blog/[id]/page.tsx
+	modified:   frontend-ui/src/app/blog/page.tsx
+	modified:   frontend-ui/src/app/clientes/casos-completos/page.tsx
+	modified:   frontend-ui/src/app/clientes/components/ReviewsWallSection.tsx
+	modified:   frontend-ui/src/app/clientes/constants.ts
+	modified:   frontend-ui/src/app/clientes/data.tsx
+	modified:   frontend-ui/src/app/clientes/page.tsx
+	modified:   frontend-ui/src/app/contacto/page.tsx
+	deleted:    frontend-ui/src/app/cotizar/page.tsx
+	modified:   frontend-ui/src/app/globals.css
+	modified:   frontend-ui/src/app/layout.tsx
+	modified:   frontend-ui/src/app/post/page.tsx
+	modified:   frontend-ui/src/app/proyectos/page.tsx
+	modified:   frontend-ui/src/app/servicios/combos/page.tsx
+	modified:   frontend-ui/src/app/servicios/page.tsx
+	modified:   frontend-ui/src/app/sobre-mi/_CertModal.tsx
+	modified:   frontend-ui/src/app/sobre-mi/page.tsx
+	modified:   frontend-ui/src/components/admin/AboutStackAdmin.tsx
+	modified:   frontend-ui/src/components/admin/AdsAdmin.tsx
+	modified:   frontend-ui/src/components/admin/AdvisoriesAdmin.tsx
+	modified:   frontend-ui/src/components/admin/BlogAdmin.tsx
+	modified:   frontend-ui/src/components/admin/CertificationsAdmin.tsx
+	modified:   frontend-ui/src/components/admin/ClientFullCasesAdmin.tsx
+	modified:   frontend-ui/src/components/admin/ClientsAdmin.tsx
+	modified:   frontend-ui/src/components/admin/ContactAdmin.tsx
+	modified:   frontend-ui/src/components/admin/EducationAdmin.tsx
+	modified:   frontend-ui/src/components/admin/ExperienceAdmin.tsx
+	modified:   frontend-ui/src/components/admin/MediaAdmin.tsx
+	modified:   frontend-ui/src/components/admin/ProfileAdmin.tsx
+	modified:   frontend-ui/src/components/admin/ProjectsAdmin.tsx
+	modified:   frontend-ui/src/components/admin/ServicesAdmin.tsx
+	modified:   frontend-ui/src/components/admin/TeamAdmin.tsx
+	modified:   frontend-ui/src/components/admin/TestimonialsAdmin.tsx
+	modified:   frontend-ui/src/components/admin/TimelineAdmin.tsx
+	modified:   frontend-ui/src/components/admin/layout/AdminSidebar.tsx
+	modified:   frontend-ui/src/components/auth/AdCarousel.tsx
+	modified:   frontend-ui/src/components/home/BlogHome.tsx
+	modified:   frontend-ui/src/components/home/ContactO.tsx
+	modified:   frontend-ui/src/components/home/Experiencia.tsx
+	modified:   frontend-ui/src/components/home/Hero.tsx
+	modified:   frontend-ui/src/components/home/Metodologia.tsx
+	modified:   frontend-ui/src/components/home/ProyectosHome.tsx
+	modified:   frontend-ui/src/components/home/ServiciosHome.tsx
+	modified:   frontend-ui/src/components/home/Testimonios.tsx
+	modified:   frontend-ui/src/components/layout/FloatingChat.tsx
+	modified:   frontend-ui/src/components/layout/Footer.tsx
+	modified:   frontend-ui/src/components/layout/InteractiveMap.tsx
+	modified:   frontend-ui/src/components/layout/Navbar.tsx
+	modified:   frontend-ui/src/components/reviews/AboutReviewsSection.tsx
+	modified:   frontend-ui/src/components/reviews/PageReviewsWall.tsx
+	modified:   frontend-ui/src/lib/backendClient.ts
+	modified:   frontend-ui/src/styles/clients-elite.scss
+	modified:   frontend-ui/tsconfig.tsbuildinfo
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.git_log_dump.txt
+	.git_status_dump.txt
+	.gitlog_cmd.txt
+	.gitstat_cmd.txt
+	backend-py/app/api/admin_settings.py
+	backend-py/app/api/ai_assistant.py
+	backend-py/app/api/subscribers.py
+	backend-py/app/core/admin_auth.py
+	backend-py/app/core/settings.py
+	backend-py/email_errors.log
+	backend-py/verify_system.py
+	frontend-ui/public/img/Responsive.jpg
+	frontend-ui/public/img/agency-hero.png
+	frontend-ui/public/robots.txt
+	frontend-ui/src/app/gracias/
+	frontend-ui/src/app/not-found.tsx
+	frontend-ui/src/app/privacidad/
+	frontend-ui/src/app/proyectos/[slug]/
+	frontend-ui/src/app/sitemap.ts
+	frontend-ui/src/app/terminos/
+	frontend-ui/src/components/admin/QuotesAdmin.tsx
+	frontend-ui/src/components/admin/SettingsAdmin.tsx
+	frontend-ui/src/components/admin/SubscribersAdmin.tsx
+	frontend-ui/src/lib/adminFetch.ts
+	frontend-ui/src/lib/apiBase.ts
+	frontend-ui/src/lib/sanitizeHtml.ts
+
+no changes added to commit (use "git add" and/or "git commit -a")

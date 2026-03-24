@@ -19,6 +19,9 @@ import {
   FaSearch,
   FaPencilRuler,
   FaCogs,
+  FaServer,
+  FaCode,
+  FaDatabase,
 } from "react-icons/fa";
 import {
   HiOutlineChatBubbleLeftRight,
@@ -30,19 +33,19 @@ import {
 } from "react-icons/hi2";
 
 export const GLOBAL_STATS = [
-  { number: "200+", label: "Clientes Globales", icon: <FaGlobeAmericas className="text-cyan-300" /> },
-  { number: "$2.5B+", label: "Revenue Generado", icon: <FaChartLine className="text-blue-300" /> },
-  { number: "99.8%", label: "Tasa de Exito", icon: <FaShieldAlt className="text-emerald-300" /> },
-  { number: "24/7", label: "Soporte Dedicado", icon: <FaHeadset className="text-sky-300" /> },
+  { number: "99.9%", label: "Uptime Garantizado", icon: <FaShieldAlt className="text-emerald-300" /> },
+  { number: "1M+", label: "Líneas de Código", icon: <HiOutlineCommandLine className="text-blue-300" /> },
+  { number: "500+", label: "Deploys Exitosos", icon: <FaRocket className="text-cyan-300" /> },
+  { number: "24/7", label: "Monitoreo Proactivo", icon: <FaHeadset className="text-sky-300" /> },
 ];
 
 export const GLOBAL_RESULTS = [
-  { number: "850+", label: "Proyectos Completados", icon: <FaCheckCircle className="text-emerald-400" />, description: "En 50+ paises", trend: "+127% YoY" },
-  { number: "$4.8B", label: "Revenue Cliente Generado", icon: <FaChartLine className="text-blue-400" />, description: "Impacto economico total", trend: "+215% crecimiento" },
-  { number: "98.9%", label: "Satisfaccion Cliente", icon: <FaStar className="text-yellow-400" />, description: "Promedio de calificacion", trend: "4.9/5.0 estrellas" },
-  { number: "15", label: "Industrias Atendidas", icon: <FaBuilding className="text-sky-400" />, description: "Experiencia diversa", trend: "Tech, Finance, Health+" },
-  { number: "2.3M", label: "Usuarios Finales", icon: <FaGlobeAmericas className="text-indigo-400" />, description: "Alcance global", trend: "+340% engagement" },
-  { number: "92%", label: "Retencion Clientes", icon: <FaShieldAlt className="text-emerald-400" />, description: "Relaciones a largo plazo", trend: "Promedio 4.2 anos" },
+  { number: "450+", label: "Sistemas Desplegados", icon: <FaCheckCircle className="text-emerald-400" />, description: "Soluciones robustas", trend: "+85% YoY" },
+  { number: "99.99%", label: "Uptime Promedio", icon: <FaShieldAlt className="text-blue-400" />, description: "Disponibilidad crítica", trend: "SLA Enterprise" },
+  { number: "98.9%", label: "Eficiencia de Código", icon: <FaStar className="text-yellow-400" />, description: "Performance optimizado", trend: "SonarQube A+" },
+  { number: "50+", label: "Integraciones API", icon: <FaBuilding className="text-sky-400" />, description: "Ecosistemas conectados", trend: "REST, GraphQL, gRPC" },
+  { number: "4.5M", label: "Requests / Día", icon: <FaGlobeAmericas className="text-indigo-400" />, description: "Escalabilidad probada", trend: "+210% throughput" },
+  { number: "92%", label: "Retención Técnica", icon: <FaShieldAlt className="text-emerald-400" />, description: "Relaciones a largo plazo", trend: "SaaS & Ops" },
 ];
 
 export const IMPACT_CARD_THEMES = [
@@ -258,14 +261,14 @@ export const HERO_BACKGROUND_FALLBACK = [
 export const CLIENTS_HERO_TAG = "[clients-hero]";
 
 export const INDUSTRY_ICON_RAIL = [
-  { icon: <FaBullseye />, color: "#EF4444", glow: "rgba(239,68,68,0.38)", label: "Estrategia" },
-  { icon: <FaTools />, color: "#94A3B8", glow: "rgba(148,163,184,0.35)", label: "Ingenieria" },
-  { icon: <FaRocket />, color: "#3B82F6", glow: "rgba(59,130,246,0.38)", label: "Lanzamiento" },
-  { icon: <FaGem />, color: "#06B6D4", glow: "rgba(6,182,212,0.38)", label: "Premium" },
-  { icon: <FaHospital />, color: "#EC4899", glow: "rgba(236,72,153,0.36)", label: "Salud" },
-  { icon: <FaShoppingBag />, color: "#0EA5E9", glow: "rgba(14,165,233,0.36)", label: "Retail" },
-  { icon: <FaGraduationCap />, color: "#8B5CF6", glow: "rgba(139,92,246,0.36)", label: "Educacion" },
-  { icon: <FaBolt />, color: "#F59E0B", glow: "rgba(245,158,11,0.38)", label: "Energia" },
-  { icon: <FaUniversity />, color: "#A78BFA", glow: "rgba(167,139,250,0.36)", label: "Finanzas" },
-  { icon: <FaBuilding />, color: "#22C55E", glow: "rgba(34,197,94,0.36)", label: "Enterprise" },
+  { icon: <HiOutlineCommandLine />, color: "#3B82F6", glow: "rgba(59,130,246,0.38)", label: "Desarrollo" },
+  { icon: <FaCogs />, color: "#94A3B8", glow: "rgba(148,163,184,0.35)", label: "Sistemas" },
+  { icon: <FaShieldAlt />, color: "#10B981", glow: "rgba(16,185,129,0.38)", label: "Seguridad" },
+  { icon: <FaServer />, color: "#06B6D4", glow: "rgba(6,182,212,0.38)", label: "Cloud" },
+  { icon: <FaCode />, color: "#8B5CF6", glow: "rgba(139,92,246,0.36)", label: "Software" },
+  { icon: <FaRocket />, color: "#0EA5E9", glow: "rgba(14,165,233,0.36)", label: "SaaS" },
+  { icon: <FaTools />, color: "#F59E0B", glow: "rgba(245,158,11,0.38)", label: "Soporte" },
+  { icon: <FaBolt />, color: "#FBBF24", glow: "rgba(251,191,36,0.38)", label: "Optimización" },
+  { icon: <FaDatabase />, color: "#A78BFA", glow: "rgba(167,139,250,0.36)", label: "Backend" },
+  { icon: <FaBuilding />, color: "#22C55E", glow: "rgba(34,197,94,0.36)", label: "ERP/CRM" },
 ];

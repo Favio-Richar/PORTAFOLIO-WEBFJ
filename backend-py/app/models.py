@@ -271,6 +271,18 @@ class ProfessionalPlan(SQLModel, table=True):
     category: Optional[str] = None
     order_index: int = Field(default=0)
 
+
+class Quote(SQLModel, table=True):
+    """Modelo para almacenar las cotizaciones enviadas por los clientes"""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    nombre: str
+    email: str
+    telefono: Optional[str] = None
+    mensaje: str
+    status: str = Field(default="pending", index=True) # pending, reviewed, contacted
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = None
+
 class AdditionalService(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
@@ -281,6 +293,54 @@ class AdditionalService(SQLModel, table=True):
     includes: Optional[str] = None
     recurring: bool = Field(default=False)
     payment_type: Optional[str] = "one-time"
+
+class ServiceCombo(SQLModel, table=True):
+    __tablename__ = "service_combo"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str
+    segment: str = Field(default="PYMEs", index=True)
+    ideal: str
+    includes: Optional[str] = Field(default="[]")
+    individual_value: str
+    combo_price: str
+    note: str
+    deliverables: Optional[str] = Field(default="[]")
+    timeline: str
+    not_included: Optional[str] = Field(default="[]")
+    market_note: Optional[str] = None
+    order_index: int = Field(default=0, index=True)
+    active: bool = Field(default=True, index=True)
+
+class ServiceComboDiagnosticCard(SQLModel, table=True):
+    __tablename__ = "service_combo_diagnostic_card"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    badge: str
+    title: str
+    description: str
+    needs_label: str = Field(default="Generalmente necesitas")
+    needs: Optional[str] = Field(default="[]")
+    recommendations_label: str = Field(default="Te recomendamos")
+    recommendations_text: str
+    cta_text: str
+    cta_href: str
+    theme: str = Field(default="emerald", index=True)
+    order_index: int = Field(default=0, index=True)
+    active: bool = Field(default=True, index=True)
+
+
+class ServiceComboHighlightCard(SQLModel, table=True):
+    __tablename__ = "service_combo_highlight_card"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str
+    description: str
+    items: Optional[str] = Field(default="[]")
+    footer_note: Optional[str] = None
+    theme: str = Field(default="emerald", index=True)
+    order_index: int = Field(default=0, index=True)
+    active: bool = Field(default=True, index=True)
 
 class ServiceAdvisoryCard(SQLModel, table=True):
     __tablename__ = "service_advisory_card"
@@ -380,6 +440,15 @@ class ServiceIndustry(SQLModel, table=True):
     order_index: int = Field(default=0, index=True)
     active: bool = Field(default=True, index=True)
 
+class ServiceMarqueeCard(SQLModel, table=True):
+    __tablename__ = "service_marquee_card"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str
+    image_url: str
+    order_index: int = Field(default=0, index=True)
+    active: bool = Field(default=True, index=True)
+
 # ========== ABOUT STACK ========== 
 
 class AboutStackItem(SQLModel, table=True):
@@ -424,3 +493,97 @@ class Media(SQLModel, table=True):
     active: bool = Field(default=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+
+# ========== CONFIGURACIÓN GLOBAL ==========
+
+class GlobalSetting(SQLModel, table=True):
+    __tablename__ = "global_setting"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    key: str = Field(index=True, unique=True)
+    value: str
+    description: Optional[str] = None
+    group: str = Field(default="general", index=True)
+    is_sensitive: bool = Field(default=False)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+# ========== NEWSLETTER / SUBSCRIPTIONS ==========
+
+class NewsletterSubscriber(SQLModel, table=True):
+    __tablename__ = "newsletter_subscriber"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    email: str = Field(index=True, unique=True)
+    full_name: Optional[str] = None
+    status: str = Field(default="active", index=True)  # active | unsubscribed | bounced | blocked
+    source: str = Field(default="admin", index=True)  # admin | blog | website | import | api
+    tags: Optional[str] = Field(default="[]")  # JSON array string
+    notes: Optional[str] = None
+    subscribed_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    email_verified_at: Optional[datetime] = Field(default=None, index=True)
+    confirmation_token_hash: Optional[str] = Field(default=None, index=True)
+    confirmation_sent_at: Optional[datetime] = None
+    unsubscribed_at: Optional[datetime] = None
+    last_sent_at: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class NewsletterCampaign(SQLModel, table=True):
+    __tablename__ = "newsletter_campaign"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    subject: str
+    preview_text: Optional[str] = None
+    content_html: str
+    content_text: Optional[str] = None
+    status: str = Field(default="draft", index=True)  # draft | scheduled | sending | sent | failed
+    target_mode: str = Field(default="all", index=True)  # all | tags
+    target_tags: Optional[str] = Field(default="[]")  # JSON array string
+    scheduled_for: Optional[datetime] = None
+    sent_at: Optional[datetime] = None
+    total_recipients: int = Field(default=0)
+    total_sent: int = Field(default=0)
+    total_failed: int = Field(default=0)
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class NewsletterDelivery(SQLModel, table=True):
+    __tablename__ = "newsletter_delivery"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    campaign_id: int = Field(foreign_key="newsletter_campaign.id", index=True)
+    subscriber_id: Optional[int] = Field(default=None, foreign_key="newsletter_subscriber.id", index=True)
+    email: str = Field(index=True)
+    status: str = Field(default="queued", index=True)  # queued | sent | failed | skipped
+    error_message: Optional[str] = None
+    provider_message_id: Optional[str] = None
+    sent_at: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+
+class NewsletterCampaignContent(SQLModel, table=True):
+    __tablename__ = "newsletter_campaign_content"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    campaign_id: int = Field(foreign_key="newsletter_campaign.id", index=True)
+    source_type: str = Field(index=True)  # blog | proyecto | servicio_plan | servicio_extra | servicio_combo | asesoria
+    source_id: int = Field(index=True)
+    title: str
+    summary: Optional[str] = None
+    url: Optional[str] = None
+    sort_index: int = Field(default=0, index=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+
+class NewsletterCampaignRecipientRule(SQLModel, table=True):
+    __tablename__ = "newsletter_campaign_recipient_rule"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    campaign_id: int = Field(foreign_key="newsletter_campaign.id", index=True)
+    subscriber_id: int = Field(foreign_key="newsletter_subscriber.id", index=True)
+    rule_type: str = Field(index=True)  # include | exclude
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
   FaPaperPlane,
@@ -17,6 +18,7 @@ import {
   FaGithub,
 } from "react-icons/fa6";
 import dynamic from "next/dynamic";
+import API_BASE from "@/lib/apiBase";
 
 const InteractiveMap = dynamic(() => import("@/components/layout/InteractiveMap"), {
   ssr: false,
@@ -24,8 +26,8 @@ const InteractiveMap = dynamic(() => import("@/components/layout/InteractiveMap"
 });
 
 const CONTACT_CONFIG = {
-  phone: "+56 9 1234 5678",
-  whatsapp: "56912345678",
+  phone: "+56 9 7146 4296",
+  whatsapp: "56971464296",
   email: "contacto@levelsoftwarepro.com",
   location: "Santiago Centro, Chile",
   address: "Santiago Centro, Chile",
@@ -37,7 +39,7 @@ const CONTACT_CONFIG = {
     linkedin: "",
     twitter: "",
     tiktok: "",
-    github: "", // Added
+    github: "", 
   },
   hero_image: "",
   hero_video: "",
@@ -180,8 +182,8 @@ function HQBlock() {
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="space-y-1">
             <h2 className="text-2xl font-black uppercase tracking-tighter leading-none" style={{ color: '#0047FF', textShadow: '0 0 20px rgba(0, 71, 255, 0.4)' }}>
-              <span className="block">Digital Systems</span>
-              <span className="block text-center mt-1">FJ</span>
+              <span className="block">Next Level</span>
+              <span className="block text-center mt-1">Software Pro</span>
             </h2>
             <p className="font-black text-[9px] tracking-[0.3em] uppercase" style={{ color: '#0047FF' }}>Hub de Ingeniería Digital</p>
           </div>
@@ -250,6 +252,7 @@ function HQBlock() {
 }
 
 export default function Contacto() {
+  const router = useRouter();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -279,11 +282,19 @@ export default function Contacto() {
   const whatsappRaw = contactData.whatsapp || phoneText;
   const whatsappDigits = whatsappRaw.replace(/\D/g, "");
 
+  const normalizeExternalUrl = (rawUrl?: string | null) => {
+    const value = String(rawUrl || "").trim();
+    if (!value || value === "#" || value.toLowerCase() === "null") return "";
+    if (/^https?:\/\//i.test(value)) return value;
+    if (/^\/\//.test(value)) return `https:${value}`;
+    return `https://${value}`;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch Contact info
-        const contactRes = await fetch("http://localhost:8000/api/contact");
+        const contactRes = await fetch(`${API_BASE}/api/contact`);
         if (contactRes.ok) {
           const data = await contactRes.json();
           setContactData({
@@ -300,7 +311,7 @@ export default function Contacto() {
         }
 
         // Fetch Gallery Media (Las fotos y videos de tu pasarela)
-        const mediaRes = await fetch("http://localhost:8000/api/media");
+        const mediaRes = await fetch(`${API_BASE}/api/media`);
         if (mediaRes.ok) {
           const data = await mediaRes.json();
           setGalleryMedia(data.filter((m: any) => m.active));
@@ -337,6 +348,7 @@ export default function Contacto() {
       if (!res.ok) throw new Error("Error en la transmisión");
 
       setStatus("success");
+      router.push('/gracias');
       setForm({ name: "", email: "", phone: "", subject: "", message: "" });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "No se pudo enviar el mensaje";
@@ -430,17 +442,17 @@ export default function Contacto() {
           className="relative z-10 w-full"
         >
           <div className="max-w-[1600px] mx-auto w-full">
-            <p className="hero-subtitle mb-6 font-black tracking-[0.4em] uppercase" style={{ color: '#0047FF' }}>Global Engineering Center</p>
+            <p className="hero-subtitle mb-6 font-black tracking-[0.4em] uppercase" style={{ color: '#0047FF' }}>Centro de Ingeniería Digital</p>
             <h1 className="hero-title" style={{ color: '#0047FF', textShadow: '0 0 30px rgba(0, 71, 255, 0.2)' }}>
               INICIEMOS UNA <br className="hidden md:block" />
               CONSULTA ESTRATÉGICA
             </h1>
             <div className="space-y-4 max-w-3xl">
               <p className="text-white font-black text-sm md:text-base uppercase tracking-widest leading-relaxed opacity-90">
-                Explícanos tu desafío digital, proceso operativo o idea de desarrollo.
+                Explícanos tu desafío digital, automatización o sistema interno a optimizar.
               </p>
               <p className="text-white/60 text-xs md:text-sm font-medium leading-relaxed">
-                Evaluaremos tu requerimiento y definiremos la mejor solución técnica para transformar tu necesidad en resultados reales.
+                Analizaremos tu operación y definiremos un plan técnico y comercial con foco en resultados medibles.
               </p>
             </div>
           </div>
@@ -624,7 +636,7 @@ export default function Contacto() {
                         ].map((social, i) => (
                           <motion.a
                             key={i}
-                            href={social.link || "#"}
+                            href={normalizeExternalUrl(social.link) || "#"}
                             target="_blank"
                             rel="noreferrer"
                             whileHover={{ scale: 1.1, filter: "brightness(1.5)", backgroundColor: `${social.color}20` }}
@@ -659,7 +671,7 @@ export default function Contacto() {
           <InteractiveMap
             center={[mapLat, mapLng]}
             zoom={15}
-            popupTitle="FJ Digital Systems"
+            popupTitle="Next Level Software Pro"
             popupStreet={popupStreet}
             popupArea={popupArea}
             popupSchedule="Lun–Vie 08:00–19:00"

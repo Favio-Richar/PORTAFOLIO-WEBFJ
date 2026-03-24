@@ -11,6 +11,8 @@ import { FaSave, FaPhone, FaClock, FaTerminal, FaMapMarkerAlt, FaShieldAlt, FaPh
 import type { ContactData } from "@/lib/data/contact";
 import MediaAdmin from "./MediaAdmin";
 import { motion } from "framer-motion";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 interface FormFieldProps {
     label: string;
@@ -139,7 +141,7 @@ export default function ContactAdmin({ contact: initialContact, onSave }: Props)
                 ...tempContact,
                 location: locationPreview || tempContact.location,
             };
-            const res = await fetch("http://localhost:8000/api/contact", {
+            const res = await adminFetch(`${API_BASE}/api/contact`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)

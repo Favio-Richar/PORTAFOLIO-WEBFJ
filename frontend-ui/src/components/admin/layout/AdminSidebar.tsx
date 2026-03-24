@@ -3,7 +3,7 @@
 import {
     FaHome, FaProjectDiagram, FaBlog, FaUsers, FaUserTie,
     FaClock, FaCogs, FaSignOutAlt, FaServicestack, FaCommentAlt,
-    FaEnvelopeOpenText, FaUserPlus, FaAd
+    FaEnvelopeOpenText, FaUserPlus, FaAd, FaCalculator
 } from "react-icons/fa";
 import Link from "next/link";
 
@@ -37,6 +37,7 @@ export default function AdminSidebar({ activeSection, setActiveSection, isCollap
             title: "Gestión",
             items: [
                 { id: "clients", label: "Clientes", icon: <FaUsers />, color: "emerald" },
+                { id: "quotes", label: "Cotizaciones", icon: <FaCalculator />, color: "orange" },
                 { id: "subscribers", label: "Suscriptores", icon: <FaUserPlus />, color: "teal" }
             ]
         },

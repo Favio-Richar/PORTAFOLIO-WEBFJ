@@ -1,9 +1,8 @@
 import type { Blog, Proyecto, CotizacionRequest } from './backendTypes';
-
-const BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+import API_BASE from "./apiBase";
 
 async function request<T>(path: string, opts?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await fetch(`${API_BASE}${path}`, {
     headers: { 'Content-Type': 'application/json' },
     ...opts,
   });

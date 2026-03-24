@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FaEnvelope, FaLock, FaSpinner } from "react-icons/fa";
 import AdCarousel from "@/components/auth/AdCarousel";
+import API_BASE from "@/lib/apiBase";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -21,7 +22,7 @@ export default function LoginPage() {
         const password = formData.get("password");
 
         try {
-            const res = await fetch("http://localhost:8000/api/auth/login", {
+            const res = await fetch(`${API_BASE}/api/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),

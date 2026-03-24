@@ -7,6 +7,8 @@ import {
     FaTimes, FaHistory, FaCalendarAlt, FaRocket
 } from "react-icons/fa";
 import type { TimelineItem } from "@/lib/data/timeline";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 interface Props {
     timeline: TimelineItem[];
@@ -42,10 +44,10 @@ export default function TimelineAdmin({ timeline: initialTimeline, onSave }: Pro
     const handleDelete = async (id: string) => {
         if (!confirm("¿Eliminar este hito del Timeline?")) return;
         try {
-            const res = await fetch(`http://localhost:8000/api/timeline/${id}`, { method: "DELETE" });
+            const res = await adminFetch(`${API_BASE}/api/timeline/${id}`, { method: "DELETE" });
             if (!res.ok) throw new Error("Error al eliminar");
 
-            const response = await fetch("http://localhost:8000/api/timeline");
+            const response = await adminFetch(`${API_BASE}/api/timeline`);
             const data = await response.json();
             const mappedData = data.map((t: any) => ({
                 ...t,
@@ -73,10 +75,10 @@ export default function TimelineAdmin({ timeline: initialTimeline, onSave }: Pro
                 icon: item.icon
             };
 
-            const endpoint = isNew ? "http://localhost:8000/api/timeline" : `http://localhost:8000/api/timeline/${item.id}`;
+            const endpoint = isNew ? `${API_BASE}/api/timeline` : `${API_BASE}/api/timeline/${item.id}`;
             const method = isNew ? "POST" : "PUT";
 
-            const res = await fetch(endpoint, {
+            const res = await adminFetch(endpoint, {
                 method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -84,7 +86,7 @@ export default function TimelineAdmin({ timeline: initialTimeline, onSave }: Pro
 
             if (!res.ok) throw new Error("Error al guardar");
 
-            const response = await fetch("http://localhost:8000/api/timeline");
+            const response = await adminFetch(`${API_BASE}/api/timeline`);
             const data = await response.json();
             const mappedData = data.map((t: any) => ({
                 ...t,

@@ -1,11 +1,12 @@
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import SQLModel, Session, select
 
 from app.db import engine
 from app.models import Blog, BlogHeroConfig, BlogHeroSlide
+from app.core.admin_auth import require_admin
 
 router = APIRouter()
 
@@ -93,7 +94,10 @@ def get_blog_hero():
 
 
 @router.post("/hero", response_model=BlogHeroConfig)
-def upsert_blog_hero(payload: BlogHeroConfigUpdate):
+def upsert_blog_hero(
+    payload: BlogHeroConfigUpdate,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         hero = session.exec(select(BlogHeroConfig)).first()
 
@@ -133,7 +137,10 @@ def list_blog_hero_slides():
 
 
 @router.post("/hero/slides", response_model=BlogHeroSlide)
-def create_blog_hero_slide(payload: BlogHeroSlideCreate):
+def create_blog_hero_slide(
+    payload: BlogHeroSlideCreate,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         if payload.order_index is None:
             last = session.exec(select(BlogHeroSlide).order_by(BlogHeroSlide.order_index.desc())).first()
@@ -160,7 +167,10 @@ def create_blog_hero_slide(payload: BlogHeroSlideCreate):
 
 
 @router.post("/hero/slides/reorder", response_model=List[BlogHeroSlide])
-def reorder_blog_hero_slides(payload: BlogHeroSlideReorder):
+def reorder_blog_hero_slides(
+    payload: BlogHeroSlideReorder,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         ids_to_position = {slide_id: index for index, slide_id in enumerate(payload.ids)}
         slides = session.exec(select(BlogHeroSlide)).all()
@@ -179,7 +189,11 @@ def reorder_blog_hero_slides(payload: BlogHeroSlideReorder):
 
 
 @router.patch("/hero/slides/{slide_id}", response_model=BlogHeroSlide)
-def update_blog_hero_slide(slide_id: int, payload: BlogHeroSlideUpdate):
+def update_blog_hero_slide(
+    slide_id: int,
+    payload: BlogHeroSlideUpdate,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         slide = session.get(BlogHeroSlide, slide_id)
         if not slide:
@@ -212,7 +226,10 @@ def update_blog_hero_slide(slide_id: int, payload: BlogHeroSlideUpdate):
 
 
 @router.delete("/hero/slides/{slide_id}")
-def delete_blog_hero_slide(slide_id: int):
+def delete_blog_hero_slide(
+    slide_id: int,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         slide = session.get(BlogHeroSlide, slide_id)
         if not slide:
@@ -223,7 +240,10 @@ def delete_blog_hero_slide(slide_id: int):
 
 
 @router.post("/", response_model=Blog)
-def create_blog(item: BlogCardCreate):
+def create_blog(
+    item: BlogCardCreate,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         blog = Blog(
             title=item.title.strip(),
@@ -256,7 +276,11 @@ def get_blog(item_id: int):
 
 
 @router.put("/{item_id}", response_model=Blog)
-def update_blog(item_id: int, payload: BlogCardCreate):
+def update_blog(
+    item_id: int,
+    payload: BlogCardCreate,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         item = session.get(Blog, item_id)
         if not item:
@@ -276,7 +300,11 @@ def update_blog(item_id: int, payload: BlogCardCreate):
 
 
 @router.patch("/{item_id}", response_model=Blog)
-def patch_blog(item_id: int, payload: BlogCardUpdate):
+def patch_blog(
+    item_id: int,
+    payload: BlogCardUpdate,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         item = session.get(Blog, item_id)
         if not item:
@@ -302,7 +330,10 @@ def patch_blog(item_id: int, payload: BlogCardUpdate):
 
 
 @router.delete("/{item_id}")
-def delete_blog(item_id: int):
+def delete_blog(
+    item_id: int,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         item = session.get(Blog, item_id)
         if not item:

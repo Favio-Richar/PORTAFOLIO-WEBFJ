@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from typing import List, Optional
 from app.db import get_session
 from app.models import TeamMember
-from app.api.auth import get_current_user
+from app.core.admin_auth import require_admin
 
 router = APIRouter()
 
@@ -16,7 +16,7 @@ def get_team(session: Session = Depends(get_session)):
 @router.get("/all", response_model=List[TeamMember])
 def get_all_team(
     session: Session = Depends(get_session),
-    current_user = Depends(get_current_user)
+    current_user=Depends(require_admin),
 ):
     statement = select(TeamMember).order_by(TeamMember.order)
     results = session.exec(statement).all()
@@ -26,7 +26,7 @@ def get_all_team(
 def create_member(
     member: TeamMember,
     session: Session = Depends(get_session),
-    current_user = Depends(get_current_user)
+    current_user=Depends(require_admin),
 ):
     session.add(member)
     session.commit()
@@ -38,7 +38,7 @@ def update_member(
     member_id: int,
     member_data: dict,
     session: Session = Depends(get_session),
-    current_user = Depends(get_current_user)
+    current_user=Depends(require_admin),
 ):
     db_member = session.get(TeamMember, member_id)
     if not db_member:
@@ -57,7 +57,7 @@ def update_member(
 def delete_member(
     member_id: int,
     session: Session = Depends(get_session),
-    current_user = Depends(get_current_user)
+    current_user=Depends(require_admin),
 ):
     db_member = session.get(TeamMember, member_id)
     if not db_member:

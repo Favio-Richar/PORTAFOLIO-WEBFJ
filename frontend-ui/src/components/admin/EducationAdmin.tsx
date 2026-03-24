@@ -7,6 +7,8 @@ import {
     FaTimes, FaUniversity, FaCalendarAlt, FaAward, FaMapMarkerAlt, FaSpinner
 } from "react-icons/fa";
 import type { Education } from "@/lib/data/education";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 interface Props {
     education: Education[];
@@ -23,9 +25,9 @@ export default function EducationAdmin({ education: initialEducation, onSave }: 
     }, [initialEducation]);
 
     const deletePhysicalFile = async (url: string) => {
-        if (!url || !url.includes("localhost:8000/uploads/")) return;
+        if (!url || (!url.includes("/uploads/") && !url.includes("cloudinary.com"))) return;
         try {
-            await fetch(`http://localhost:8000/api/upload/delete?url=${encodeURIComponent(url)}`, {
+            await adminFetch(`${API_BASE}/api/upload/delete?url=${encodeURIComponent(url)}`, {
                 method: "DELETE",
             });
         } catch (error) {
@@ -62,10 +64,10 @@ export default function EducationAdmin({ education: initialEducation, onSave }: 
                 await deletePhysicalFile(itemToDelete.certificateUrl);
             }
 
-            const res = await fetch(`http://localhost:8000/api/education/${id}`, { method: "DELETE" });
+            const res = await adminFetch(`${API_BASE}/api/education/${id}`, { method: "DELETE" });
             if (!res.ok) throw new Error("Error al eliminar");
 
-            const response = await fetch("http://localhost:8000/api/education");
+            const response = await adminFetch(`${API_BASE}/api/education`);
             const data = await response.json();
             const mappedData = data.map((edu: any) => ({
                 id: edu.id.toString(),
@@ -100,10 +102,10 @@ export default function EducationAdmin({ education: initialEducation, onSave }: 
                 certificate_url: item.certificateUrl || ""
             };
 
-            const endpoint = isNew ? "http://localhost:8000/api/education" : `http://localhost:8000/api/education/${item.id}`;
+            const endpoint = isNew ? `${API_BASE}/api/education` : `${API_BASE}/api/education/${item.id}`;
             const method = isNew ? "POST" : "PUT";
 
-            const res = await fetch(endpoint, {
+            const res = await adminFetch(endpoint, {
                 method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -111,7 +113,7 @@ export default function EducationAdmin({ education: initialEducation, onSave }: 
 
             if (!res.ok) throw new Error("Error al guardar");
 
-            const response = await fetch("http://localhost:8000/api/education");
+            const response = await adminFetch(`${API_BASE}/api/education`);
             const data = await response.json();
             const mappedData = data.map((edu: any) => ({
                 id: edu.id.toString(),
@@ -246,9 +248,9 @@ function EducationModal({ item, onClose, onSave }: { item: Education, onClose: (
     }, [startMonth, endMonth, isCurrent]);
 
     const deletePhysicalFile = async (url: string) => {
-        if (!url || !url.includes("localhost:8000/uploads/")) return;
+        if (!url || (!url.includes("/uploads/") && !url.includes("cloudinary.com"))) return;
         try {
-            await fetch(`http://localhost:8000/api/upload/delete?url=${encodeURIComponent(url)}`, {
+            await adminFetch(`${API_BASE}/api/upload/delete?url=${encodeURIComponent(url)}`, {
                 method: "DELETE",
             });
         } catch (error) {
@@ -266,7 +268,7 @@ function EducationModal({ item, onClose, onSave }: { item: Education, onClose: (
         formData.append("file", file);
 
         try {
-            const res = await fetch("http://localhost:8000/api/upload", {
+            const res = await adminFetch(`${API_BASE}/api/upload`, {
                 method: "POST",
                 body: formData,
             });

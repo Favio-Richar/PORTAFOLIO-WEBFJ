@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaCheckCircle, FaStar } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
 
 function FadeInUp({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   return (
@@ -140,7 +141,7 @@ export default function PageReviewsWall({
     const loadReviews = async () => {
       try {
         const context = encodeURIComponent((pageContext || "").trim().toLowerCase());
-        const res = await fetch(`http://localhost:8000/api/reviews?page=1&page_size=40&page_context=${context}`);
+        const res = await fetch(`${API_BASE}/api/reviews?page=1&page_size=40&page_context=${context}`);
         if (!res.ok) return;
         const payload = await res.json();
         const reviews = Array.isArray(payload?.items) ? payload.items : [];
@@ -255,7 +256,7 @@ export default function PageReviewsWall({
     setReviewFormMessage("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/reviews", {
+      const response = await fetch(`${API_BASE}/api/reviews`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

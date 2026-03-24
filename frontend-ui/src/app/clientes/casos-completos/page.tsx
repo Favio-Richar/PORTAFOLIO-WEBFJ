@@ -12,6 +12,7 @@ import {
   FaShieldAlt,
   FaUsers,
 } from "react-icons/fa";
+import API_BASE from "@/lib/apiBase";
 
 type MediaType = "image" | "video";
 
@@ -61,7 +62,7 @@ interface FullCase {
   is_featured: boolean;
 }
 
-const API_BASE = "http://localhost:8000/api";
+const API_ROOT = `${API_BASE}/api`;
 
 function parseArray<T>(value: unknown): T[] {
   if (Array.isArray(value)) return value as T[];
@@ -120,7 +121,7 @@ export default function CasosCompletosPage() {
     async function loadCases() {
       setLoading(true);
       try {
-        const response = await fetch(`${API_BASE}/casos-completos?published_only=true`);
+        const response = await fetch(`${API_ROOT}/casos-completos?published_only=true`);
         if (!response.ok) throw new Error("No se pudieron cargar los casos completos");
         const data = await response.json();
         setCases((data || []).map(normalizeCase));

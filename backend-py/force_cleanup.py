@@ -4,7 +4,7 @@ import os
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/portafolio-web")
 engine = create_engine(DATABASE_URL)
 
-def drop_tables():
+def drop_tables():p
     with engine.connect() as conn:
         conn.execute(text("COMMIT"))
         inspector_query = text("SELECT tablename FROM pg_tables WHERE schemaname='public'")

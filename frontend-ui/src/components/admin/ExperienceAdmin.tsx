@@ -7,6 +7,8 @@ import {
     FaTimes, FaMapMarkerAlt, FaCalendarAlt, FaTools
 } from "react-icons/fa";
 import type { Experience } from "@/lib/data/experience";
+import API_BASE from "@/lib/apiBase";
+import { adminFetch } from "@/lib/adminFetch";
 
 interface Props {
     experiences: Experience[];
@@ -44,10 +46,10 @@ export default function ExperienceAdmin({ experiences: initialExperiences, onSav
     const handleDelete = async (id: string) => {
         if (!confirm("¿Eliminar este registro de experiencia?")) return;
         try {
-            const res = await fetch(`http://localhost:8000/api/experiences/${id}`, { method: "DELETE" });
+            const res = await adminFetch(`${API_BASE}/api/experiences/${id}`, { method: "DELETE" });
             if (!res.ok) throw new Error("Error al eliminar");
 
-            const response = await fetch("http://localhost:8000/api/experiences");
+            const response = await adminFetch(`${API_BASE}/api/experiences`);
             const data = await response.json();
             const mappedData = data.map((e: any) => ({
                 ...e,
@@ -76,10 +78,10 @@ export default function ExperienceAdmin({ experiences: initialExperiences, onSav
                 technologies: JSON.stringify(item.technologies)
             };
 
-            const endpoint = isNew ? "http://localhost:8000/api/experiences" : `http://localhost:8000/api/experiences/${item.id}`;
+            const endpoint = isNew ? `${API_BASE}/api/experiences` : `${API_BASE}/api/experiences/${item.id}`;
             const method = isNew ? "POST" : "PUT";
 
-            const res = await fetch(endpoint, {
+            const res = await adminFetch(endpoint, {
                 method,
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -87,7 +89,7 @@ export default function ExperienceAdmin({ experiences: initialExperiences, onSav
 
             if (!res.ok) throw new Error("Error al guardar");
 
-            const response = await fetch("http://localhost:8000/api/experiences");
+            const response = await adminFetch(`${API_BASE}/api/experiences`);
             const data = await response.json();
             const mappedData = data.map((e: any) => ({
                 ...e,

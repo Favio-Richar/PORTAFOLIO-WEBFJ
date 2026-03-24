@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from app.db import engine
 from app.models import Certification
+from app.core.admin_auth import require_admin
 from typing import List, Optional
 from pydantic import BaseModel
 
@@ -41,7 +42,10 @@ def get_certifications():
 
 
 @router.post("", response_model=Certification)
-def create_certification(cert_data: CertificationCreate):
+def create_certification(
+    cert_data: CertificationCreate,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         cert = Certification(
             title=cert_data.title,
@@ -61,7 +65,11 @@ def create_certification(cert_data: CertificationCreate):
 
 
 @router.put("/{cert_id}", response_model=Certification)
-def update_certification(cert_id: int, cert_data: CertificationUpdate):
+def update_certification(
+    cert_id: int,
+    cert_data: CertificationUpdate,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         cert = session.get(Certification, cert_id)
         if not cert:
@@ -84,7 +92,10 @@ def update_certification(cert_id: int, cert_data: CertificationUpdate):
 
 
 @router.delete("/{cert_id}")
-def delete_certification(cert_id: int):
+def delete_certification(
+    cert_id: int,
+    current_user=Depends(require_admin),
+):
     with Session(engine) as session:
         cert = session.get(Certification, cert_id)
         if not cert:

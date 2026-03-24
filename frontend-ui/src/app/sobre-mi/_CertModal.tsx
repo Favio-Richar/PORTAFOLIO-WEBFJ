@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTimes, FaShareAlt, FaImage, FaFilePdf, FaVideo } from "react-icons/fa";
 import { createPortal } from "react-dom";
+import API_BASE from "@/lib/apiBase";
 
 interface CertModalProps {
     viewingCert: string | null;
     onClose: () => void;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = API_BASE;
 
 export default function CertModal({ viewingCert, onClose }: CertModalProps) {
     const [loadedUrl, setLoadedUrl] = useState<string | null>(null);

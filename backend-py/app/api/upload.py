@@ -2,14 +2,16 @@ import os
 import re
 import logging
 import uuid
-from typing import Optional
+from typing import Dict, List, Optional
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 import cloudinary
+import cloudinary.api
 import cloudinary.uploader
-from fastapi import APIRouter, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import Response
+from app.core.admin_auth import require_admin
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +30,69 @@ ALLOWED_VIEW_HOSTS = {
     "localhost",
     "127.0.0.1",
 }
+
+
+def _map_cloudinary_resource(resource: Dict) -> Dict:
+    return {
+        "asset_id": resource.get("asset_id"),
+        "public_id": resource.get("public_id"),
+        "url": resource.get("secure_url") or resource.get("url"),
+        "resource_type": resource.get("resource_type"),
+        "format": resource.get("format"),
+        "bytes": resource.get("bytes"),
+        "width": resource.get("width"),
+        "height": resource.get("height"),
+        "created_at": resource.get("created_at"),
+        "folder": resource.get("asset_folder") or resource.get("folder"),
+    }
+
+
+def _list_cloudinary_resources(
+    *,
+    limit: int,
+    resource_types: List[str],
+    prefix: Optional[str] = None,
+) -> List[Dict]:
+    items: List[Dict] = []
+    seen_urls = set()
+
+    for resource_type in resource_types:
+        next_cursor = None
+
+        while len(items) < limit:
+            remaining = limit - len(items)
+            if remaining <= 0:
+                break
+
+            params: Dict = {
+                "resource_type": resource_type,
+                "type": "upload",
+                "max_results": min(100, remaining),
+            }
+            if next_cursor:
+                params["next_cursor"] = next_cursor
+            if prefix:
+                params["prefix"] = prefix
+
+            response = cloudinary.api.resources(**params)
+            batch = response.get("resources", []) or []
+
+            for resource in batch:
+                mapped = _map_cloudinary_resource(resource)
+                url = str(mapped.get("url") or "").strip()
+                if not url or url in seen_urls:
+                    continue
+                seen_urls.add(url)
+                items.append(mapped)
+                if len(items) >= limit:
+                    break
+
+            next_cursor = response.get("next_cursor")
+            if not next_cursor:
+                break
+
+    items.sort(key=lambda item: str(item.get("created_at") or ""), reverse=True)
+    return items[:limit]
 
 
 def _extract_public_id(url: str) -> Optional[str]:
@@ -90,7 +155,10 @@ def delete_cloudinary_by_url(url: str, resource_type: str = "image") -> bool:
 
 
 @router.post("")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(
+    file: UploadFile = File(...),
+    current_user=Depends(require_admin),
+):
     """
     Sube un archivo a Cloudinary y devuelve la URL segura.
     Detecta automaticamente si es imagen o video.
@@ -128,8 +196,45 @@ async def upload_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Error al subir archivo a Cloudinary: {str(exc)}")
 
 
+@router.get("/library")
+def list_cloudinary_library(
+    limit: int = Query(200, ge=1, le=500),
+    include_raw: bool = Query(False, description="Incluir archivos RAW de Cloudinary"),
+    prefix: Optional[str] = Query(None, description="Filtrar por prefijo public_id, ej: portafolio/"),
+    current_user=Depends(require_admin),
+):
+    """
+    Lista recursos desde Cloudinary Admin API para poblar biblioteca multimedia en admin.
+    """
+    try:
+        configured = all(
+            [
+                str(os.getenv("CLOUDINARY_CLOUD_NAME", "")).strip(),
+                str(os.getenv("CLOUDINARY_API_KEY", "")).strip(),
+                str(os.getenv("CLOUDINARY_API_SECRET", "")).strip(),
+            ]
+        )
+        if not configured:
+            raise HTTPException(status_code=500, detail="Cloudinary no esta configurado en el backend.")
+
+        resource_types = ["image", "video"]
+        if include_raw:
+            resource_types.append("raw")
+
+        resources = _list_cloudinary_resources(limit=limit, resource_types=resource_types, prefix=prefix)
+        return {"items": resources, "count": len(resources)}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error("Error listando biblioteca de Cloudinary: %s", exc)
+        raise HTTPException(status_code=502, detail=f"No se pudo consultar Cloudinary: {str(exc)}")
+
+
 @router.delete("/delete")
-def delete_file(url: str = Query(..., description="URL del archivo en Cloudinary a eliminar")):
+def delete_file(
+    url: str = Query(..., description="URL del archivo en Cloudinary a eliminar"),
+    current_user=Depends(require_admin),
+):
     """
     Elimina un archivo de Cloudinary dada su URL.
     Detecta automaticamente si es imagen o video.

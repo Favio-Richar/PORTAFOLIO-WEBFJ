@@ -4,9 +4,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FaArrowRight, FaCheckCircle, FaLayerGroup, FaQuoteLeft, FaStar, FaUserCircle } from 'react-icons/fa';
+import API_BASE from "@/lib/apiBase";
 import '@/styles/home-elite.scss';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = API_BASE;
 
 type ReviewItem = {
   id: number | string;

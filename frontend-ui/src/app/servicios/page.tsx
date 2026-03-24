@@ -46,6 +46,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import API_BASE from "@/lib/apiBase";
 import "@/styles/services-elite.scss";
 
 // --- TYPES ---
@@ -180,19 +181,33 @@ interface ApiAdvisoryService {
   active?: boolean;
 }
 
+interface ApiMarqueeCard {
+  id: number;
+  title: string;
+  image_url: string;
+  order_index?: number;
+  active?: boolean;
+}
+
+interface MarqueeCard {
+  id: number;
+  title: string;
+  image: string;
+}
+
 // --- DATA DEFINITIONS ---
 
-const DEFAULT_WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "56952402170";
+const DEFAULT_WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "56971464296";
 
 const defaultConfig = {
   main_title: "Agencia Digital de Alto Impacto",
-  subtitle: "Transformamos tu presencia online en una máquina de generar negocios. Diseño estratégico, tecnología de punta y resultados medibles para el mercado chileno.",
+  subtitle: "Soluciones digitales, automatización y desarrollo de sistemas para empresas que necesitan crecer con control, ventas consistentes y operaciones eficientes.",
   whatsapp_number: DEFAULT_WHATSAPP_NUMBER,
   email: "contacto@tuagencia.cl",
   address: "Santiago, Chile"
 };
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const BACKEND_URL = API_BASE;
 
 const normalizeWhatsappNumber = (value?: string | null): string =>
   String(value || "")
@@ -219,8 +234,14 @@ const sanitizeAdditionalServiceName = (value: string): string => {
 
 type ReservationType = "asesoria" | "plan" | "servicio" | "combo";
 
-// IMÁGENES REALES DE UNSPLASH
+// IMAGENES DE APOYO VISUAL PARA LA LANDING DE SERVICIOS
 const images = {
+  heroAmbient: "/img/dark-3d-background.webp",
+  heroShowcase: "/img/the7.jpg",
+  serviceShowcase: "/img/webdev.jpg",
+  serviceMobile: "/img/mobile.jpg",
+  serviceResponsive: "/img/Responsive.jpg",
+  faqSupport: "/img/support.jpg",
   hero: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1920&q=80",
   process: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80",
   landing: "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=800&q=80",
@@ -232,6 +253,61 @@ const images = {
   cta: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1920&q=80",
   team: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80"
 };
+
+const serviceExecutionCards = [
+  {
+    badge: "Captacion comercial",
+    title: "Web comercial para captar y convertir.",
+    description:
+      "Creamos sitios y landing pages con oferta clara, confianza visual y llamados a la accion pensados para generar consultas.",
+    support:
+      "Funciona mejor para campañas, trafico organico y presentaciones comerciales.",
+    highlights: ["Oferta clara", "Conversion real", "Mejor confianza"],
+    imageMode: "photo",
+    glow: "from-fuchsia-500/20 via-cyan-400/10 to-transparent",
+    image: images.serviceShowcase,
+    imageAlt: "Sitio web comercial para captar consultas"
+  },
+  {
+    badge: "Arquitectura operativa",
+    title: "Arquitectura estable para crecer sin friccion.",
+    description:
+      "Definimos modulos, flujos y reglas para que la solucion sea mantenible, escalable y mas facil de operar.",
+    support:
+      "Menos retrabajo tecnico, mas orden interno y mejor continuidad.",
+    highlights: ["Base escalable", "Orden interno", "Continuidad"],
+    imageMode: "photo",
+    glow: "from-amber-300/16 via-sky-400/10 to-transparent",
+    image: images.process,
+    imageAlt: "Equipo trabajando arquitectura de procesos digitales"
+  },
+  {
+    badge: "Integracion real",
+    title: "Integraciones que ordenan la operacion.",
+    description:
+      "Conectamos WhatsApp, formularios, CRM y correo para acelerar respuesta, seguimiento y control comercial.",
+    support:
+      "La informacion queda conectada y lista para operar sin duplicidad.",
+    highlights: ["WhatsApp y CRM", "Seguimiento", "Datos claros"],
+    imageMode: "mockup",
+    glow: "from-cyan-400/18 via-sky-500/12 to-transparent",
+    image: images.serviceMobile,
+    imageAlt: "Integracion de herramientas digitales empresariales"
+  },
+  {
+    badge: "Experiencia premium",
+    title: "Experiencia premium en desktop y movil.",
+    description:
+      "Cuidamos legibilidad, velocidad y consistencia visual para que tu marca se vea seria y profesional en todo dispositivo.",
+    support:
+      "Una experiencia clara mejora percepcion, confianza y permanencia.",
+    highlights: ["Responsive real", "Lectura clara", "Mas valor"],
+    imageMode: "mockup",
+    glow: "from-indigo-400/18 via-cyan-300/10 to-transparent",
+    image: images.serviceResponsive,
+    imageAlt: "Experiencia digital premium en distintos dispositivos"
+  }
+] as const;
 
 const parseArrayField = (value: unknown): string[] => {
   const splitListTokens = (text: string, splitByComma: boolean): string[] => {
@@ -279,9 +355,16 @@ const LIVE_ID_OFFSETS = {
   advisory: 400000,
   industry: 500000,
   review: 600000,
+  marquee: 700000,
 } as const;
 
 const makeLiveId = (offset: number, rawId: number): number => offset + (Number(rawId) || 0);
+const VIDEO_URL_PATTERN = /\.(mp4|webm|ogg|mov|m4v|avi)(\?.*)?$/i;
+const isVideoMediaUrl = (url?: string | null): boolean => {
+  const value = String(url || "").trim();
+  if (!value) return false;
+  return VIDEO_URL_PATTERN.test(value) || value.includes("/video/upload/");
+};
 
 const sanitizeReviewAvatar = (rawValue?: string | null): string => {
   const value = String(rawValue || "").trim();
@@ -1170,6 +1253,171 @@ const industries: Industry[] = [
   }
 ];
 
+type ServicePillar = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  bullets: string[];
+  icon: React.ReactNode;
+  accent: string;
+};
+
+const servicePillars: ServicePillar[] = [
+  {
+    eyebrow: "Web comercial",
+    title: "Sitios y landing pages que explican, posicionan y convierten",
+    description:
+      "Creamos paginas comerciales y corporativas que presentan tu oferta con claridad, elevan percepcion de marca y capturan oportunidades reales.",
+    bullets: [
+      "Arquitectura de contenido orientada a negocio",
+      "Diseno responsive con foco en conversion",
+      "SEO tecnico, velocidad y confianza visual",
+    ],
+    icon: <FaBullhorn />,
+    accent: "from-cyan-500/15 to-sky-500/10 border-cyan-300/25 text-cyan-100",
+  },
+  {
+    eyebrow: "Automatizacion",
+    title: "Procesos conectados para vender y operar con menos friccion",
+    description:
+      "Integramos formularios, CRM, WhatsApp, correo y tareas repetitivas para que tu equipo pierda menos tiempo y responda mejor.",
+    bullets: [
+      "Seguimientos automaticos y trazabilidad",
+      "Integraciones utiles para ventas y operacion",
+      "Menos carga manual y menos errores",
+    ],
+    icon: <FaRobot />,
+    accent: "from-emerald-500/15 to-cyan-500/10 border-emerald-300/25 text-emerald-100",
+  },
+  {
+    eyebrow: "Sistema interno",
+    title: "Herramientas a medida para ordenar operacion y control",
+    description:
+      "Desarrollamos portales, dashboards y sistemas internos para seguimiento, inventario, reservas, clientes, reportes y procesos criticos.",
+    bullets: [
+      "Roles, modulos y permisos segun tu realidad",
+      "Datos mas claros para decidir mejor",
+      "Base escalable para crecer sin caos",
+    ],
+    icon: <FaServer />,
+    accent: "from-indigo-500/15 to-violet-500/10 border-indigo-300/25 text-indigo-100",
+  },
+  {
+    eyebrow: "Soporte continuo",
+    title: "Mantenimiento, evolucion y criterio tecnico despues de publicar",
+    description:
+      "No soltamos el proyecto al entregarlo. Dejamos soporte inicial, prioridades claras y una ruta de mejora para la siguiente etapa.",
+    bullets: [
+      "Ajustes posteriores y mejoras puntuales",
+      "Mantenimiento, performance y continuidad",
+      "Roadmap tecnico de evolucion",
+    ],
+    icon: <FaShieldAlt />,
+    accent: "from-amber-500/15 to-orange-500/10 border-amber-300/25 text-amber-100",
+  },
+];
+
+// --- COMPONENTES AUXILIARES ---
+
+const fallbackMarqueeCards: MarqueeCard[] = [
+  {
+    id: 1,
+    title: "Showcase Multi-dispositivo",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=60",
+  },
+  {
+    id: 2,
+    title: "UX/UI Mobile First",
+    image: "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&auto=format&fit=crop&q=60",
+  },
+  {
+    id: 3,
+    title: "Desarrollo High Performance",
+    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&auto=format&fit=crop&q=60",
+  },
+  {
+    id: 4,
+    title: "Analitica y Estrategia",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=60",
+  },
+  {
+    id: 5,
+    title: "E-commerce Escalable",
+    image: "https://images.unsplash.com/photo-1557821552-17105176677c?w=1200&auto=format&fit=crop&q=60",
+  },
+  {
+    id: 6,
+    title: "Diseno Visual Premium",
+    image: "https://images.unsplash.com/photo-1558655146-d09347e92766?w=1200&auto=format&fit=crop&q=60",
+  },
+];
+
+const ModelMarquee = ({ cards }: { cards: MarqueeCard[] }) => {
+  const [stopScroll, setStopScroll] = useState(false);
+  const baseCards = cards.length > 0 ? cards : fallbackMarqueeCards;
+  const marqueeItems = [...baseCards, ...baseCards, ...baseCards];
+
+  return (
+    <section className="py-20 bg-slate-950 overflow-hidden relative border-y border-white/5">
+      <style>{`
+        .services-marquee-track {
+          animation: servicesMarqueeScroll linear infinite;
+        }
+        @keyframes servicesMarqueeScroll {
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
+
+      <div
+        className="absolute left-0 top-0 h-full w-32 md:w-48 z-10 pointer-events-none bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent"
+      />
+
+      <div
+        className="overflow-hidden w-full relative"
+        onMouseEnter={() => setStopScroll(true)}
+        onMouseLeave={() => setStopScroll(false)}
+      >
+        <div
+          className="flex w-fit services-marquee-track"
+          style={{
+            animationPlayState: stopScroll ? "paused" : "running",
+            animationDuration: baseCards.length * 4000 + "ms"
+          }}
+        >
+          <div className="flex">
+            {marqueeItems.map((card, index) => (
+              <div key={`${card.id}-${index}`} className="w-80 mx-4 h-[28rem] relative group rounded-3xl overflow-hidden border border-white/10 hover:border-cyan-400/50 transition-all duration-500 shadow-2xl">
+                {isVideoMediaUrl(card.image) ? (
+                  <video
+                    src={card.image}
+                    className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  <img src={card.image} alt={card.title} className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute bottom-0 left-0 w-full p-8 translate-y-4 group-hover:translate-y-0 transition-all duration-500">
+                  <p className="text-white text-xl font-bold tracking-tight mb-2">{card.title}</p>
+                  <div className="h-1 w-12 bg-cyan-400 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div
+        className="absolute right-0 top-0 h-full w-32 md:w-48 z-10 pointer-events-none bg-gradient-to-l from-slate-950 via-slate-950/80 to-transparent"
+      />
+    </section>
+  );
+};
+
 export default function ServicesPage() {
   type ReviewPublishMode = "idle" | "google" | "guest";
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -1196,6 +1444,7 @@ export default function ServicesPage() {
   const [liveFaqs, setLiveFaqs] = useState<FAQ[]>([]);
   const [liveAdvisoryServices, setLiveAdvisoryServices] = useState<AdvisoryService[]>([]);
   const [liveIndustries, setLiveIndustries] = useState<Industry[]>([]);
+  const [liveMarqueeCards, setLiveMarqueeCards] = useState<MarqueeCard[]>([]);
   const [liveReviews, setLiveReviews] = useState<Testimonial[]>([]);
   const [servicesLiveLoadOk, setServicesLiveLoadOk] = useState(false);
   const [reviewsLiveLoadOk, setReviewsLiveLoadOk] = useState(false);
@@ -1261,12 +1510,13 @@ export default function ServicesPage() {
   useEffect(() => {
     const loadServicesContent = async () => {
       try {
-        const [plansResult, servicesResult, faqsResult, advisoryResult, industriesResult] = await Promise.allSettled([
+        const [plansResult, servicesResult, faqsResult, advisoryResult, industriesResult, marqueeResult] = await Promise.allSettled([
           fetch(`${BACKEND_URL}/api/services-page/plans`),
           fetch(`${BACKEND_URL}/api/services-page/additional-services`),
           fetch(`${BACKEND_URL}/api/services-page/faqs`),
           fetch(`${BACKEND_URL}/api/services-page/advisory-services`),
           fetch(`${BACKEND_URL}/api/services-page/industries`),
+          fetch(`${BACKEND_URL}/api/services-page/marquee-cards`),
         ]);
         let hasLiveData = false;
 
@@ -1360,6 +1610,20 @@ export default function ServicesPage() {
           }
         }
 
+        if (marqueeResult.status === "fulfilled" && marqueeResult.value.ok) {
+          const data = (await marqueeResult.value.json()) as ApiMarqueeCard[];
+          if (Array.isArray(data)) {
+            hasLiveData = hasLiveData || data.length > 0;
+            setLiveMarqueeCards(
+              data.map((card) => ({
+                id: makeLiveId(LIVE_ID_OFFSETS.marquee, card.id),
+                title: String(card.title || "").trim(),
+                image: String(card.image_url || "").trim(),
+              })).filter((card) => card.title && card.image)
+            );
+          }
+        }
+
         setServicesLiveLoadOk(hasLiveData);
       } catch {
         // keep static fallback data
@@ -1434,6 +1698,24 @@ export default function ServicesPage() {
     if (servicesLiveLoadOk && liveIndustries.length > 0) return liveIndustries;
     return industries;
   }, [liveIndustries, servicesLiveLoadOk]);
+
+  const displayMarqueeCards = useMemo(() => {
+    if (liveMarqueeCards.length > 0) return liveMarqueeCards;
+    return fallbackMarqueeCards;
+  }, [liveMarqueeCards]);
+
+  const serviceStats = useMemo<Stat[]>(
+    () => [
+      { icon: <FaBriefcase />, number: `${displayPlans.length}+`, label: "Planes base disponibles" },
+      { icon: <FaTools />, number: `${displayAdditionalServices.length}+`, label: "Servicios complementarios" },
+      { icon: <FaCalendarCheck />, number: `${displayAdvisoryServices.length}+`, label: "Asesorias estrategicas" },
+      { icon: <FaClock />, number: "24-48h", label: "Diagnostico y propuesta inicial" },
+    ],
+    [displayPlans.length, displayAdditionalServices.length, displayAdvisoryServices.length]
+  );
+
+  void stats;
+  void servicePillars;
 
   const advisorySingle = useMemo(
     () => ({
@@ -1896,6 +2178,9 @@ export default function ServicesPage() {
     const buttonStyle = isEven
       ? "border-cyan-300/45 bg-cyan-500/18 text-cyan-50 hover:bg-cyan-500/28"
       : "border-blue-300/45 bg-blue-500/18 text-blue-50 hover:bg-blue-500/28";
+    const titleStyle = isEven
+      ? "text-transparent bg-clip-text bg-gradient-to-r from-[#F6DEAE] via-[#EACB8A] to-[#CFA564] drop-shadow-[0_6px_18px_rgba(6,11,28,0.55)]"
+      : "text-transparent bg-clip-text bg-gradient-to-r from-[#F2D7A4] via-[#DFBC78] to-[#C49652] drop-shadow-[0_6px_18px_rgba(6,11,28,0.55)]";
 
     return (
       <article
@@ -1912,7 +2197,7 @@ export default function ServicesPage() {
           </div>
         </div>
 
-        <h3 className="text-2xl font-black text-white mb-4 leading-tight">{service.title}</h3>
+        <h3 className={`text-2xl font-black mb-4 leading-tight ${titleStyle}`}>{service.title}</h3>
 
         <p className={`text-xs uppercase tracking-[0.16em] font-black mb-2 ${labelColor}`}>Para quien es</p>
         <ul className="space-y-1.5 mb-5">
@@ -1986,28 +2271,28 @@ export default function ServicesPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 backdrop-blur-md border border-cyan-300/35 text-cyan-100 text-sm font-semibold mb-8"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#3A2B17]/35 backdrop-blur-md border border-[#B89563]/35 text-[#E5C892] text-sm font-semibold mb-8"
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Agencia estrategica digital • Respuesta en menos de 2 horas
+            Agencia estratégica digital • Respuesta en menos de 2 horas
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8 leading-[1.06] drop-shadow-[0_10px_40px_rgba(2,6,23,0.8)]"
+            className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8 leading-[1.06] text-[#F2E6CF] drop-shadow-[0_10px_40px_rgba(2,6,23,0.8)]"
           >
-            Diseno que <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-300 to-indigo-300">vende</span>
+            Diseño que <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E8C27A] via-[#F3D79A] to-[#CFA96B]">vende</span>
             <br />
-            Tecnologia que <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-fuchsia-300 to-pink-300">escala</span>
+            Tecnología que <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D8B06B] via-[#E6C79A] to-[#C58B63]">escala</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-lg md:text-2xl text-slate-200 max-w-3xl mx-auto mb-10 leading-relaxed"
+            className="text-lg md:text-2xl text-[#DCCCAD] max-w-3xl mx-auto mb-10 leading-relaxed"
           >
             {defaultConfig.subtitle}
           </motion.p>
@@ -2015,9 +2300,9 @@ export default function ServicesPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.25 }}
-            className="text-sm md:text-base text-cyan-100/85 max-w-3xl mx-auto mb-12 leading-relaxed"
+            className="text-sm md:text-base text-[#BCA887] max-w-3xl mx-auto mb-12 leading-relaxed"
           >
-            Asesoria, marketing y desarrollo web orientado a resultado comercial real para PYMEs y empresas en crecimiento.
+            Asesoría, marketing y desarrollo web orientado a resultado comercial real para PYMEs y empresas en crecimiento.
           </motion.p>
 
           <motion.div
@@ -2027,15 +2312,16 @@ export default function ServicesPage() {
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
             <Link
-              href={buildReservationHref("asesoria", "Asesoria estrategica inicial")}
-              className="group px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 rounded-full font-semibold text-lg transition-all flex items-center gap-3 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 backdrop-blur-sm"
+              href={buildReservationHref("asesoria", "Asesoría estratégica inicial")}
+              className="group px-8 py-4 rounded-full border border-[#B89563]/38 bg-[linear-gradient(135deg,rgba(24,19,14,0.96),rgba(47,34,23,0.98))] font-black text-lg transition-all flex items-center gap-3 shadow-[0_18px_40px_-22px_rgba(18,12,7,0.82)] hover:-translate-y-1 hover:border-[#D4B06E]/58 hover:bg-[linear-gradient(135deg,rgba(31,23,15,0.98),rgba(61,43,28,1))] hover:shadow-[0_24px_52px_-24px_rgba(28,20,12,0.95)] backdrop-blur-sm"
+              style={{ color: "#E7D2AE", WebkitTextFillColor: "#E7D2AE" }}
             >
-              <FaCalendarCheck className="text-lg" />
-              Agendar Asesoria Estrategica
+              <FaCalendarCheck className="text-lg text-[#D4B06E]" />
+              Agendar Asesoría Estratégica
             </Link>
             <button
               onClick={() => document.getElementById('planes')?.scrollIntoView({ behavior: 'smooth' })}
-              className="group px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full font-semibold text-lg transition-all flex items-center gap-3 backdrop-blur-sm"
+              className="group px-8 py-4 bg-[rgba(14,18,29,0.74)] hover:bg-[rgba(20,25,38,0.86)] border border-[#B89563]/35 rounded-full font-semibold text-[#E7D2AE] text-lg transition-all flex items-center gap-3 backdrop-blur-sm"
             >
               Ver Planes y Precios
               <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
@@ -2051,10 +2337,10 @@ export default function ServicesPage() {
             {stats.slice(0, 3).map((stat) => (
               <div
                 key={stat.label}
-                className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-slate-900/45 px-4 py-2 text-xs md:text-sm text-slate-200"
+                className="inline-flex items-center gap-2 rounded-full border border-[#B89563]/18 bg-[rgba(15,20,34,0.56)] px-4 py-2 text-xs md:text-sm text-[#D9C8A8]"
               >
-                <span className="font-black text-cyan-100">{stat.number}</span>
-                <span className="text-slate-300">{stat.label}</span>
+                <span className="font-black text-[#EBCB8E]">{stat.number}</span>
+                <span className="text-[#C4B08E]">{stat.label}</span>
               </div>
             ))}
           </motion.div>
@@ -2066,14 +2352,14 @@ export default function ServicesPage() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="mt-10 flex flex-wrap justify-center gap-3 items-center"
           >
-            <div className="flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-500/10 px-4 py-2 text-emerald-100 text-xs font-semibold uppercase tracking-[0.12em]">
-              <FaShieldAlt className="text-emerald-300" /> SSL Seguro
+            <div className="flex items-center gap-2 rounded-full border border-[#B89563]/25 bg-[rgba(34,28,19,0.55)] px-4 py-2 text-[#E1C38A] text-xs font-semibold uppercase tracking-[0.12em]">
+              <FaShieldAlt className="text-[#D9B46A]" /> SSL Seguro
             </div>
-            <div className="flex items-center gap-2 rounded-full border border-sky-300/30 bg-sky-500/10 px-4 py-2 text-sky-100 text-xs font-semibold uppercase tracking-[0.12em]">
-              <FaCheckCircle className="text-sky-300" /> Enfoque en conversion
+            <div className="flex items-center gap-2 rounded-full border border-[#9E865E]/25 bg-[rgba(27,24,18,0.52)] px-4 py-2 text-[#DCC596] text-xs font-semibold uppercase tracking-[0.12em]">
+              <FaCheckCircle className="text-[#D4B06E]" /> Enfoque en conversión
             </div>
-            <div className="flex items-center gap-2 rounded-full border border-indigo-300/30 bg-indigo-500/10 px-4 py-2 text-indigo-100 text-xs font-semibold uppercase tracking-[0.12em]">
-              <FaClock className="text-indigo-300" /> Implementacion puntual
+            <div className="flex items-center gap-2 rounded-full border border-[#866A47]/25 bg-[rgba(31,24,18,0.52)] px-4 py-2 text-[#D9C39A] text-xs font-semibold uppercase tracking-[0.12em]">
+              <FaClock className="text-[#C79C61]" /> Implementación puntual
             </div>
           </motion.div>
         </div>
@@ -2099,17 +2385,18 @@ export default function ServicesPage() {
       <section className="py-12 bg-slate-900/50 border-y border-white/5">
         <div className="container-elite max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, i) => (
+            {serviceStats.map((stat, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="text-center"
+                className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-5 text-center"
               >
-                <div className="text-3xl md:text-4xl font-bold text-indigo-400 mb-2">{stat.number}</div>
-                <div className="text-sm text-slate-400 uppercase tracking-wider">{stat.label}</div>
+                <div className="mb-3 flex justify-center text-cyan-200">{stat.icon}</div>
+                <div className="text-2xl md:text-3xl font-black text-white mb-2">{stat.number}</div>
+                <div className="text-xs md:text-sm text-slate-400 uppercase tracking-wider">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -2120,20 +2407,24 @@ export default function ServicesPage() {
       <section className="py-24 bg-slate-950 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_18%_18%,rgba(56,189,248,0.09),transparent_38%),radial-gradient(circle_at_82%_82%,rgba(250,204,21,0.08),transparent_35%)]" />
         <div className="container-elite max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16 relative z-10">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-sky-400/30 bg-sky-400/10 text-sky-200 text-xs font-bold uppercase tracking-[0.18em] mb-5">
-              Verticales activas
-            </span>
-            <h2 className="text-4xl md:text-5xl font-black mb-6 bg-gradient-to-r from-yellow-200 via-amber-300 to-sky-300 bg-clip-text text-transparent drop-shadow-[0_6px_24px_rgba(245,158,11,0.28)]">
-              Especialistas por Industria
-            </h2>
-            <p className="text-slate-200 text-lg max-w-3xl mx-auto leading-relaxed">
-              Conocemos las particularidades de cada rubro en Chile. Soluciones diseñadas para tu sector específico.
-            </p>
-            <p className="text-slate-300/90 text-base max-w-3xl mx-auto mt-4 leading-relaxed">
-              Te acompañamos con lenguaje simple, tiempos claros y propuestas realistas para que tomes decisiones con confianza desde el primer contacto.
-            </p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm">
+          <div className="mb-16 relative z-10 mx-auto max-w-5xl text-center lg:text-left">
+            <div className="flex flex-col items-center lg:items-start">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-sky-400/30 bg-sky-400/10 text-sky-200 text-xs font-bold uppercase tracking-[0.18em] mb-5">
+                Verticales activas
+              </span>
+              <h2 className="text-4xl md:text-5xl font-black mb-6 bg-gradient-to-r from-yellow-200 via-amber-300 to-sky-300 bg-clip-text text-transparent drop-shadow-[0_6px_24px_rgba(245,158,11,0.28)]">
+                Especialistas por Industria
+              </h2>
+              <div className="max-w-3xl space-y-4">
+                <p className="text-slate-200 text-lg leading-relaxed">
+                  Conocemos las particularidades de cada rubro en Chile y aterrizamos la solucion segun el contexto real de tu empresa.
+                </p>
+                <p className="text-slate-300/90 text-base leading-relaxed">
+                  Te acompaniamos con lenguaje simple, tiempos claros y propuestas realistas para que tomes decisiones con confianza desde el primer contacto.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm lg:justify-start">
               <span className="px-3 py-1 rounded-full border border-amber-300/35 bg-amber-300/10 text-amber-100">Estrategia comprensible</span>
               <span className="px-3 py-1 rounded-full border border-sky-300/35 bg-sky-300/10 text-sky-100">Proceso ordenado</span>
               <span className="px-3 py-1 rounded-full border border-emerald-300/35 bg-emerald-300/10 text-emerald-100">Resultados medibles</span>
@@ -2172,6 +2463,8 @@ export default function ServicesPage() {
         </div>
       </section>
 
+      <ModelMarquee cards={displayMarqueeCards} />
+
 
       {/* SECCIÓN DE EXCELENCIA Y CONSISTENCIA (BENEFICIOS PREMIUM) */}
       <section className='bg-slate-950 py-32 px-6 relative overflow-hidden'>
@@ -2186,7 +2479,7 @@ export default function ServicesPage() {
             viewport={{ once: true }}
             className='bg-slate-900/80 border border-white/10 text-sm text-cyan-100/80 px-7 py-2.5 rounded-full font-bold uppercase tracking-widest backdrop-blur-sm'
           >
-            Nuestras características principales
+            Servicios estrategicos
           </motion.button>
 
           <motion.h2
@@ -2194,9 +2487,10 @@ export default function ServicesPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className='text-white font-black text-4xl md:text-6xl mt-8 leading-[1.1] tracking-tight'
+            className='text-cyan-300 font-black text-4xl md:text-5xl xl:text-6xl mt-8 leading-[1.02] tracking-tight max-w-4xl mx-auto'
+            style={{ color: "#67E8F9" }}
           >
-            Todo producto necesita <span className="bg-gradient-to-r from-cyan-300 via-sky-300 to-indigo-300 bg-clip-text text-transparent">consistencia</span>.
+            Tecnología que ordena. Web que convierte.
           </motion.h2>
 
           <motion.p
@@ -2204,88 +2498,99 @@ export default function ServicesPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className='text-lg md:text-xl text-slate-400 max-w-2xl mt-4 font-medium leading-relaxed'
+            className='text-lg md:text-xl text-slate-300 max-w-3xl mt-4 font-medium leading-relaxed'
           >
-            Nuestros componentes le ayudan a crear interfaces hermosas sin reinventar la rueda, asegurando calidad en cada entrega.
+            Desarrollamos sitios web, automatizaciones y sistemas para que tu empresa capte mejor, responda mas rapido y opere con mas control.
           </motion.p>
 
-          <div className='w-full max-w-7xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16'>
-            {/* Beneficio 1 */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              whileHover={{ y: -8 }}
-              className='bg-gradient-to-b from-white/[0.05] to-transparent border border-white/10 rounded-[2.5rem] p-10 flex flex-col transition-all duration-300 shadow-xl group hover:border-cyan-400/30'
-            >
-              <div className='bg-emerald-500/10 border border-emerald-400/30 px-3 py-1.5 rounded-full flex items-center gap-2 w-fit ml-auto mb-6'>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#10b981" stroke="#10b981" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 7h6v6" /><path d="m22 7-8.5 8.5-5-5L2 17" />
-                </svg>
-                <p className='text-xs font-black text-emerald-100'>45%</p>
-              </div>
-              <div className='flex-1 flex items-center justify-center py-6'>
-                <Image
-                  className='w-full max-w-56 object-contain group-hover:scale-110 transition-transform duration-500'
-                  src="https://assets.prebuiltui.com/images/components/feature-sections/features-graphs-image.png"
-                  alt="Aumento de tráfico"
-                  width={224}
-                  height={150}
-                />
-              </div>
-              <h3 className='text-2xl font-black text-white mt-10 text-left leading-tight'>Aumente su tráfico</h3>
-              <p className='text-sm md:text-base text-slate-400 mt-4 text-left max-w-xs leading-relaxed'>
-                Aumente el tráfico de su sitio web, las ventas, las visitas y los ingresos generales del producto con nuestra metodología estratégica.
-              </p>
-            </motion.div>
+          <div className='w-full max-w-7xl grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-10 mt-16'>
+            {serviceExecutionCards.map((card, index) => {
+              const imageOnRight = index % 2 === 1;
+              const isMockup = card.imageMode === "mockup";
+              const contentBlock = (
+                <div className={`flex flex-col justify-center p-7 text-left md:p-9 ${imageOnRight ? "md:order-1" : ""}`}>
+                  <p className='text-[11px] font-black uppercase tracking-[0.2em] text-cyan-100/70'>
+                    {card.badge}
+                  </p>
 
-            {/* Beneficio 2 */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              whileHover={{ y: -8 }}
-              className='bg-gradient-to-b from-white/[0.05] to-transparent border border-white/10 rounded-[2.5rem] p-10 flex flex-col transition-all duration-300 shadow-xl group hover:border-sky-400/30'
-            >
-              <div className='flex-1 flex items-center justify-center py-10'>
-                <Image
-                  className='w-full object-contain group-hover:scale-105 transition-transform duration-500'
-                  src="https://assets.prebuiltui.com/images/components/feature-sections/features-dash-img.png"
-                  alt="Estructura para equipos"
-                  width={300}
-                  height={200}
-                />
-              </div>
-              <h3 className='text-2xl font-black text-white mt-10 text-left leading-tight'>Estructura de excelencia</h3>
-              <p className='text-sm md:text-base text-slate-400 mt-4 text-left max-w-xs leading-relaxed'>
-                Organizamos componentes, variantes y diseños que funcionan perfectamente para equipos y garantizan escalabilidad a largo plazo.
-              </p>
-            </motion.div>
+                  <h3 className='mt-4 text-3xl font-black leading-tight text-cyan-300'>
+                    {card.title}
+                  </h3>
 
-            {/* Beneficio 3 */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              whileHover={{ y: -8 }}
-              className='bg-gradient-to-b from-white/[0.05] to-transparent border border-white/10 rounded-[2.5rem] p-10 flex flex-col transition-all duration-300 shadow-xl group hover:border-indigo-400/30'
-            >
-              <div className='flex-1 flex items-center justify-center py-10'>
-                <Image
-                  className='w-full max-w-60 object-contain group-hover:rotate-6 transition-transform duration-500'
-                  src="https://assets.prebuiltui.com/images/components/feature-sections/features-social-image.png"
-                  alt="Integraciones"
-                  width={240}
-                  height={240}
-                />
-              </div>
-              <h3 className='text-2xl font-black text-white mt-10 text-left leading-tight'>Integración perfecta</h3>
-              <p className='text-sm md:text-base text-slate-400 mt-4 text-left max-w-xs leading-relaxed'>
-                Trabajamos con tecnologías de vanguardia como React, Next.js y ecosistemas modernos para resultados fluidos y potentes.
-              </p>
-            </motion.div>
+                  <p className='mt-5 text-base leading-relaxed text-slate-300'>
+                    {card.description}
+                  </p>
+
+                  <ul className='mt-6 space-y-3'>
+                    {card.highlights.map((item) => (
+                      <li key={`${card.title}-${item}`} className='flex items-center gap-3 text-sm text-slate-200'>
+                        <span className='h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_10px_rgba(103,232,249,0.55)]' />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <p className='mt-6 border-t border-white/10 pt-5 text-sm leading-relaxed text-slate-400'>
+                    {card.support}
+                  </p>
+                </div>
+              );
+
+              return (
+                <motion.article
+                  key={card.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.08 }}
+                  whileHover={{ y: -6 }}
+                  className='group overflow-hidden rounded-[2.25rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.94),rgba(2,8,23,0.98))] shadow-[0_26px_70px_rgba(2,12,35,0.34)] transition-all duration-300 hover:border-cyan-400/25'
+                >
+                  {isMockup ? (
+                    <div className='flex h-full flex-col'>
+                      <div className='relative aspect-[16/10] overflow-hidden border-b border-white/10 bg-[linear-gradient(180deg,rgba(16,25,45,0.98),rgba(8,15,30,0.98))]'>
+                        <Image
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 42vw"
+                          className='object-cover blur-3xl scale-110 opacity-16'
+                          src={card.image}
+                          alt=""
+                        />
+                        <div className='absolute inset-0 bg-[radial-gradient(circle_at_24%_22%,rgba(103,232,249,0.12),transparent_26%),radial-gradient(circle_at_78%_24%,rgba(96,165,250,0.16),transparent_24%),linear-gradient(180deg,rgba(2,6,23,0.14),rgba(2,6,23,0.56))]' />
+                        <div className='absolute inset-0 p-5 md:p-8'>
+                          <div className='relative h-full w-full'>
+                            <Image
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 42vw"
+                              className='object-contain'
+                              src={card.image}
+                              alt={card.imageAlt}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      {contentBlock}
+                    </div>
+                  ) : (
+                    <div className='grid h-full md:grid-cols-[minmax(240px,0.92fr)_minmax(0,1.08fr)]'>
+                      <div className={`relative min-h-[280px] overflow-hidden ${imageOnRight ? "md:order-2" : ""}`}>
+                        <>
+                          <Image
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                            className='object-cover transition-transform duration-700 group-hover:scale-[1.04]'
+                            src={card.image}
+                            alt={card.imageAlt}
+                          />
+                          <div className='absolute inset-0 bg-[linear-gradient(180deg,rgba(2,6,23,0.08)_0%,rgba(2,6,23,0.2)_28%,rgba(2,6,23,0.48)_68%,rgba(2,6,23,0.82)_100%)]' />
+                        </>
+                      </div>
+                      {contentBlock}
+                    </div>
+                  )}
+                </motion.article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -2308,18 +2613,18 @@ export default function ServicesPage() {
               viewport={{ once: true }}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 text-cyan-200 text-xs font-bold uppercase tracking-[0.18em] mb-5"
             >
-              Mercado Chileno - Precio Estrategico
+              Asesoria ejecutiva
             </motion.span>
             <motion.h2
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ duration: 0.55, delay: 0.12 }}
               viewport={{ once: true }}
-              className="text-4xl md:text-5xl font-black mb-6 leading-tight"
+              className="text-4xl md:text-5xl font-black mb-6 leading-tight text-[#7DD3FC]"
             >
-              SERVICIOS DE ASESORIA
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-sky-300 to-indigo-300">
-                Para Resolver Problemas Reales de Empresa
+              Asesoria estrategica
+              <span className="block text-[#7DD3FC]">
+                para decisiones de tecnologia y operacion
               </span>
             </motion.h2>
             <motion.p
@@ -2329,7 +2634,7 @@ export default function ServicesPage() {
               viewport={{ once: true }}
               className="text-slate-200 text-lg max-w-3xl mx-auto leading-relaxed"
             >
-              Asesorias enfocadas en decisiones concretas: sistemas, automatizacion, ventas y ejecucion tecnica.
+              Analizamos procesos, detectamos cuellos de botella y definimos prioridades para que inviertas con criterio, reduzcas friccion operativa y avances con una hoja de ruta clara.
             </motion.p>
           </motion.div>
 
@@ -2393,8 +2698,8 @@ export default function ServicesPage() {
                   setAdvisoryStartIndex(idx);
                 }}
                 className={`h-2.5 rounded-full transition-all ${idx === advisoryStartIndex
-                    ? "w-7 bg-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.8)]"
-                    : "w-2.5 bg-white/30 hover:bg-cyan-200/70"
+                  ? "w-7 bg-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.8)]"
+                  : "w-2.5 bg-white/30 hover:bg-cyan-200/70"
                   }`}
               />
             ))}
@@ -2403,9 +2708,23 @@ export default function ServicesPage() {
           <div className="mt-12 text-center">
             <Link
               href={buildReservationHref("asesoria", "Asesoria estrategica para mi empresa")}
-              className="inline-flex px-8 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold shadow-xl shadow-cyan-500/25 hover:opacity-90 transition-all"
+              className="group relative inline-flex items-center gap-4 rounded-[1.35rem] border border-[#6EE7D8]/25 bg-[linear-gradient(145deg,rgba(8,14,28,0.98),rgba(17,24,39,0.96))] px-5 py-4 shadow-[0_24px_60px_-30px_rgba(94,234,212,0.22)] transition-all duration-300 hover:-translate-y-1 hover:border-[#7DD3FC]/45 hover:shadow-[0_30px_70px_-28px_rgba(96,165,250,0.3)]"
+              style={{ color: "#F4FFFE", WebkitTextFillColor: "#F4FFFE", textDecoration: "none" }}
             >
-              Reservar Asesoria para mi Empresa
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#6EE7D8]/20 bg-[linear-gradient(145deg,rgba(45,212,191,0.16),rgba(59,130,246,0.12))] text-[#99F6E4] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+                <FaCalendarCheck className="text-base" />
+              </span>
+              <span className="flex flex-col items-start leading-none text-left">
+                <span className="text-[0.68rem] font-black uppercase tracking-[0.24em] text-[#99F6E4]/75">
+                  Asesoria estrategica
+                </span>
+                <span className="mt-2 text-sm md:text-base font-black tracking-[0.01em] text-[#F4FFFE]">
+                  Reservar para mi empresa
+                </span>
+              </span>
+              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#7DD3FC]/20 bg-[linear-gradient(145deg,rgba(45,212,191,0.14),rgba(59,130,246,0.14))] text-[#DFFCF8] transition-all duration-300 group-hover:translate-x-1 group-hover:border-[#7DD3FC]/35 group-hover:bg-[linear-gradient(145deg,rgba(45,212,191,0.22),rgba(59,130,246,0.2))]">
+                <FaArrowRight className="text-xs" />
+              </span>
             </Link>
           </div>
         </div>
@@ -2415,46 +2734,54 @@ export default function ServicesPage() {
       <section id="planes" className="py-32 bg-slate-950 relative">
         <div className="container-elite max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <span className="inline-flex items-center px-5 py-2 rounded-full border border-cyan-300/30 bg-cyan-500/10 text-cyan-100 text-xs md:text-sm font-semibold uppercase tracking-[0.24em] mb-6">
-              Propuesta Clara
+            <span className="inline-flex items-center px-5 py-2 rounded-full border border-[#2E6D7D]/35 bg-[linear-gradient(180deg,rgba(16,32,46,0.94),rgba(10,22,35,0.8))] text-[#68A9B8] text-xs md:text-sm font-semibold uppercase tracking-[0.24em] mb-6 shadow-[0_12px_30px_-24px_rgba(54,122,142,0.7)]">
+              Inversion clara
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-              Planes y{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-sky-300 to-blue-400">
-                Precios Transparentes
-              </span>
+            <h2
+              className="text-4xl md:text-5xl font-bold mb-6 leading-tight"
+              style={{
+                background: "linear-gradient(90deg, #63C7CF 0%, #3F94B2 52%, #315F86 100%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                color: "transparent",
+              }}
+            >
+              Planes y precios para implementar con claridad
             </h2>
             <p className="text-slate-300 text-lg max-w-3xl mx-auto leading-relaxed">
-              Compara opciones con total claridad, entiende exactamente qué incluye cada plan y elige con confianza la alternativa ideal para tu etapa de crecimiento.
+              Compara alcances, entregables y nivel de soporte para elegir la alternativa que mejor responde a la etapa de crecimiento de tu empresa.
             </p>
             <p className="text-slate-400 text-base max-w-3xl mx-auto mt-3 leading-relaxed">
-              Trabajamos con entregables definidos, tiempos realistas y acompañamiento consultivo para que tu inversión se traduzca en resultados visibles desde el inicio.
+              Trabajamos con tiempos realistas, alcance definido y acompanamiento consultivo para que la inversion se traduzca en resultados visibles desde el inicio.
             </p>
           </div>
 
           {/* Plan Selector */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
-            {displayPlans.map((plan) => (
-              <motion.button
-                key={plan.id}
-                onClick={() => setActivePlan(plan.id)}
-                whileHover={{ y: -2, scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 320, damping: 22 }}
-                className={`relative overflow-hidden px-6 py-3 rounded-full font-semibold tracking-wide border transition-all duration-300 ${activePlan === plan.id
-                    ? "bg-gradient-to-r from-sky-600 to-indigo-600 text-white border-sky-300/50 shadow-xl shadow-sky-500/20"
-                    : "bg-slate-900/70 text-slate-300 hover:text-white border-white/15 hover:border-cyan-300/40 hover:bg-slate-800/80"
-                  }`}
-              >
-                {activePlan === plan.id && (
-                  <motion.span
-                    layoutId="active-plan-pill-glow"
-                    className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-400/20 to-indigo-400/20"
-                  />
-                )}
-                <span className="relative z-10">{plan.name}</span>
-              </motion.button>
-            ))}
+          <div className="relative left-1/2 mb-12 w-screen max-w-none -translate-x-1/2 overflow-x-auto pb-2 no-scrollbar px-6 xl:px-10">
+            <div className="flex w-max min-w-full flex-nowrap justify-start gap-4 xl:justify-center">
+              {displayPlans.map((plan) => (
+                <motion.button
+                  key={plan.id}
+                  onClick={() => setActivePlan(plan.id)}
+                  whileHover={{ y: -2, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 320, damping: 22 }}
+                  className={`relative shrink-0 overflow-hidden px-6 py-3 rounded-full font-semibold tracking-wide border transition-all duration-300 ${activePlan === plan.id
+                    ? "bg-[linear-gradient(135deg,rgba(20,58,76,0.98),rgba(16,38,55,0.98))] text-[#7FD0DB] border-[#3F94B2]/45 shadow-[0_16px_36px_-18px_rgba(41,124,151,0.58)]"
+                    : "bg-[linear-gradient(180deg,rgba(17,24,39,0.8),rgba(15,23,42,0.6))] text-[#6B8696] border-[#31546A]/24 hover:text-[#75AFC0] hover:border-[#377D95]/40 hover:bg-[linear-gradient(180deg,rgba(19,33,48,0.94),rgba(14,26,40,0.78))]"
+                    }`}
+                >
+                  {activePlan === plan.id && (
+                    <motion.span
+                      layoutId="active-plan-pill-glow"
+                      className="absolute inset-0 rounded-full bg-gradient-to-r from-[#57B7C7]/12 via-[#3F94B2]/10 to-[#315F86]/14"
+                    />
+                  )}
+                  <span className="relative z-10">{plan.name}</span>
+                </motion.button>
+              ))}
+            </div>
           </div>
 
           {/* Active Plan Detail */}
@@ -2467,8 +2794,8 @@ export default function ServicesPage() {
           >
             {displayPlans.filter((p) => p.id === activePlan).map((plan) => (
               <div key={plan.id} className={`group relative rounded-[2.5rem] overflow-hidden shadow-[0_30px_80px_-35px_rgba(14,165,233,0.35)] ${plan.popular
-                  ? 'bg-gradient-to-br from-indigo-900/45 via-slate-900 to-sky-950/40 border-2 border-indigo-400/60'
-                  : 'bg-gradient-to-br from-slate-900/95 via-slate-900 to-slate-950 border border-white/10'
+                ? 'bg-gradient-to-br from-indigo-900/45 via-slate-900 to-sky-950/40 border-2 border-indigo-400/60'
+                : 'bg-gradient-to-br from-slate-900/95 via-slate-900 to-slate-950 border border-white/10'
                 }`}>
                 <div className="pointer-events-none absolute inset-0">
                   <div className="absolute -top-24 -left-16 h-56 w-56 rounded-full bg-cyan-400/15 blur-3xl" />
@@ -2486,11 +2813,15 @@ export default function ServicesPage() {
                     <div className="inline-flex items-center px-3 py-1 rounded-full border border-cyan-300/30 bg-cyan-500/10 text-cyan-100 text-xs font-semibold uppercase tracking-[0.2em] mb-4">
                       {plan.modules}
                     </div>
-                    <h3 className="text-3xl md:text-4xl font-extrabold mb-4 leading-tight">{plan.name}</h3>
+                    <h3 className="text-3xl md:text-4xl font-extrabold mb-4 leading-tight text-[#76C6D7]">
+                      {plan.name}
+                    </h3>
                     <p className="text-slate-300/95 mb-7 leading-relaxed">{plan.description}</p>
                     <div className="inline-flex flex-col mb-8">
                       <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Inversión desde</span>
-                      <div className="text-4xl md:text-5xl font-extrabold text-white drop-shadow-[0_0_20px_rgba(125,211,252,0.2)]">{plan.price}</div>
+                      <div className="text-4xl md:text-5xl font-extrabold text-[#F3B562] drop-shadow-[0_0_20px_rgba(243,181,98,0.18)]">
+                        {plan.price}
+                      </div>
                     </div>
 
                     <button
@@ -2541,9 +2872,11 @@ export default function ServicesPage() {
                 className="relative overflow-hidden bg-gradient-to-br from-slate-900/90 via-slate-900 to-slate-950 border border-white/10 rounded-2xl p-6 hover:border-cyan-300/50 transition-all cursor-pointer group shadow-lg shadow-slate-950/60"
               >
                 <div className="pointer-events-none absolute -top-14 -right-14 h-32 w-32 rounded-full bg-cyan-400/10 blur-2xl group-hover:bg-cyan-300/20 transition-all" />
-                <h3 className="text-xl font-bold mb-2 group-hover:text-cyan-200 transition-colors">{plan.name}</h3>
+                <h3 className="text-xl font-bold mb-2 text-[#7CCFDE] group-hover:text-[#A6E3EE] transition-colors">
+                  {plan.name}
+                </h3>
                 <p className="text-slate-300/90 text-sm mb-4 line-clamp-2">{plan.description}</p>
-                <div className="text-2xl font-extrabold text-white">{plan.price}</div>
+                <div className="text-2xl font-extrabold text-[#F0B35B]">{plan.price}</div>
               </motion.div>
             ))}
           </div>
@@ -2556,19 +2889,26 @@ export default function ServicesPage() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_80%,rgba(99,102,241,0.12),transparent_45%)]" />
         <div className="container-elite max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center mb-16">
-            <span className="inline-flex items-center px-5 py-2 rounded-full border border-emerald-300/30 bg-emerald-500/10 text-emerald-100 text-xs md:text-sm font-semibold uppercase tracking-[0.22em] mb-6">
-              Escalamiento Inteligente
+            <span className="inline-flex items-center px-5 py-2 rounded-full border border-[#2E6D7D]/35 bg-[linear-gradient(180deg,rgba(16,32,46,0.94),rgba(10,22,35,0.8))] text-[#68A9B8] text-xs md:text-sm font-semibold uppercase tracking-[0.22em] mb-6 shadow-[0_12px_30px_-24px_rgba(54,122,142,0.7)]">
+              Escalamiento operativo
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-cyan-200 to-sky-300">
-                Servicios Adicionales Empresariales
-              </span>
+            <h2
+              className="text-4xl md:text-5xl font-bold mb-6 leading-tight"
+              style={{
+                background: "linear-gradient(90deg, #43C7BB 0%, #2FA6C4 52%, #4267C9 100%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                color: "transparent",
+              }}
+            >
+              Servicios complementarios para automatizar, integrar y dar continuidad
             </h2>
             <p className="text-slate-200 text-lg max-w-3xl mx-auto leading-relaxed">
-              Servicios orientados a operación real de empresa: automatización, desarrollo y soporte técnico para crecer con menos fricción.
+              Servicios orientados a operacion real de empresa: automatizacion, desarrollo e integraciones para mejorar control, seguimiento y continuidad tecnica.
             </p>
             <p className="text-slate-400 text-base max-w-3xl mx-auto mt-3 leading-relaxed">
-              Cada implementación se conecta a tu flujo actual y queda lista para uso comercial, seguimiento y mejora continua.
+              Cada implementacion se conecta a tu flujo actual y queda preparada para uso comercial, seguimiento y mejora continua.
             </p>
           </div>
 
@@ -2647,9 +2987,12 @@ export default function ServicesPage() {
           <div className="text-center mt-12">
             <Link
               href="/servicios/combos"
-              className="text-cyan-200 font-semibold inline-flex items-center gap-2 mx-auto hover:gap-3 transition-all"
+              className="group relative inline-flex items-center gap-3 mx-auto rounded-xl border border-cyan-300/50 bg-[linear-gradient(135deg,rgba(34,211,238,0.18),rgba(56,189,248,0.2),rgba(59,130,246,0.2))] px-6 py-3 text-sm font-extrabold tracking-[0.03em] text-cyan-50 shadow-[0_18px_40px_-24px_rgba(34,211,238,0.9)] transition-all duration-300 hover:-translate-y-0.5 hover:border-cyan-200/80 hover:shadow-[0_24px_48px_-22px_rgba(34,211,238,0.95)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+              aria-label="Ver todos los servicios disponibles"
+              title="Ver todos los servicios disponibles"
             >
-              Ver todos los servicios disponibles <FaArrowRight />
+              Ver todos los servicios disponibles{" "}
+              <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </div>
         </div>
@@ -2662,7 +3005,12 @@ export default function ServicesPage() {
         <div className="container-elite max-w-7xl mx-auto px-6 relative z-10">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-6">
             <div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">Resultados reales de nuestros clientes</h2>
+              <h2
+                className="text-4xl md:text-5xl font-bold mb-4 tracking-tight"
+                style={{ color: "#22D3EE", WebkitTextFillColor: "#22D3EE", textShadow: "none" }}
+              >
+                Resultados reales de nuestros clientes
+              </h2>
               <p className="text-slate-400 text-lg">Experiencias referidas por pequenas y medianas empresas (PYMEs), negocios personales y empresas en crecimiento de Chile que mejoraron su presencia digital y sus ventas.</p>
             </div>
             <motion.button
@@ -2675,13 +3023,13 @@ export default function ServicesPage() {
               whileHover={{ y: -2, scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 300, damping: 22 }}
-              className="group relative overflow-hidden px-7 py-3.5 rounded-full font-semibold text-white border border-cyan-100/60 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 shadow-[0_18px_36px_-20px_rgba(14,165,233,0.95)] hover:shadow-[0_26px_40px_-18px_rgba(6,182,212,0.95)] transition-all duration-300 flex items-center gap-2"
+              className="group relative overflow-hidden px-7 py-3.5 rounded-[1.4rem] border border-[#F8C36A]/45 bg-[linear-gradient(135deg,#F7C45C_0%,#FB923C_52%,#F97316_100%)] text-[#221302] font-black tracking-[0.02em] shadow-[0_22px_46px_-20px_rgba(249,115,22,0.65)] hover:-translate-y-1 hover:shadow-[0_28px_56px_-22px_rgba(249,115,22,0.78)] transition-all duration-300 flex items-center gap-3"
             >
-              <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,transparent_20%,rgba(255,255,255,0.42)_50%,transparent_80%)] -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700" />
+              <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,transparent_15%,rgba(255,244,214,0.35)_50%,transparent_85%)] -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-700" />
               <span className="relative z-10 flex items-center gap-2">
-                <FaPenSquare className="text-cyan-50" /> Dejar mi reseña
+                <FaPenSquare className="text-[#221302]" /> Dejar mi reseña
               </span>
-              <span className="relative z-10 h-2 w-2 rounded-full bg-cyan-100/95 shadow-[0_0_10px_rgba(255,255,255,0.95)] animate-pulse" />
+              <span className="relative z-10 h-2.5 w-2.5 rounded-full bg-[#7C2D12] shadow-[0_0_12px_rgba(124,45,18,0.45)] animate-pulse" />
             </motion.button>
           </div>
 
@@ -2723,100 +3071,124 @@ export default function ServicesPage() {
           {/* Trust Indicators */}
           <div className="mt-16 flex flex-wrap justify-center gap-8 items-center opacity-50">
             <div className="flex items-center gap-2 text-slate-400">
-              <FaGoogle /> Google Partner
+              <FaGoogle /> Google Ads
             </div>
             <div className="flex items-center gap-2 text-slate-400">
-              <FaFacebook /> Meta Business Partner
+              <FaFacebook /> Meta Ads
             </div>
             <div className="flex items-center gap-2 text-slate-400">
-              <FaShopify /> Shopify Partner
+              <FaShopify /> Shopify
             </div>
             <div className="flex items-center gap-2 text-slate-400">
-              <FaWordpress /> WordPress Expert
+              <FaWordpress /> WordPress
             </div>
           </div>
         </div>
       </section>
 
       {/* FAQ SECTION */}
-      <section id="faq" className="py-32 bg-slate-900/30 relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(56,189,248,0.12),transparent_40%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_85%,rgba(34,197,94,0.1),transparent_40%)]" />
-        <div className="container-elite max-w-5xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-16">
-            <span className="inline-flex items-center px-5 py-2 rounded-full border border-cyan-300/35 bg-cyan-500/10 text-cyan-100 text-xs md:text-sm font-semibold uppercase tracking-[0.22em] mb-6">
-              Soporte Estratégico
-            </span>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-sky-300 to-emerald-300">
-                Preguntas Frecuentes
-              </span>
-            </h2>
-            <p className="text-slate-200 text-lg max-w-3xl mx-auto leading-relaxed">
-              Resolvemos las dudas clave para que tomes decisiones con seguridad, entiendas el proceso completo y avances con una estrategia digital clara.
-            </p>
-          </div>
+      {/* 14. FAQ SECTION - REDESIGNED */}
+      <section className="py-32 px-6 relative bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] border-t border-white/[0.04] overflow-hidden">
+        {/* Decorative Ambient Background */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-indigo-500/05 blur-[120px] pointer-events-none -z-10" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-5">
-            {displayFaqs.map((faq, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                whileHover={activeFaq === i ? undefined : { y: -2 }}
-                transition={{ duration: 0.45, delay: i * 0.04 }}
-                viewport={{ once: true }}
-                className={`group relative rounded-[22px] border transition-all duration-300 ${activeFaq === i
-                    ? "bg-[linear-gradient(145deg,rgba(14,28,64,0.96),rgba(7,16,38,0.98))] border-cyan-300/55 shadow-[0_24px_56px_-30px_rgba(34,211,238,0.8)]"
-                    : "bg-[linear-gradient(145deg,rgba(10,22,52,0.85),rgba(7,14,34,0.92))] border-blue-200/15 hover:border-cyan-300/45 hover:shadow-[0_20px_42px_-30px_rgba(56,189,248,0.75)]"
-                  }`}
-              >
-                <div className="pointer-events-none absolute -top-20 -right-16 h-44 w-44 rounded-full bg-cyan-300/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                <button
-                  onClick={() => setActiveFaq(activeFaq === i ? null : i)}
-                  className="relative z-10 w-full px-6 md:px-7 py-5 md:py-6 text-left grid grid-cols-[1fr_auto] items-center gap-4"
-                >
-                  <div className="min-w-0">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-[0.14em] bg-white/5 border border-white/10 text-slate-300 mb-3">
-                      FAQ {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <p className="font-semibold text-lg text-slate-100 pr-2">{faq.q}</p>
-                  </div>
-                  <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center transition-all duration-300 ${activeFaq === i
-                      ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white rotate-180 shadow-[0_0_20px_rgba(56,189,248,0.75)]"
-                      : "bg-white/8 text-slate-200 group-hover:bg-cyan-500/20 group-hover:text-cyan-100"
-                    }`}>
-                    <FaChevronDown className="text-sm" />
-                  </div>
-                </button>
-                <AnimatePresence>
-                  {activeFaq === i && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-6 md:px-7 pb-6 text-slate-300 leading-relaxed border-t border-cyan-300/15">
-                        {faq.a}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            ))}
-          </div>
+        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-16 lg:gap-24 faq-modern-wrapper">
+          {/* Left Side: Productive Presence Image */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            viewport={{ once: true }}
+            className="w-full lg:w-[46%] relative"
+          >
+            <div className="relative z-10 rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_32px_80px_rgba(0,0,0,0.6)] group">
+              <Image
+                className="w-full h-auto object-cover grayscale-[0.15] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
+                src={images.faqSupport}
+                width={980}
+                height={849}
+                sizes="(max-width: 1024px) 100vw, 46vw"
+                alt="Ingeniería de alto rendimiento"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
-          <div className="mt-12 text-center p-8 bg-gradient-to-r from-cyan-500/12 via-sky-500/10 to-emerald-500/12 rounded-2xl border border-cyan-300/25 shadow-[0_24px_48px_-36px_rgba(34,211,238,0.8)]">
-            <h3 className="text-xl font-bold mb-2 text-slate-100">¿Tienes otras preguntas?</h3>
-            <p className="text-slate-300 mb-4">Te orientamos en minutos con recomendaciones concretas para tu caso.</p>
-            <button
-              onClick={() => openWhatsApp("Hola, tengo una consulta sobre sus servicios")}
-              className="group px-7 py-3.5 rounded-full font-semibold transition-all inline-flex items-center gap-2 text-white border border-cyan-100/60 bg-gradient-to-r from-cyan-500 to-blue-600 hover:shadow-[0_20px_36px_-20px_rgba(56,189,248,0.9)]"
-            >
-              <FaWhatsapp className="group-hover:scale-110 transition-transform" /> Hablar con un especialista
-            </button>
-          </div>
+              {/* Floating Badge on Image */}
+              <div className="absolute bottom-10 left-10 right-10 p-6 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                <p className="text-white text-xs font-bold leading-relaxed">
+                  Respuesta clara, seguimiento cercano y soporte continuo para que tu solucion siga funcionando bien.
+                </p>
+              </div>
+            </div>
+
+            {/* Ambient Glows */}
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-indigo-600/20 rounded-full blur-[80px] -z-10" />
+            <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-cyan-600/15 rounded-full blur-[100px] -z-10" />
+          </motion.div>
+
+          {/* Right Side: FAQ Accordion */}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            viewport={{ once: true }}
+            className="w-full lg:w-[54%]"
+          >
+            <div className="mb-12">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/30 mb-6">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                </span>
+                <span className="text-[10px] font-black tracking-[0.2em] uppercase text-indigo-300">Preguntas Frecuentes</span>
+              </div>
+
+              <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight leading-tight">
+                ¿Buscas <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-cyan-300">respuesta</span>?
+              </h2>
+              <p className="text-slate-400 leading-relaxed text-lg max-w-xl">
+                Resolvemos tus dudas críticas para que inicies tu proyecto con una ruta tecnológica clara y resultados comerciales medibles.
+              </p>
+            </div>
+
+            {/* Accordion Logic */}
+            <div className="divide-y divide-white/10 border-t border-white/10">
+              {displayFaqs.map((faq, i) => (
+                <div key={i} className="py-2 transition-all duration-300">
+                  <button
+                    onClick={() => setActiveFaq(activeFaq === i ? null : i)}
+                    className="w-full flex items-center justify-between py-6 text-left group"
+                  >
+                    <h3 className={`text-lg font-semibold transition-all duration-300 pr-8 ${activeFaq === i ? 'text-indigo-300 scale-[1.02]' : 'text-slate-200 group-hover:text-white'}`}>
+                      {faq.q}
+                    </h3>
+                    <div className={`shrink-0 w-6 h-6 rounded-full border border-white/10 flex items-center justify-center transition-all duration-500 ${activeFaq === i ? 'bg-indigo-500 border-indigo-400 text-white rotate-180' : 'text-slate-500 group-hover:border-indigo-400 group-hover:text-indigo-300'}`}>
+                      <FaChevronDown size={10} />
+                    </div>
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {activeFaq === i && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pb-8 pr-12">
+                          <p className="text-slate-400 leading-relaxed text-[0.95rem]">
+                            {faq.a}
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </div>
+
+            {/* Removed Quick Contact Link per user request */}
+          </motion.div>
         </div>
       </section>
 
@@ -2844,9 +3216,9 @@ export default function ServicesPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href={buildReservationHref("asesoria", "Consultoria gratuita de 30 minutos")}
-                className="px-8 py-4 bg-gradient-to-r from-[#25D366] to-[#128C7E] hover:from-[#22c55e] hover:to-[#0f766e] rounded-full font-semibold text-lg transition-all flex items-center justify-center gap-3 shadow-lg shadow-emerald-500/35"
+                className="group px-8 py-4 rounded-full border border-cyan-300/35 bg-[linear-gradient(135deg,rgba(15,23,42,0.94),rgba(30,41,59,0.95))] text-cyan-50 font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-3 shadow-[0_16px_34px_-22px_rgba(34,211,238,0.55)] hover:-translate-y-0.5 hover:border-cyan-200/60 hover:bg-[linear-gradient(135deg,rgba(15,23,42,0.98),rgba(37,49,67,0.98))] hover:shadow-[0_22px_40px_-20px_rgba(34,211,238,0.62)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
               >
-                <FaWhatsapp className="text-xl" />
+                <FaWhatsapp className="text-xl text-cyan-200 transition-colors duration-300 group-hover:text-cyan-100" />
                 Agendar Consultoría Gratis
               </Link>
               <button
@@ -3147,5 +3519,3 @@ export default function ServicesPage() {
     </div>
   );
 }
-
-
