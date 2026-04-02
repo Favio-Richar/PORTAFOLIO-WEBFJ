@@ -197,222 +197,257 @@ export default function TestimonialsAdmin() {
   }
 
   return (
-    <div className="max-w-[1400px] mx-auto p-8 space-y-6">
-      <section className="border border-white/10 bg-[#070b14]/70 p-8">
-        <div className="flex items-start justify-between gap-6">
+    <div className="admin-content-v2 fade-in">
+      {/* 📊 MINI STATS BAR */}
+      <section className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="bg-[#0f172a]/80 border border-white/5 p-4 rounded-lg flex items-center justify-between group hover:border-blue-500/20 transition-all">
           <div>
-            <h2 className="text-4xl font-black text-white uppercase tracking-wide">Testimonios y Reviews</h2>
-            <p className="text-white/60 mt-2">Administra comentario, calificacion, estado y origen.</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-0.5">Volumen</p>
+            <p className="text-2xl font-black text-white">{stats.total}</p>
           </div>
-          <button
-            onClick={loadReviews}
-            className="px-6 py-3 text-xs font-black uppercase tracking-[0.25em] bg-blue-600 text-white hover:bg-blue-500 transition-colors"
-          >
-            Recargar
-          </button>
+          <div className="w-10 h-10 bg-blue-500/5 rounded-md flex items-center justify-center text-blue-500 border border-blue-500/10 group-hover:bg-blue-500/10 group-hover:scale-110 transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 0 1 9.288 0M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM7 10a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/></svg>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          <div className="border border-white/10 bg-white/[0.03] p-4">
-            <p className="text-white/50 text-xs uppercase tracking-widest">Total</p>
-            <p className="text-white text-3xl font-black">{stats.total}</p>
+        <div className="bg-[#0f172a]/80 border border-white/5 p-4 rounded-lg flex items-center justify-between group hover:border-emerald-500/20 transition-all">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500/60 mb-0.5">Aprobados</p>
+            <p className="text-2xl font-black text-emerald-400">{stats.approved}</p>
           </div>
-          <div className="border border-emerald-500/30 bg-emerald-500/10 p-4">
-            <p className="text-emerald-300 text-xs uppercase tracking-widest">Aprobadas</p>
-            <p className="text-emerald-300 text-3xl font-black">{stats.approved}</p>
+          <div className="w-10 h-10 bg-emerald-500/5 rounded-md flex items-center justify-center text-emerald-500 border border-emerald-500/10">
+            <FaCheck className="text-sm" />
           </div>
-          <div className="border border-amber-500/30 bg-amber-500/10 p-4">
-            <p className="text-amber-300 text-xs uppercase tracking-widest">Pendientes</p>
-            <p className="text-amber-300 text-3xl font-black">{stats.pending}</p>
+        </div>
+
+        <div className="bg-[#0f172a]/80 border border-white/5 p-4 rounded-lg flex items-center justify-between group hover:border-amber-500/20 transition-all">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-500/60 mb-0.5">Moderación</p>
+            <p className="text-2xl font-black text-amber-400">{stats.pending}</p>
           </div>
+          <div className="w-10 h-10 bg-amber-500/5 rounded-md flex items-center justify-center text-amber-500 border border-amber-500/10">
+            <FaClock className="text-sm" />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end">
+           <button
+            onClick={loadReviews}
+            className="px-6 py-2.5 bg-blue-600 text-white rounded-md text-xs font-black uppercase tracking-widest hover:bg-blue-500 shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+          >
+            Sincronizar Data
+          </button>
         </div>
       </section>
 
-      <section className="border border-white/10 bg-[#070b14]/70 p-8">
-        {error && <div className="mb-4 text-red-400 font-bold">{error}</div>}
+      {/* 📁 FILTERS PANEL */}
+      <section className="bg-slate-900 border border-white/5 rounded-xl overflow-hidden shadow-2xl shadow-black/50 mb-10">
+        <div className="p-4 border-b border-white/5 flex flex-col lg:flex-row lg:items-center gap-4 bg-slate-900/50">
+           <div className="relative flex-1">
+             <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Filtro rápido por cliente, empresa o palabras clave..."
+              className="w-full bg-slate-950 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-xs text-white placeholder:text-slate-600 focus:border-blue-500/50 transition-all outline-none"
+             />
+             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
+             </div>
+           </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 mb-4">
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por autor, empresa o comentario..."
-            className="lg:col-span-2 bg-black/30 border border-white/15 text-white px-4 py-3 outline-none"
-          />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as "all" | ReviewStatus)}
-            className="bg-black/30 border border-white/15 text-white px-4 py-3 outline-none"
-          >
-            <option value="all" className="bg-slate-900">Todos los estados</option>
-            <option value="pending" className="bg-slate-900">pending</option>
-            <option value="approved" className="bg-slate-900">approved</option>
-            <option value="rejected" className="bg-slate-900">rejected</option>
-          </select>
-          <select
-            value={sourceFilter}
-            onChange={(e) => setSourceFilter(e.target.value)}
-            className="bg-black/30 border border-white/15 text-white px-4 py-3 outline-none"
-          >
-            <option value="all" className="bg-slate-900">Todos los origenes</option>
-            {sources.map((src) => (
-              <option key={src} value={src} className="bg-slate-900">
-                {getOriginLabel(src)}
-              </option>
-            ))}
-          </select>
+           <div className="flex items-center gap-3">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as "all" | ReviewStatus)}
+                className="bg-slate-950 border border-white/10 text-white px-3 py-2.5 text-xs font-bold rounded-lg outline-none cursor-pointer hover:bg-slate-800 transition-colors"
+                style={{ appearance: 'none' }}
+              >
+                <option value="all">TODOS LOS ESTADOS</option>
+                <option value="pending">EN REVISIÓN</option>
+                <option value="approved">PUBLICADOS</option>
+                <option value="rejected">RECHAZADOS</option>
+              </select>
+
+              <select
+                value={sourceFilter}
+                onChange={(e) => setSourceFilter(e.target.value)}
+                className="bg-slate-950 border border-white/10 text-white px-3 py-2.5 text-xs font-bold rounded-lg outline-none cursor-pointer hover:bg-slate-800 transition-colors"
+                style={{ appearance: 'none' }}
+              >
+                <option value="all">TODOS LOS ORIGENES</option>
+                {sources.map((src) => (
+                  <option key={src} value={src}>{getOriginLabel(src).toUpperCase()}</option>
+                ))}
+              </select>
+           </div>
         </div>
 
-        <div className="text-xs font-bold uppercase tracking-widest text-white/50 mb-4">
-          Mostrando {filteredReviews.length} de {reviews.length} registros
+        {/* 📋 THE PROFESSIONAL DATA GRID */}
+        <div className="overflow-x-auto min-h-[400px]">
+          {loading ? (
+             <div className="py-24 text-center">
+                <div className="inline-block w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mb-4" />
+                <p className="text-[10px] uppercase font-black tracking-widest text-slate-500">Optimizando Data Table...</p>
+             </div>
+          ) : filteredReviews.length === 0 ? (
+             <div className="py-24 text-center">
+                <p className="text-slate-600 font-medium italic">No se han encontrado registros que coincidan con los filtros actuales.</p>
+             </div>
+          ) : (
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-950/40 text-[10px] font-black uppercase tracking-widest text-slate-500 border-b border-white/5">
+                  <th className="px-6 py-4">Cliente / Empresa</th>
+                  <th className="px-6 py-4">Calificación</th>
+                  <th className="px-6 py-4 w-1/3">Comentario</th>
+                  <th className="px-6 py-4">Origen</th>
+                  <th className="px-6 py-4">Estado</th>
+                  <th className="px-6 py-4 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {filteredReviews.map((review) => {
+                   const isEditing = editingReviewId === review.id;
+                   const draftValue = isEditing ? draftContentById[review.id] ?? review.content : review.content;
+                   const initials = review.author_name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+                   const avatarBg = `hsl(${(review.author_name.length * 137.5) % 360}, 50%, 35%)`;
+
+                   return (
+                     <tr key={review.id} className="group hover:bg-white/[0.02] transition-all">
+                       {/* CLIENTE INFO */}
+                       <td className="px-6 py-5 whitespace-nowrap">
+                          <div className="flex items-center gap-3">
+                             <div 
+                               className="w-9 h-9 flex items-center justify-center rounded-full text-xs font-black shadow-inner border border-white/10" 
+                               style={{ backgroundColor: avatarBg }}
+                             >
+                               {initials}
+                             </div>
+                             <div>
+                                <p className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors">{review.author_name}</p>
+                                <p className="text-[10px] text-slate-500 font-medium">
+                                   {review.author_role || "Empresario"} {review.author_company ? `@ ${review.author_company}` : ""}
+                                </p>
+                             </div>
+                          </div>
+                       </td>
+
+                       {/* CALIFICACION */}
+                       <td className="px-6 py-5 whitespace-nowrap">
+                          <div className="flex flex-col gap-1">
+                             <div className="flex gap-0.5 text-amber-500 text-[10px]">
+                               {Array.from({ length: 5 }).map((_, i) => (
+                                 <FaStar key={i} className={i < (review.rating || 0) ? "text-amber-500" : "text-white/10"} />
+                               ))}
+                             </div>
+                             <span className="text-[11px] font-black text-white/50">{review.rating} / 5.0</span>
+                          </div>
+                       </td>
+
+                       {/* COMENTARIO */}
+                       <td className="px-6 py-5">
+                          {isEditing ? (
+                             <div className="space-y-2">
+                                <textarea
+                                  value={draftValue}
+                                  onChange={(e) => setDraftContentById(p => ({ ...p, [review.id]: e.target.value }))}
+                                  className="w-full bg-[#030712] border border-blue-500/30 p-2 text-xs text-slate-300 outline-none rounded min-h-[80px]"
+                                />
+                                <div className="flex gap-2">
+                                   <button 
+                                      onClick={() => saveEditedContent(review)}
+                                      className="px-3 py-1 bg-emerald-600 text-[9px] font-black uppercase tracking-widest rounded hover:bg-emerald-500"
+                                   >
+                                      Sincronizar
+                                   </button>
+                                   <button 
+                                      onClick={() => cancelEditing(review.id)}
+                                      className="px-3 py-1 bg-slate-800 text-[9px] font-black uppercase tracking-widest rounded hover:bg-slate-700"
+                                   >
+                                      Cancelar
+                                   </button>
+                                </div>
+                             </div>
+                          ) : (
+                             <p className="text-xs text-slate-400 leading-relaxed line-clamp-2 max-w-md group-hover:text-slate-200 transition-colors italic">
+                                "{review.content}"
+                             </p>
+                          )}
+                       </td>
+
+                       {/* ORIGEN */}
+                       <td className="px-6 py-5 whitespace-nowrap">
+                          <span className="px-2 py-1 bg-slate-800/50 border border-white/5 text-slate-500 text-[9px] font-black uppercase rounded tracking-tighter">
+                             {getOriginLabel(review.page_context || "general")}
+                          </span>
+                       </td>
+
+                       {/* ESTADO DROPDOWN */}
+                       <td className="px-6 py-5 whitespace-nowrap">
+                          <StatusBadge status={review.status} />
+                          <div className="mt-1">
+                             <select
+                                value={review.status}
+                                onChange={(e) => updateReview(review, { status: e.target.value as ReviewStatus })}
+                                className="bg-transparent text-[9px] font-bold text-blue-500/70 hover:text-blue-400 outline-none cursor-pointer uppercase tracking-tighter"
+                             >
+                                <option value="pending" className="bg-slate-900">Pasar a Pendiente</option>
+                                <option value="approved" className="bg-slate-900">Aprobar Review</option>
+                                <option value="rejected" className="bg-slate-900">Rechazar Review</option>
+                             </select>
+                          </div>
+                                         <td className="px-6 py-5 whitespace-nowrap text-right">
+                          <div className="flex items-center justify-end gap-2 transition-all">
+                             <button 
+                                disabled={savingId === review.id}
+                                onClick={() => startEditing(review)}
+                                className="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-blue-600 text-blue-500 hover:text-white rounded border border-white/5 transition-all shadow-lg"
+                                title="Editar comentario"
+                             >
+                                <FaEdit className="text-[12px]" />
+                             </button>
+                             <button 
+                                disabled={savingId === review.id}
+                                onClick={() => deleteReview(review.id)}
+                                className="w-8 h-8 flex items-center justify-center bg-slate-800 hover:bg-red-600 text-red-500 hover:text-white rounded border border-white/5 transition-all shadow-lg"
+                                title="Eliminar registro"
+                             >
+                                <FaTrash className="text-[12px]" style={{ color: '#ff0000', filter: 'drop-shadow(0 0 5px rgba(255,0,0,0.5))' }} />
+                             </button>
+                          </div>
+                        </td>
+       </td>
+                     </tr>
+                   );
+                })}
+              </tbody>
+            </table>
+          )}
         </div>
-
-        {loading ? (
-          <div className="text-white/60">Cargando reviews...</div>
-        ) : filteredReviews.length === 0 ? (
-          <div className="text-white/60">No hay reviews para esos filtros.</div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {filteredReviews.map((review) => (
-              <article key={review.id} className="border border-white/10 bg-white/[0.03] p-5 space-y-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-white font-black">{review.author_name}</p>
-                    <p className="text-white/50 text-sm">
-                      {review.author_role || "Sin cargo"}
-                      {review.author_company ? ` • ${review.author_company}` : ""}
-                    </p>
-                    <p className="text-white/35 text-xs mt-1">
-                      Fecha: {formatReviewDate(review.created_at)}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <StatusPill status={review.status} />
-                  </div>
-                </div>
-
-                {(() => {
-                  const isEditing = editingReviewId === review.id;
-                  const draftValue = isEditing
-                    ? draftContentById[review.id] ?? review.content
-                    : review.content;
-
-                  return (
-                <textarea
-                  value={draftValue}
-                  readOnly={!isEditing}
-                  onChange={(e) =>
-                    setDraftContentById((prev) => ({
-                      ...prev,
-                      [review.id]: e.target.value,
-                    }))
-                  }
-                  className={`w-full min-h-[100px] border p-3 outline-none transition-colors ${
-                    isEditing
-                      ? "bg-black/30 border-blue-500/40 text-white"
-                      : "bg-black/20 border-white/10 text-white/80 cursor-not-allowed"
-                  }`}
-                />
-                  );
-                })()}
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="bg-black/30 border border-white/15 p-3">
-                    <p className="text-white/50 text-[10px] uppercase tracking-widest mb-2">Calificacion</p>
-                    <p className="text-white font-bold">{Math.max(1, Math.min(5, review.rating || 0))} / 5</p>
-                    <p className="text-white/40 text-[10px] uppercase tracking-widest mt-1">Solo lectura</p>
-                  </div>
-
-                  <div className="bg-black/30 border border-white/15 p-3">
-                    <p className="text-white/50 text-[10px] uppercase tracking-widest mb-2">Estado</p>
-                    <select
-                      value={review.status}
-                      onChange={(e) => updateReview(review, { status: e.target.value as ReviewStatus })}
-                      className="w-full bg-transparent text-white outline-none"
-                    >
-                      <option value="pending" className="bg-slate-900">pending</option>
-                      <option value="approved" className="bg-slate-900">approved</option>
-                      <option value="rejected" className="bg-slate-900">rejected</option>
-                    </select>
-                  </div>
-
-                  <div className="bg-black/30 border border-white/15 p-3">
-                    <p className="text-white/50 text-[10px] uppercase tracking-widest mb-2">Origen</p>
-                    <p className="text-white/80 text-sm">{getOriginLabel(normalizePageContext(review.page_context))}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-amber-400">
-                    {Array.from({ length: Math.max(1, Math.min(5, review.rating || 0)) }).map((_, i) => (
-                      <FaStar key={i} />
-                    ))}
-                  </div>
-
-                  <div className="flex gap-2">
-                    {editingReviewId === review.id ? (
-                      <>
-                        <button
-                          disabled={savingId === review.id}
-                          onClick={() => saveEditedContent(review)}
-                          className="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-50"
-                        >
-                          Guardar
-                        </button>
-                        <button
-                          disabled={savingId === review.id}
-                          onClick={() => cancelEditing(review.id)}
-                          className="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] bg-slate-700 text-white hover:bg-slate-600 disabled:opacity-50"
-                        >
-                          Cancelar
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        disabled={savingId === review.id}
-                        onClick={() => startEditing(review)}
-                        className="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] bg-blue-700 text-white hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
-                      >
-                        <FaEdit /> Editar
-                      </button>
-                    )}
-                    <button
-                      disabled={savingId === review.id}
-                      onClick={() => deleteReview(review.id)}
-                      className="px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] bg-red-700 text-white hover:bg-red-600 disabled:opacity-50 flex items-center gap-2"
-                    >
-                      <FaTrash /> Eliminar
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+        
+        {/* 📊 FOOTER / SUMMARY */}
+        <div className="p-4 bg-slate-950/50 border-t border-white/5 flex items-center justify-between text-[10px] font-bold text-slate-600">
+           <p className="uppercase tracking-[0.2em]">Última sincronización: {new Date().toLocaleTimeString()}</p>
+           <p className="uppercase tracking-[0.2em]">{filteredReviews.length} RESULTADOS ENCONTRADOS / {reviews.length} TOTAL</p>
+        </div>
       </section>
     </div>
   );
 }
 
-function StatusPill({ status }: { status: ReviewStatus }) {
-  if (status === "approved") {
-    return (
-      <span className="inline-flex items-center gap-2 px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-        <FaCheck /> approved
-      </span>
-    );
-  }
+function StatusBadge({ status }: { status: ReviewStatus }) {
+  const configs = {
+    approved: { dot: "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]", text: "text-emerald-400", label: "Publicado" },
+    rejected: { dot: "bg-rose-500", text: "text-rose-400", label: "Rechazado" },
+    pending: { dot: "bg-amber-500 animate-pulse", text: "text-amber-400", label: "Moderación" },
+  };
 
-  if (status === "rejected") {
-    return (
-      <span className="inline-flex items-center gap-2 px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-rose-500/20 text-rose-300 border border-rose-500/40">
-        <FaTimes /> rejected
-      </span>
-    );
-  }
+  const { dot, text, label } = configs[status || "pending"];
 
   return (
-    <span className="inline-flex items-center gap-2 px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-amber-500/20 text-amber-300 border border-amber-500/40">
-      <FaClock /> pending
-    </span>
+    <div className="flex items-center gap-2">
+       <div className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+       <span className={`text-[10px] font-black uppercase tracking-widest ${text}`}>{label}</span>
+    </div>
   );
 }

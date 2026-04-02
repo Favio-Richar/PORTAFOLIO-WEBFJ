@@ -23,6 +23,10 @@ from app.models import (
     AdvisoryBooking,
     AdvisoryWeeklyAvailability,
     ServiceAdvisoryCard,
+    SystemNotification,
+    LeadCommunication,
+    LeadContactOverride,
+    CalendarEvent
 )
 from app.core.settings import get_setting_value
 from app.core.admin_auth import require_admin
@@ -235,24 +239,60 @@ def _send_booking_confirmation_email(booking: AdvisoryBooking) -> bool:
         return False
     try:
         from app.core.email import send_email
-    except Exception:
+    except Exception as e:
+        print(f"Error importando send_email: {e}")
         return False
 
-    meeting_html = (
-        f"<p><strong>Enlace de reunion:</strong> <a href='{booking.meeting_link}'>{booking.meeting_link}</a></p>"
-        if booking.meeting_link
-        else "<p><strong>Enlace de reunion:</strong> pendiente de confirmacion.</p>"
-    )
-    body = f"""
-    <h2>Reserva de asesoria confirmada</h2>
-    <p><strong>Codigo:</strong> {booking.booking_code}</p>
-    <p><strong>Servicio:</strong> {booking.service_name}</p>
-    <p><strong>Fecha:</strong> {booking.date}</p>
-    <p><strong>Hora:</strong> {booking.time} ({TIMEZONE_LABEL})</p>
-    <p><strong>Plataforma:</strong> {booking.meeting_provider}</p>
-    {meeting_html}
-    <p>Si necesitas reagendar, responde este correo o contactanos por WhatsApp.</p>
-    """
+    from datetime import datetime
+    year = datetime.utcnow().year
+    
+    # Si por alguna razon el link es None, le damos un valor seguro (Jitsi) para que no falle el HTML
+    meeting_link = booking.meeting_link or f"https://meet.jit.si/asesoria-{booking.booking_code}"
+    timezone_label = "America/Santiago" # Valor por defecto seguro para Chile
+
+    try:
+        body = f"""
+        <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background-color: #ffffff;">
+            <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 35px 20px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">FJ Digital Engineering</h1>
+            </div>
+            
+            <div style="padding: 40px; color: #334155;">
+                <h2 style="color: #10b981; margin-top: 0; font-size: 22px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">Reserva de Asesoria Aprobada</h2>
+                
+                <p style="font-size: 16px; line-height: 1.6; margin-top: 25px;">Estimado/a <strong>{booking.customer_name}</strong>,</p>
+                <p style="font-size: 16px; line-height: 1.6;">Nos complace enormemente informarte que hemos <strong>confirmado formalmente</strong> tu reserva. A continuacion, te presentamos los parametros de acceso de tu sesion de consultoria especializada:</p>
+                
+                <div style="background-color: #f8fafc; padding: 20px 25px; border-radius: 8px; margin: 30px 0; border-left: 5px solid #10b981;">
+                    <p style="margin: 8px 0; font-size: 15px;"><strong>🔢 Codigo de Agenda:</strong> <span style="color: #1e293b;">{booking.booking_code}</span></p>
+                    <p style="margin: 8px 0; font-size: 15px;"><strong>🌟 Servicio Contratado:</strong> <span style="color: #1e293b;">{booking.service_name}</span></p>
+                    <p style="margin: 8px 0; font-size: 15px;"><strong>📅 Fecha Oficial:</strong> <span style="color: #1e293b;">{booking.date}</span></p>
+                    <p style="margin: 8px 0; font-size: 15px;"><strong>⏰ Hora Exacta:</strong> <span style="color: #1e293b;">{booking.time} ({timezone_label})</span></p>
+                    <p style="margin: 8px 0; font-size: 15px;"><strong>📹 Recurso de Reunion:</strong> <span style="color: #1e293b; text-transform: capitalize;">{booking.meeting_provider}</span></p>
+                </div>
+
+                <div style="text-align: center; margin: 45px 0 35px 0;">
+                    <a href="{meeting_link}" style="background-color: #2563eb; color: #ffffff; padding: 16px 36px; text-decoration: none; font-weight: 600; border-radius: 8px; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -1px rgba(37, 99, 235, 0.1);">Ingresar a la Sala de Reunion Oficial</a>
+                </div>
+
+                <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 15px; margin-bottom: 25px;">
+                    <p style="font-size: 14px; color: #b91c1c; margin: 0; line-height: 1.5;"><strong>Importante:</strong> Si tu cliente de correo restringe los enlaces directos o el boton superior no reacciona, copia manualmente y pega el siguiente enlace maestro directamente en tu navegador:</p>
+                    <a href="{meeting_link}" style="color: #dc2626; word-break: break-all; margin-top: 10px; display: block; font-size: 13px;">{meeting_link}</a>
+                </div>
+                
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                    <p style="font-size: 14px; line-height: 1.6; color: #64748b; margin: 0;">¿Dudas de urgencia o incompatibilidad de agenda? Responda directo a este correo o llame a traves de WhatsApp para recalendarizar antes de las 48 hrs permitidas.</p>
+                </div>
+            </div>
+            
+            <div style="background-color: #f1f5f9; padding: 20px; text-align: center;">
+                <p style="font-size: 13px; color: #64748b; margin: 0; font-weight: 500;">© {year} FJ Digital Engineering. El mas alto nivel en Automatizacion B2B.</p>
+            </div>
+        </div>
+        """
+    except Exception as e:
+        print(f"Error generando body del correo de confirmacion: {e}")
+        return False
     # Notificacion al cliente
     sent_client = bool(send_email(booking.customer_email, f"Confirmacion asesoria {booking.booking_code}", body))
 
@@ -270,6 +310,129 @@ def _send_booking_confirmation_email(booking: AdvisoryBooking) -> bool:
         pass # No bloquear el flujo principal si falla la copia al admin
 
     return sent_client
+
+
+def _send_admin_new_booking_alert(booking: AdvisoryBooking, is_paid: bool):
+    try:
+        from app.core.email import send_email
+        import os
+        from dotenv import load_dotenv
+
+        # OBLIGAMOS AL SERVIDOR A LEER EL ARCHIVO .ENV FRESCO CADA VEZ
+        load_dotenv(override=True)
+        # Se usa el correo que pidio el usuario explicitamente, o el del entorno
+        admin_email = os.getenv("EMAIL_RECEIVER", "ing@nextlevelsoftwarepro.com")
+        frontend_url = os.getenv("FRONTEND_PUBLIC_URL", "http://localhost:3000")
+        
+        status_text = "Pendiente de Pago o Aprobacion" if is_paid else "Auto-Confirmada (Gratuita)"
+        
+        clean_phone = "".join(filter(str.isdigit, booking.customer_phone)) if booking.customer_phone else ""
+        wa_link = f'<a href="https://wa.me/{clean_phone}">{booking.customer_phone}</a>' if clean_phone else "No proporcionado"
+        
+        body = f"""
+        <h2>¡Nueva Reserva en el Sistema!</h2>
+        <p>Has recibido una nueva solicitud de asesoria en tu portafolio.</p>
+        <ul>
+            <li><strong>Cliente:</strong> {booking.customer_name} ({booking.customer_email})</li>
+            <li><strong>WhatsApp/Telefono:</strong> {wa_link}</li>
+            <li><strong>Servicio:</strong> {booking.service_name}</li>
+            <li><strong>Fecha y Hora:</strong> {booking.date} a las {booking.time}</li>
+            <li><strong>Tipo de Reserva:</strong> {status_text}</li>
+        </ul>
+        <p>Por favor ingresa al <a href="{frontend_url}/admin/dashboard">panel de administrador</a> para verificar el pago y gestionarla.</p>
+        """
+        
+        send_email(
+            admin_email,
+            f"NUEVA RESERVA B2B - {booking.customer_name}",
+            body
+        )
+    except Exception as e:
+        print(f"Error enviando alerta admin: {e}")
+
+def _send_client_pending_alert(booking: AdvisoryBooking, is_paid: bool, session: Session):
+    try:
+        from app.core.email import send_email
+        if not booking.customer_email:
+            return
+            
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        year = datetime.now(ZoneInfo(TIMEZONE_LABEL)).year
+        
+        # Leemos los datos de pago de GlobalSettings o usamos defaults profesionales
+        from app.core.settings import get_setting_value
+        bank_details = get_setting_value(session, "bank_transfer_details", """
+            <strong>Banco:</strong> Banco Falabella<br>
+            <strong>Tipo:</strong> Cuenta Corriente<br>
+            <strong>Numero:</strong> 1-724-002786-7<br>
+            <strong>RUT:</strong> 24.785.698-6<br>
+            <strong>Nombre:</strong> Favio Jimenez<br>
+            <strong>Email:</strong> FAVIO4515@GMAIL.COM
+        """).strip()
+        
+        paypal_link = get_setting_value(session, "paypal_payment_url", "https://paypal.me/fav945").strip()
+
+        body = f"""
+        <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 650px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; background-color: #ffffff;">
+            <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 35px 20px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">FJ Digital Engineering</h1>
+            </div>
+            
+            <div style="padding: 40px; color: #334155;">
+                <h2 style="color: #0f172a; margin-top: 0; font-size: 22px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">Solicitud de Reserva Recibida</h2>
+                
+                <p style="font-size: 16px; line-height: 1.6; margin-top: 25px;">Hola <strong>{booking.customer_name}</strong>,</p>
+                <p style="font-size: 16px; line-height: 1.6;">Este es un mensaje automatico para informarte formalmente que <strong>hemos recibido tu peticion</strong> para el siguiente servicio corporativo:</p>
+                
+                <div style="background-color: #f8fafc; padding: 20px 25px; border-radius: 8px; margin: 25px 0; border-left: 5px solid #3b82f6;">
+                    <p style="margin: 8px 0; font-size: 15px;"><strong>🌟 Servicio B2B:</strong> <span style="color: #1e293b;">{booking.service_name}</span></p>
+                    <p style="margin: 8px 0; font-size: 15px;"><strong>📅 Fecha Programada:</strong> <span style="color: #1e293b;">{booking.date}</span></p>
+                    <p style="margin: 8px 0; font-size: 15px;"><strong>⏰ Hora en Agenda:</strong> <span style="color: #1e293b;">{booking.time}</span></p>
+                </div>
+
+                <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 25px; margin: 30px 0;">
+                    <h3 style="color: #92400e; margin-top: 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">💳 Opciones de Pago Corporativo</h3>
+                    <p style="font-size: 14px; color: #b45309; margin-bottom: 15px;">Para asegurar y liberar de inmediato tu cupo en nuestra agenda oficial, puedes utilizar uno de los siguientes metodos:</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div style="background: #ffffff; padding: 15px; border-radius: 6px; border: 1px dashed #d1d5db;">
+                            <p style="margin: 0 0 10px 0; font-weight: bold; color: #1e293b; font-size: 14px; text-transform: uppercase;">A. Transferencia Bancaria Directa</p>
+                            <div style="font-size: 13px; color: #4b5563; line-height: 1.6;">
+                                {bank_details}
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; padding: 10px 0;">
+                            <p style="margin: 0 0 10px 0; font-weight: bold; color: #1e293b; font-size: 14px; text-transform: uppercase;">B. Pago via PayPal / Internacional</p>
+                            <a href="{paypal_link}" style="background-color: #0070ba; color: #ffffff; padding: 12px 25px; text-decoration: none; font-weight: 600; border-radius: 6px; font-size: 14px; display: inline-block;">Pagar con PayPal</a>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="font-size: 15px; line-height: 1.6; color: #64748b; font-style: italic;">* Una vez realizado el pago, nuestro equipo administrativo validara la transaccion y recibiras el correo final con el enlace de acceso a la reunion.</p>
+                
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                    <p style="font-size: 15px; margin: 0; color: #334155;">Atentamente,</p>
+                    <p style="font-size: 16px; font-weight: bold; margin: 5px 0 0 0; color: #0f172a;">Equipo de Ingreso y Consultoria</p>
+                    <p style="font-size: 14px; margin: 0; color: #64748b;">Next Level Software Pro</p>
+                </div>
+            </div>
+            
+            <div style="background-color: #f1f5f9; padding: 20px; text-align: center;">
+                <p style="font-size: 13px; color: #64748b; margin: 0;">© {year} FJ Digital Engineering. Excelencia en Software.</p>
+            </div>
+        </div>
+        """
+        
+        send_email(
+            booking.customer_email,
+            f"Hemos recibido tu solicitud de asesoria - {booking.service_name}",
+            body
+        )
+    except Exception as e:
+        print(f"Error enviando alerta de pre-reserva al cliente: {e}")
+
 
 
 def _load_service_or_404(session: Session, service_id: str) -> ServiceAdvisoryCard:
@@ -411,8 +574,11 @@ def create_advisory_booking(payload: BookingCreatePayload, session: Session = De
     if not provider_is_configured(provider):
         raise HTTPException(status_code=400, detail=f"La plataforma {PROVIDER_LABELS.get(provider, provider)} no esta configurada en backend.")
 
-    now = datetime.now()
+    from zoneinfo import ZoneInfo
+    now = datetime.now(ZoneInfo(TIMEZONE_LABEL))
     slot_minutes = _to_minutes(hhmm)
+    
+    # Comparamos fechas de forma precisa (usando .date() de la zona horaria de Chile)
     if target_date.date() < now.date():
         raise HTTPException(status_code=400, detail="No puedes reservar en fechas pasadas.")
     if target_date.date() == now.date() and slot_minutes <= (now.hour * 60 + now.minute):
@@ -456,9 +622,13 @@ def create_advisory_booking(payload: BookingCreatePayload, session: Session = De
     
     # Prioridad: Configuracion Global de Auto-Confirmacion
     auto_confirm = get_setting_value(session, "booking_auto_confirm", "true") == "true"
+    price_clp = _parse_price_clp(service.price)
+    is_paid_service = price_clp > 0
     
     status = meeting_result.status if meeting_result.status in ALLOWED_STATUSES else "pending"
-    if not auto_confirm:
+    
+    # Si requiere pago, o auto_confirm esta apagado, queda en pending
+    if not auto_confirm or is_paid_service:
         status = "pending"
         
     booking = AdvisoryBooking(
@@ -477,25 +647,126 @@ def create_advisory_booking(payload: BookingCreatePayload, session: Session = De
         reminders_h1=bool(reminders.get("h1", True)),
         status=status,
         meeting_link=meeting_result.meeting_link,
+        created_at=now,
     )
 
     session.add(booking)
+    session.flush() # Asegurar ID disponible
+    
+    # Historial de comunicación inicial (CRM)
+    initial_comm = LeadCommunication(
+        lead_id=booking.id,
+        lead_type="advisory",
+        sender="client",
+        content=f"Reserva de Asesoría: {booking.service_name} confirmada para el {booking.date} a las {booking.time}. Notas: {booking.notes}",
+        channel="email",
+        direction="incoming"
+    )
+    session.add(initial_comm)
+    
+    # Persistencia en motor de Leads (LeadContactOverride)
+    if booking.customer_email and booking.customer_phone:
+        email_norm = str(booking.customer_email).strip().lower()
+        existing_lead = session.exec(
+            select(LeadContactOverride).where(LeadContactOverride.email == email_norm)
+        ).first()
+        if existing_lead:
+            existing_lead.phone = booking.customer_phone
+            existing_lead.updated_at = datetime.utcnow()
+        else:
+            new_lead = LeadContactOverride(
+                email=email_norm,
+                phone=booking.customer_phone,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
+            )
+            session.add(new_lead)
+            
     session.commit()
     session.refresh(booking)
 
-    email_sent = _send_booking_confirmation_email(booking)
-    response_message = meeting_result.detail or "Reserva creada correctamente."
-    if email_sent:
-        response_message = f"{response_message} Enviamos confirmacion por correo."
-    else:
-        response_message = f"{response_message} Reserva creada, pero el correo automatico no pudo enviarse."
+    # Añadir al Calendario automáticamente
+    try:
+        cal_event = CalendarEvent(
+            date=booking.date,
+            title=f"Asesoría: {booking.customer_name}",
+            description=f"Servicio: {booking.service_name} | Tel/Mail: {booking.customer_phone} - {booking.customer_email} | Ver en Asesorías Dashboard para más detalle.",
+            type="important",
+            time=booking.time,
+            is_auto_generated=True,
+            related_booking_code=booking.booking_code
+        )
+        session.add(cal_event)
+        session.commit()
+    except Exception as e:
+        print(f"Error creating calendar event: {str(e)}")
+
+    # ALERTA INMEDIATA AL ADMIN (Siempre se envia al backoffice para control)
+    _send_admin_new_booking_alert(booking, is_paid_service)
+
+    # Trigger System Notification (Senior Feature)
+    try:
+        new_notif = SystemNotification(
+            title="Nueva Asesoría Solicitada",
+            message=f"{booking.customer_name} ha reservado una sesión de {booking.service_name}.",
+            type="info",
+            link="/admin/advisories"
+        )
+        session.add(new_notif)
+        session.commit()
+    except Exception as e:
+        print(f"Error creating notification for booking: {str(e)}")
+
+    response_message = meeting_result.detail or "Reserva pre-creada correctamente."
+    
+    # Solo enviar correo generico de confirmacion con EL LINK DE GOOGLE MEET
+    if not is_paid_service and auto_confirm:
+        email_sent = _send_booking_confirmation_email(booking)
+        if email_sent:
+            response_message = f"{response_message} Enviamos confirmacion por correo."
+        else:
+            response_message = f"{response_message} Reserva creada, pero el correo automatico no pudo enviarse."
+    # Notificar
+    if status == "pending":
+        _send_client_pending_alert(booking, is_paid=is_paid_service, session=session)
+
+        if is_paid_service:
+             response_message = f"{response_message} Falta completar el pago."
+        else:
+             response_message = f"{response_message} Esperando confirmacion manual del administrador."
 
     return BookingCreateResponse(
         booking_id=booking.booking_code,
         status=booking.status,
-        meeting_link=booking.meeting_link,
+        meeting_link=booking.meeting_link if not is_paid_service else None,
         message=response_message,
     )
+
+
+@router.post("/asesoria/bookings/{booking_id}/confirm-payment")
+def confirm_booking_payment(
+    booking_id: str,
+    session: Session = Depends(get_session)
+):
+    """
+    Endpoint para que el frontend marque como completado exitosamente tras volver de Stripe.
+    Manda el correo de confirmacion con el link de la reunion.
+    """
+    booking = session.exec(select(AdvisoryBooking).where(AdvisoryBooking.booking_code == booking_id).limit(1)).first()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Reserva no encontrada.")
+    
+    if booking.status == "confirmed":
+        return {"ok": True, "message": "Ya estaba confirmada."}
+        
+    booking.status = "confirmed"
+    booking.updated_at = datetime.utcnow()
+    session.add(booking)
+    session.commit()
+    session.refresh(booking)
+    
+    email_sent = _send_booking_confirmation_email(booking)
+    return {"ok": True, "email_sent": email_sent, "message": "Reserva confirmada y correo enviado."}
 
 
 @router.get("/admin/bookings", response_model=List[AdminBookingResponse])
@@ -547,11 +818,16 @@ def patch_admin_booking_status(
     if not booking:
         raise HTTPException(status_code=404, detail="Reserva no encontrada.")
 
+    old_status = booking.status
     booking.status = next_status
     booking.updated_at = datetime.utcnow()
     session.add(booking)
     session.commit()
     session.refresh(booking)
+
+    if old_status == "pending" and next_status == "confirmed":
+        _send_booking_confirmation_email(booking)
+
     return {"ok": True, "id": booking.booking_code, "status": booking.status}
 
 

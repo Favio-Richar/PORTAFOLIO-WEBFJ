@@ -37,11 +37,13 @@ const revenueData = [
 
 // --- COMPONENTS ---
 
-export function VisitorChart() {
+export function VisitorChart({ data }: { data: any[] }) {
+    if (!data || data.length === 0) return <div className="h-[300px] flex items-center justify-center text-slate-500">Sin datos de actividad</div>;
+    
     return (
-        <div style={{ width: '100%', height: 300 }}>
-            <ResponsiveContainer>
-                <AreaChart data={visitorData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+        <div style={{ width: '100%', height: 300, minWidth: 0 }}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <defs>
                         <linearGradient id="colorVisitas" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.8} />
@@ -52,11 +54,11 @@ export function VisitorChart() {
                             <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                         </linearGradient>
                     </defs>
-                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000}k`} />
+                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                     <Tooltip
-                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0px' }}
                         itemStyle={{ color: '#fff' }}
                     />
                     <Area type="monotone" dataKey="visitas" stroke="#06b6d4" fillOpacity={1} fill="url(#colorVisitas)" strokeWidth={2} />
@@ -67,13 +69,15 @@ export function VisitorChart() {
     );
 }
 
-export function ProjectDistributionChart() {
+export function ProjectDistributionChart({ data }: { data: any[] }) {
+    if (!data || data.length === 0) return <div className="h-[300px] flex items-center justify-center text-slate-500">No hay proyectos registrados</div>;
+
     return (
-        <div style={{ width: '100%', height: 300 }}>
-            <ResponsiveContainer>
+        <div style={{ width: '100%', height: 300, minWidth: 0 }}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <PieChart>
                     <Pie
-                        data={projectData}
+                        data={data}
                         cx="50%"
                         cy="50%"
                         innerRadius={60}
@@ -82,35 +86,37 @@ export function ProjectDistributionChart() {
                         paddingAngle={5}
                         dataKey="value"
                     >
-                        {projectData.map((entry, index) => (
+                        {data.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="rgba(0,0,0,0.2)" />
                         ))}
                     </Pie>
                     <Tooltip
-                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0px' }}
                         itemStyle={{ color: '#fff' }}
                     />
-                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
                 </PieChart>
             </ResponsiveContainer>
         </div>
     );
 }
 
-export function RevenueChart() {
+export function RevenueChart({ data }: { data: any[] }) {
+    if (!data || data.length === 0) return <div className="h-[250px] flex items-center justify-center text-slate-500">Sin historial de ingresos</div>;
+
     return (
-        <div style={{ width: '100%', height: 300 }}>
-            <ResponsiveContainer>
-                <BarChart data={revenueData}>
+        <div style={{ width: '100%', height: 250, minWidth: 0 }}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <BarChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
                     <Tooltip
                         cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0px' }}
                         itemStyle={{ color: '#fff' }}
                     />
-                    <Bar dataKey="ingresos" fill="#10b981" radius={[4, 4, 0, 0]} barSize={20} />
-                    <Bar dataKey="gastos" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={20} />
+                    <Bar dataKey="ingresos" fill="#10b981" radius={[0, 0, 0, 0]} barSize={20} />
+                    <Bar dataKey="gastos" fill="#ef4444" radius={[0, 0, 0, 0]} barSize={20} />
                 </BarChart>
             </ResponsiveContainer>
         </div>

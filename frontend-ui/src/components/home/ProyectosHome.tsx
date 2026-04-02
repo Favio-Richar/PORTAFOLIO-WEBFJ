@@ -60,37 +60,36 @@ const CATEGORY_META: Record<string, {
     label: 'Sitio Web',
     icon: FaCode,
     topGradient: 'from-blue-900/70 to-cyan-900/60',
-    badgeClass: 'bg-blue-500/15 text-blue-300 border border-blue-400/35',
-    titleClass: 'text-sky-200',
+    badgeClass: 'bg-blue-500/15 text-blue-500 border border-blue-400/35',
+    titleClass: 'text-indigo-600 dark:text-sky-200',
     buttonStyle: {
-      color: '#93c5fd',
-      borderColor: 'rgba(96,165,250,0.55)',
-      background: 'rgba(30,58,138,0.25)',
+      color: 'var(--text-title)',
+      borderColor: 'var(--border-strong)',
+      background: 'var(--background-card)',
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
       gap: '0.5rem',
-      padding: '0.625rem 1.25rem', // px-5 py-2.5
-      borderRadius: '0.5rem', // rounded-lg
-      fontSize: '0.875rem', // text-sm
-      fontWeight: '500', // font-medium
+      padding: '0.625rem 1.25rem',
+      borderRadius: '0.5rem',
+      fontSize: '0.875rem',
+      fontWeight: '600',
       transition: 'all 0.3s ease',
-      boxShadow: '0 4px 10px rgba(30,58,138,0.2)', // subtle shadow
     },
     borderGradient: 'linear-gradient(135deg, rgba(56,189,248,0.7), rgba(14,116,144,0.35))',
-    cardBackground: 'linear-gradient(170deg, rgba(8,47,73,0.35), rgba(8,14,28,0.94) 60%)',
-    glowColor: 'rgba(56,189,248,0.3)',
+    cardBackground: 'linear-gradient(170deg, var(--background-soft), var(--background) 80%)',
+    glowColor: 'rgba(56,189,248,0.15)',
   },
   ecommerce: {
     label: 'E-Commerce',
     icon: FaShoppingCart,
     topGradient: 'from-emerald-900/70 to-cyan-900/60',
-    badgeClass: 'bg-emerald-500/15 text-emerald-300 border border-emerald-400/35',
-    titleClass: 'text-pink-200',
+    badgeClass: 'bg-emerald-500/15 text-emerald-600 border border-emerald-400/35',
+    titleClass: 'text-emerald-600 dark:text-pink-200',
     buttonStyle: {
-      color: '#86efac',
-      borderColor: 'rgba(74,222,128,0.55)',
-      background: 'rgba(6,95,70,0.24)',
+      color: 'var(--text-title)',
+      borderColor: 'var(--border-strong)',
+      background: 'var(--background-card)',
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -98,24 +97,23 @@ const CATEGORY_META: Record<string, {
       padding: '0.625rem 1.25rem',
       borderRadius: '0.5rem',
       fontSize: '0.875rem',
-      fontWeight: '500',
+      fontWeight: '600',
       transition: 'all 0.3s ease',
-      boxShadow: '0 4px 10px rgba(6,95,70,0.2)',
     },
-    borderGradient: 'linear-gradient(135deg, rgba(244,114,182,0.7), rgba(190,24,93,0.35))', // From Backend y APIs
-    cardBackground: 'linear-gradient(170deg, rgba(131,24,67,0.32), rgba(8,14,28,0.94) 60%)',
-    glowColor: 'rgba(244,114,182,0.28)',
+    borderGradient: 'linear-gradient(135deg, rgba(244,114,182,0.7), rgba(190,24,93,0.35))',
+    cardBackground: 'linear-gradient(170deg, var(--background-soft), var(--background) 80%)',
+    glowColor: 'rgba(244,114,182,0.15)',
   },
   sistemas: {
     label: 'Sistema',
     icon: FaDatabase,
     topGradient: 'from-violet-900/70 to-indigo-900/60',
-    badgeClass: 'bg-violet-500/15 text-violet-300 border border-violet-400/35',
-    titleClass: 'text-purple-200',
+    badgeClass: 'bg-violet-500/15 text-violet-600 border border-violet-400/35',
+    titleClass: 'text-violet-600 dark:text-purple-200',
     buttonStyle: {
-      color: '#c4b5fd',
-      borderColor: 'rgba(167,139,250,0.55)',
-      background: 'rgba(76,29,149,0.24)',
+      color: 'var(--text-title)',
+      borderColor: 'var(--border-strong)',
+      background: 'var(--background-card)',
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -123,24 +121,23 @@ const CATEGORY_META: Record<string, {
       padding: '0.625rem 1.25rem',
       borderRadius: '0.5rem',
       fontSize: '0.875rem',
-      fontWeight: '500',
+      fontWeight: '600',
       transition: 'all 0.3s ease',
-      boxShadow: '0 4px 10px rgba(76,29,149,0.2)',
     },
-    borderGradient: 'linear-gradient(135deg, rgba(168,85,247,0.7), rgba(126,34,206,0.35))', // From Automatizacion e IA
-    cardBackground: 'linear-gradient(170deg, rgba(76,29,149,0.33), rgba(8,14,28,0.94) 60%)',
-    glowColor: 'rgba(168,85,247,0.3)',
+    borderGradient: 'linear-gradient(135deg, rgba(168,85,247,0.7), rgba(126,34,206,0.35))',
+    cardBackground: 'linear-gradient(170deg, var(--background-soft), var(--background) 80%)',
+    glowColor: 'rgba(168,85,247,0.15)',
   },
   apps: {
     label: 'App Movil',
     icon: FaMobileAlt,
     topGradient: 'from-amber-900/70 to-orange-900/60',
-    badgeClass: 'bg-amber-500/15 text-amber-300 border border-amber-400/35',
-    titleClass: 'text-yellow-200',
+    badgeClass: 'bg-amber-500/15 text-amber-600 border border-amber-400/35',
+    titleClass: 'text-amber-600 dark:text-yellow-200',
     buttonStyle: {
-      color: '#fcd34d',
-      borderColor: 'rgba(251,191,36,0.55)',
-      background: 'rgba(120,53,15,0.24)',
+      color: 'var(--text-title)',
+      borderColor: 'var(--border-strong)',
+      background: 'var(--background-card)',
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -148,24 +145,23 @@ const CATEGORY_META: Record<string, {
       padding: '0.625rem 1.25rem',
       borderRadius: '0.5rem',
       fontSize: '0.875rem',
-      fontWeight: '500',
+      fontWeight: '600',
       transition: 'all 0.3s ease',
-      boxShadow: '0 4px 10px rgba(120,53,15,0.2)',
     },
-    borderGradient: 'linear-gradient(135deg, rgba(250,204,21,0.72), rgba(202,138,4,0.35))', // From Consultoria Tecnologica
-    cardBackground: 'linear-gradient(170deg, rgba(120,53,15,0.34), rgba(8,14,28,0.94) 60%)',
-    glowColor: 'rgba(250,204,21,0.3)',
+    borderGradient: 'linear-gradient(135deg, rgba(250,204,21,0.72), rgba(202,138,4,0.35))',
+    cardBackground: 'linear-gradient(170deg, var(--background-soft), var(--background) 80%)',
+    glowColor: 'rgba(250,204,21,0.15)',
   },
   otro: {
     label: 'Proyecto',
     icon: FaRocket,
     topGradient: 'from-slate-800/75 to-slate-900/70',
-    badgeClass: 'bg-slate-500/15 text-slate-300 border border-slate-400/35',
-    titleClass: 'text-cyan-200',
+    badgeClass: 'bg-slate-500/15 text-slate-600 border border-slate-400/35',
+    titleClass: 'text-slate-600 dark:text-cyan-200',
     buttonStyle: {
-      color: '#cbd5e1',
-      borderColor: 'rgba(148,163,184,0.55)',
-      background: 'rgba(30,41,59,0.28)',
+      color: 'var(--text-title)',
+      borderColor: 'var(--border-strong)',
+      background: 'var(--background-card)',
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -173,13 +169,12 @@ const CATEGORY_META: Record<string, {
       padding: '0.625rem 1.25rem',
       borderRadius: '0.5rem',
       fontSize: '0.875rem',
-      fontWeight: '500',
+      fontWeight: '600',
       transition: 'all 0.3s ease',
-      boxShadow: '0 4px 10px rgba(30,41,59,0.2)',
     },
-    borderGradient: 'linear-gradient(135deg, rgba(45,212,191,0.7), rgba(13,148,136,0.35))', // From Optimizacion
-    cardBackground: 'linear-gradient(170deg, rgba(17,94,89,0.34), rgba(8,14,28,0.94) 60%)',
-    glowColor: 'rgba(45,212,191,0.28)',
+    borderGradient: 'linear-gradient(135deg, rgba(45,212,191,0.7), rgba(13,148,136,0.35))',
+    cardBackground: 'linear-gradient(170deg, var(--background-soft), var(--background) 80%)',
+    glowColor: 'rgba(45,212,191,0.15)',
   },
 };
 
@@ -460,14 +455,14 @@ export default function ProyectosHome() {
     <section id="proyectos" className="py-24 px-6">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-6 border-cyan-400/25">
-            <span className="text-cyan-300 mono text-sm">03.</span>
-            <span className="text-sm text-slate-300">Proyectos</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-6 border border-[var(--border)] bg-[var(--background-card)]">
+            <span className="text-cyan-500 font-bold mono text-sm">03.</span>
+            <span className="text-sm text-[var(--text-body)]">Proyectos</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 font-display text-white">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 font-display text-[var(--text-title)]">
             Proyectos <span className="gradient-text">destacados</span>
           </h2>
-          <p className="max-w-3xl mx-auto text-base md:text-lg text-slate-300 font-display leading-relaxed">
+          <p className="max-w-3xl mx-auto text-base md:text-lg text-[var(--text-body)] font-display leading-relaxed">
             Casos desarrollados por FJ Digital Engineering para empresas que necesitaban escalar ventas, optimizar operaciones y acelerar resultados con tecnología.
           </p>
         </div>
@@ -523,7 +518,7 @@ export default function ProyectosHome() {
                       </span>
 
                       <h3 className={`text-xl font-bold mb-2 font-display ${variant.titleClass}`}>{project.title}</h3>
-                      <p className="text-slate-300/90 text-sm leading-relaxed mb-5 font-display line-clamp-3">{project.description}</p>
+                      <p className="text-[var(--text-body)] opacity-90 text-sm leading-relaxed mb-5 font-display line-clamp-3">{project.description}</p>
 
                       <motion.div whileHover={{ scale: 1.04, y: -1 }} whileTap={{ scale: 0.98 }} className="mt-auto">
                         <button
@@ -573,7 +568,7 @@ export default function ProyectosHome() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 24, scale: 0.96 }}
               transition={{ duration: 0.25 }}
-              className="w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/10 bg-[#090d1a] shadow-[0_20px_80px_rgba(0,0,0,0.6)]"
+              className="w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-3xl border border-[var(--border-strong)] bg-[var(--background-soft)] shadow-[0_20px_80px_rgba(0,0,0,0.6)]"
               onClick={(event) => event.stopPropagation()}
             >
               <div className={`relative h-56 md:h-72 bg-gradient-to-br ${selectedVariant.topGradient} border-b border-white/10 overflow-hidden`}>
@@ -613,28 +608,28 @@ export default function ProyectosHome() {
                   )}
                 </div>
 
-                <h3 className="text-3xl md:text-4xl font-black text-white mb-4">{selectedProject.title}</h3>
+                <h3 className="text-3xl md:text-4xl font-black text-[var(--text-title)] mb-4">{selectedProject.title}</h3>
 
                 <div className="grid md:grid-cols-3 gap-3 mb-6">
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black mb-1">Tipo</p>
-                    <p className="text-sm text-slate-100 font-semibold">{selectedProject.client_type || 'Implementacion a medida'}</p>
+                  <div className="rounded-xl border border-[var(--border)] bg-[var(--background-card)] p-3">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-black mb-1">Tipo</p>
+                    <p className="text-sm text-[var(--text-body)] font-semibold">{selectedProject.client_type || 'Implementacion a medida'}</p>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black mb-1">Stack</p>
-                    <p className="text-sm text-slate-100 font-semibold">{selectedProject.stack.length > 0 ? `${selectedProject.stack.length} tecnologias` : 'Definido por alcance'}</p>
+                  <div className="rounded-xl border border-[var(--border)] bg-[var(--background-card)] p-3">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-black mb-1">Stack</p>
+                    <p className="text-sm text-[var(--text-body)] font-semibold">{selectedProject.stack.length > 0 ? `${selectedProject.stack.length} tecnologias` : 'Definido por alcance'}</p>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black mb-1">Enlaces</p>
-                    <p className="text-sm text-slate-100 font-semibold">
+                  <div className="rounded-xl border border-[var(--border)] bg-[var(--background-card)] p-3">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[var(--text-muted)] font-black mb-1">Enlaces</p>
+                    <p className="text-sm text-[var(--text-body)] font-semibold">
                       {[selectedProject.demo_url, selectedProject.repo_url].filter((value) => hasExternalUrl(value)).length} disponibles
                     </p>
                   </div>
                 </div>
 
-                <div className="mb-6 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-cyan-500/[0.03] p-5">
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-200/90 mb-3">Descripcion del proyecto</p>
-                  <p className="text-slate-200 leading-relaxed text-base md:text-lg mb-4">{selectedProject.description}</p>
+                <div className="mb-6 rounded-2xl border border-[var(--border)] bg-[var(--background-card)] p-5">
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-500 mb-3">Descripcion del proyecto</p>
+                  <p className="text-[var(--text-body)] leading-relaxed text-base md:text-lg mb-4">{selectedProject.description}</p>
 
                   {((selectedProject.results && selectedProject.results.length > 0) || selectedProject.tags.length > 0) && (
                     <div className="grid sm:grid-cols-2 gap-3">

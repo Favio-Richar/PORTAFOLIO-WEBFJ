@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import API_BASE from "@/lib/apiBase";
 
@@ -230,7 +230,7 @@ function ProviderIcon({ provider, className }: { provider: MeetingProvider; clas
   return <JitsiIcon className={className} />;
 }
 
-export default function AsesoriaPage() {
+function AsesoriaPageContent() {
   const bookRef = useRef<HTMLDivElement | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -452,6 +452,36 @@ export default function AsesoriaPage() {
           reminders: { h24: rem24, h1: rem1 },
         }),
       });
+      // --- FILTRO B2B DE PAGO ADELANTADO ---
+      // Si la asesoría tiene un precio mayor a $0, se redirige para pago.
+      if (selectedService.price_clp > 0) {
+        try {
+          const paymentRes = await fetch(`${API_BASE}/api/payments/create-checkout-session`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              product_name: `Asesoria: ${selectedService.name} - ${selectedDateISO} ${selectedTime}`,
+              price_amount: selectedService.price_clp,
+              currency: 'clp',
+              success_url: window.location.origin + `/gracias?booking_id=${response.booking_id}`,
+              cancel_url: window.location.origin + `/asesoria`,
+            })
+          });
+          const paymentData = await paymentRes.json();
+          if (paymentData.url) {
+            window.location.href = paymentData.url;
+            return; // Detiene la ejecución aquí
+          } else {
+            alert("Error: No se pudo generar el enlace de pago seguro.");
+            return; // Impide llegar a /gracias
+          }
+        } catch (e) {
+          console.error("Error al redirigir al checkout:", e);
+          alert("Error de conexión con la pasarela de pagos.");
+          return; // Impide llegar a /gracias
+        }
+      }
+
       setSubmitSuccess(response);
       router.push('/gracias');
 
@@ -854,5 +884,23 @@ export default function AsesoriaPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+function AsesoriaPageFallback() {
+  return (
+    <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center px-6">
+      <div className="rounded-3xl border border-white/10 bg-white/5 px-6 py-4 text-sm font-semibold text-slate-200 backdrop-blur-xl">
+        Cargando agenda de asesoria...
+      </div>
+    </div>
+  );
+}
+
+export default function AsesoriaPage() {
+  return (
+    <Suspense fallback={<AsesoriaPageFallback />}>
+      <AsesoriaPageContent />
+    </Suspense>
   );
 }

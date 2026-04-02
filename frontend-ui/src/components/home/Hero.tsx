@@ -14,10 +14,10 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-6"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-6 border border-[var(--border)] bg-[var(--background-card)]"
             >
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-              <span className="text-sm text-gray-300">Agenda abierta · Diagnostico en 24h</span>
+              <span className="text-sm text-[var(--text-body)]">Agenda abierta · Diagnostico en 24h</span>
             </motion.div>
 
             <motion.h1
@@ -28,14 +28,14 @@ export default function Hero() {
               id="hero-name"
             >
               <span className="gradient-text block">FJ Digital</span>
-              <span className="text-slate-100 block">Engineering</span>
+              <span className="text-[var(--text-title)] block">Engineering</span>
             </motion.h1>
 
             <motion.p
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-xl sm:text-2xl md:text-3xl text-gray-300 mb-6 font-display"
+              className="text-xl sm:text-2xl md:text-3xl text-[var(--text-body)] mb-6 font-display"
               id="hero-role"
             >
               Ingenieria <span className="text-indigo-400">digital</span>, <span className="text-cyan-400">automatizacion</span> y consultoria tecnologica
@@ -45,7 +45,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="text-lg text-gray-400 max-w-xl mb-4 font-display"
+              className="text-lg text-[var(--text-body)] opacity-80 max-w-xl mb-4 font-display"
             >
               En FJ Digital Engineering ayudamos a empresas a construir plataformas que venden, automatizar procesos criticos y escalar operaciones con criterio tecnico senior.
             </motion.p>
@@ -54,7 +54,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.35 }}
-              className="text-base sm:text-lg text-gray-500 max-w-xl mb-10 font-display"
+              className="text-base sm:text-lg text-[var(--text-muted)] max-w-xl mb-10 font-display"
             >
               Disenamos sistemas a medida, automatizaciones de alto impacto e integraciones seguras, con foco en conversion, control operativo y continuidad real.
             </motion.p>
@@ -85,9 +85,9 @@ export default function Hero() {
                 id="cta-secondary"
                 className="px-8 py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 transition-all duration-300"
                 style={{
-                  color: '#cbd5e1',
-                  border: '1px solid rgba(56, 189, 248, 0.42)',
-                  background: 'rgba(2, 12, 28, 0.52)',
+                  color: 'var(--text-body)',
+                  border: '1px solid var(--border)',
+                  background: 'var(--background-card)',
                   textTransform: 'none',
                   letterSpacing: '0.01em',
                 }}
@@ -101,15 +101,15 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.5 }}
-              className="flex flex-wrap items-center gap-3 text-xs text-slate-400 font-semibold"
+              className="flex flex-wrap items-center gap-3 text-xs text-[var(--text-muted)] font-semibold"
             >
-              <span className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5">
+              <span className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-[var(--border)] bg-[var(--background-card)]">
                 Respuesta &lt; 24h
               </span>
-              <span className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5">
+              <span className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-[var(--border)] bg-[var(--background-card)]">
                 Sistemas en produccion
               </span>
-              <span className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/10 bg-white/5">
+              <span className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-[var(--border)] bg-[var(--background-card)]">
                 Soporte y evolucion continua
               </span>
             </motion.div>
@@ -137,7 +137,7 @@ export default function Hero() {
       </div>
 
       <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 scroll-indicator">
-        <FaChevronDown className="w-6 h-6 text-gray-500" />
+        <FaChevronDown className="w-6 h-6" style={{ color: 'var(--scroll-indicator)' }} />
       </div>
     </section>
   );

@@ -8,10 +8,10 @@ $elite-secondary: #a855f7;
 $elite-accent: #ec4899;
 $elite-amber: #f59e0b;
 $elite-green: #10b981;
-$elite-dark-deep: #050816;
-$elite-dark-surface: #0f172a;
-$elite-dark-card: rgba(255, 255, 255, 0.03);
-$elite-border: rgba(255, 255, 255, 0.1);
+$elite-dark-deep: var(--background);
+$elite-dark-surface: var(--background-soft);
+$elite-dark-card: var(--background-card);
+$elite-border: var(--border);
 $container-max: 1280px;
 
 @mixin section-padding {
@@ -30,7 +30,7 @@ $container-max: 1280px;
 }
 
 @mixin text-gradient {
-    background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.7) 100%);
+    background: linear-gradient(135deg, var(--text-title) 0%, var(--text-body) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -38,7 +38,7 @@ $container-max: 1280px;
 
 .services-page-wrapper {
     background: $elite-dark-deep;
-    color: #f8fafc;
+    color: var(--text-body);
     font-family: 'Inter', 'Outfit', sans-serif;
     overflow-x: hidden;
 
@@ -98,7 +98,7 @@ $container-max: 1280px;
             background: rgba($elite-primary, 0.1);
             border: 1px solid rgba($elite-primary, 0.2);
             border-radius: 100px;
-            color: color.adjust($elite-primary, $lightness: 10%);
+            background: color-mix(in srgb, $elite-primary, white 10%);
             font-size: 0.85rem;
             font-weight: 800;
             margin-bottom: 2.5rem;
@@ -132,7 +132,7 @@ $container-max: 1280px;
     // --- BLOCK: PLANS ---
     .plans-block {
         @include section-padding;
-        background: color.adjust($elite-dark-deep, $lightness: 2%);
+        background: color-mix(in srgb, $elite-dark-deep, white 2%);
         position: relative;
 
         &::before {

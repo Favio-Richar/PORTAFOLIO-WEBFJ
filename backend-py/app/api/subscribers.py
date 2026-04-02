@@ -34,6 +34,7 @@ from app.models import (
     Proyecto,
     ServiceAdvisoryCard,
     ServiceCombo,
+    SystemNotification,
 )
 
 router = APIRouter()
@@ -1846,6 +1847,20 @@ def subscribe_newsletter(
     session.add(subscriber)
     session.commit()
     session.refresh(subscriber)
+
+    # Trigger System Notification for Admin (Senior Feature)
+    try:
+        new_notif = SystemNotification(
+            title="Nuevo Suscriptor",
+            message=f"{subscriber.email} se ha unido al newsletter (Origen: {subscriber.source}).",
+            type="info",
+            link="/admin/subscribers"
+        )
+        session.add(new_notif)
+        session.commit()
+    except Exception as e:
+        logger.error(f"Error creating notification for subscriber: {str(e)}")
+
     message = (
         "Revisa tu correo y confirma tu suscripcion para activar el newsletter."
         if requires_confirmation

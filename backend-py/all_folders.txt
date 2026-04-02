@@ -1,0 +1,5 @@
+(\HasChildren) "." INBOX
+(\HasNoChildren \UnMarked \Trash) "." INBOX.Trash
+(\HasNoChildren \UnMarked \Sent) "." INBOX.Sent
+(\HasNoChildren \UnMarked \Junk) "." INBOX.Junk
+(\HasNoChildren \UnMarked \Drafts) "." INBOX.Drafts

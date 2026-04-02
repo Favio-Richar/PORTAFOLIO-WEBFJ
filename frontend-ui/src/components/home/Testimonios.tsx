@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -92,23 +92,23 @@ const SECTOR_PANEL_ITEMS = [
 const STAT_ACCENTS = [
   {
     borderGradient: 'linear-gradient(135deg, rgba(34,211,238,0.65), rgba(14,116,144,0.25))',
-    cardBackground: 'linear-gradient(165deg, rgba(10,30,44,0.7), rgba(8,14,26,0.95))',
-    glow: '0 14px 30px rgba(8,145,178,0.2)',
+    cardBackground: 'linear-gradient(165deg, var(--background-soft), var(--background))',
+    glow: '0 14px 30px rgba(8,145,178,0.15)',
   },
   {
     borderGradient: 'linear-gradient(135deg, rgba(96,165,250,0.65), rgba(59,130,246,0.25))',
-    cardBackground: 'linear-gradient(165deg, rgba(12,24,46,0.72), rgba(9,14,28,0.95))',
-    glow: '0 14px 30px rgba(59,130,246,0.2)',
+    cardBackground: 'linear-gradient(165deg, var(--background-soft), var(--background))',
+    glow: '0 14px 30px rgba(59,130,246,0.15)',
   },
   {
     borderGradient: 'linear-gradient(135deg, rgba(168,85,247,0.65), rgba(126,34,206,0.25))',
-    cardBackground: 'linear-gradient(165deg, rgba(26,18,52,0.72), rgba(10,12,26,0.96))',
-    glow: '0 14px 30px rgba(168,85,247,0.18)',
+    cardBackground: 'linear-gradient(165deg, var(--background-soft), var(--background))',
+    glow: '0 14px 30px rgba(168,85,247,0.15)',
   },
   {
     borderGradient: 'linear-gradient(135deg, rgba(45,212,191,0.65), rgba(13,148,136,0.25))',
-    cardBackground: 'linear-gradient(165deg, rgba(8,34,32,0.72), rgba(8,16,24,0.96))',
-    glow: '0 14px 30px rgba(13,148,136,0.2)',
+    cardBackground: 'linear-gradient(165deg, var(--background-soft), var(--background))',
+    glow: '0 14px 30px rgba(13,148,136,0.15)',
   },
 ] as const;
 
@@ -411,17 +411,17 @@ export default function Testimonios() {
   );
 
   return (
-    <section id="confianza" className="py-24 px-6 bg-[#08080c]">
+    <section id="confianza" className="py-24 px-6 bg-[var(--background)]">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-5 border-cyan-400/25">
-            <span className="text-cyan-300 mono text-sm">07.</span>
-            <span className="text-sm text-slate-300">Confianza y resultados</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-5 border border-[var(--border)] bg-[var(--background-card)]">
+            <span className="text-cyan-500 font-bold mono text-sm">07.</span>
+            <span className="text-sm text-[var(--text-body)]">Confianza y resultados</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white font-display mb-3">
+          <h2 className="text-3xl md:text-4xl font-bold text-[var(--text-title)] font-display mb-3">
             Trabajo real con <span className="gradient-text">impacto medible</span>
           </h2>
-          <p className="max-w-3xl mx-auto text-slate-300 font-display text-base md:text-lg leading-relaxed">
+          <p className="max-w-3xl mx-auto text-[var(--text-body)] font-display text-base md:text-lg leading-relaxed">
             No trabajamos con promesas vacias. Mostramos resultados, proceso y feedback real de clientes en distintos sectores.
           </p>
         </div>
@@ -525,11 +525,9 @@ export default function Testimonios() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.06 }}
-            className="glass-card relative overflow-hidden rounded-2xl p-6 md:p-7 border-cyan-400/20 bg-[linear-gradient(165deg,rgba(9,12,22,0.92),rgba(6,10,18,0.98))] flex flex-col"
+            className="glass-card relative overflow-hidden rounded-2xl p-6 md:p-7 border border-[var(--border)] bg-[var(--background-soft)] flex flex-col"
           >
             <div className="pointer-events-none absolute inset-0">
               <div className="absolute -top-6 -right-8 w-36 h-36 rounded-full bg-cyan-400/10 blur-3xl" />
@@ -539,7 +537,7 @@ export default function Testimonios() {
 
             <div className="relative z-10 flex h-full flex-col">
               <div className="flex items-center justify-between gap-3 mb-4">
-                <h3 className="text-xl font-bold text-white font-display">Resenas recientes de clientes</h3>
+                <h3 className="text-xl font-bold text-[var(--text-title)] font-display">Resenas recientes de clientes</h3>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-emerald-300/30 bg-emerald-500/10 text-emerald-200 text-[10px] font-semibold uppercase tracking-wide">
                   <FaCheckCircle className="text-[9px]" />
                   Verificadas primero
@@ -553,7 +551,7 @@ export default function Testimonios() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: idx * 0.08 }}
                     whileHover={{ y: -2 }}
-                    className="rounded-xl border border-slate-200/12 bg-[linear-gradient(155deg,rgba(19,24,35,0.92),rgba(13,18,28,0.96))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors duration-300 hover:border-cyan-300/30 min-h-[176px]"
+                    className="rounded-xl border border-[var(--border)] bg-[var(--background-card)] p-4 shadow-sm transition-colors duration-300 hover:border-cyan-500/30 min-h-[176px]"
                   >
                     <motion.div
                       initial={{ opacity: 0.3, scaleX: 0.92 }}

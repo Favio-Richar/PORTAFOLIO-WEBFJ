@@ -9,7 +9,7 @@ import Link from "next/link";
 
 interface AdminSidebarProps {
     activeSection: string;
-    setActiveSection: (section: string) => void;
+    setActiveSection: (section: string, recordId?: string | number) => void;
     isCollapsed: boolean;
 }
 
@@ -38,6 +38,7 @@ export default function AdminSidebar({ activeSection, setActiveSection, isCollap
             items: [
                 { id: "clients", label: "Clientes", icon: <FaUsers />, color: "emerald" },
                 { id: "quotes", label: "Cotizaciones", icon: <FaCalculator />, color: "orange" },
+                { id: "messages", label: "Mensajes", icon: <FaEnvelopeOpenText />, color: "rose" },
                 { id: "subscribers", label: "Suscriptores", icon: <FaUserPlus />, color: "teal" }
             ]
         },
@@ -50,7 +51,7 @@ export default function AdminSidebar({ activeSection, setActiveSection, isCollap
         {
             title: "Sistema",
             items: [
-                { id: "contact", label: "Info. Contacto", icon: <FaEnvelopeOpenText />, color: "rose" },
+                { id: "contact", label: "Info. Contacto", icon: <FaCommentAlt />, color: "amber" },
                 { id: "settings", label: "Configuración", icon: <FaCogs />, color: "slate" }
             ]
         }

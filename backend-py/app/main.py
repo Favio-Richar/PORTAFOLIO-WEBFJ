@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 load_dotenv(override=True)
 
@@ -34,10 +37,19 @@ from app.api import (
     team,
     timeline,
     upload,
+    proposals,
+    dashboard_stats,
+    notifications,
+    messages,
+    calendar
 )
 from app.core.advisory_reminders import (
     start_advisory_reminder_worker,
     stop_advisory_reminder_worker,
+)
+from app.core.email_sync import (
+    start_email_sync_worker,
+    stop_email_sync_worker,
 )
 from app.core.security import is_default_secret_key, is_strict_production_mode
 from app.db import init_db
@@ -123,12 +135,42 @@ allowed_origins = ["*"] if allow_all_cors else origins
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=False,
+    allow_origins=origins,  # Usar lista explicita para permitir credenciales
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    origin = request.headers.get("origin")
+    headers = getattr(exc, "headers", None) or {}
+    if origin in origins:
+        headers["Access-Control-Allow-Origin"] = origin
+        headers["Access-Control-Allow-Credentials"] = "true"
+        headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+        headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, Accept"
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers=headers,
+    )
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    origin = request.headers.get("origin")
+    headers = {}
+    if origin in origins:
+        headers["Access-Control-Allow-Origin"] = origin
+        headers["Access-Control-Allow-Credentials"] = "true"
+        headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+        headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, Accept"
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "error": str(exc)},
+        headers=headers,
+    )
+    
 # Routers activos
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(ads.router, prefix="/api/ads", tags=["ads"])
@@ -154,6 +196,11 @@ app.include_router(ai_assistant.router, prefix="/api/ai", tags=["ai"])
 app.include_router(team.router, prefix="/api/team", tags=["team"])
 app.include_router(admin_settings.router, prefix="/api", tags=["admin-settings"])
 app.include_router(subscribers.router, prefix="/api/subscribers", tags=["subscribers"])
+app.include_router(proposals.router, prefix="/api/proposals", tags=["proposals"])
+app.include_router(dashboard_stats.router, prefix="/api/admin/dashboard-stats", tags=["admin-dashboard-stats"])
+app.include_router(notifications.router, prefix="/api/notifications", tags=["notifications"])
+app.include_router(messages.router, prefix="/api/messages", tags=["messages"])
+app.include_router(calendar.router, prefix="/api/calendar", tags=["calendar"])
 
 # Asegurar directorio de uploads
 uploads_path = Path("uploads")
@@ -191,6 +238,11 @@ def on_startup():
     _validate_production_security()
     init_db()
     start_advisory_reminder_worker()
+    
+    # Sincronización IMAP con intervalo configurable (Por defecto 60 segundos para mayor inmediatez)
+    imap_interval = int(os.getenv("IMAP_SYNC_INTERVAL_SECONDS", "60"))
+    start_email_sync_worker(interval_seconds=imap_interval)
+    
     subscribers.start_newsletter_campaign_scheduler()
 
 
@@ -198,6 +250,7 @@ def on_startup():
 def on_shutdown():
     subscribers.stop_newsletter_campaign_scheduler()
     stop_advisory_reminder_worker()
+    stop_email_sync_worker()
 
 
 @app.get("/health")

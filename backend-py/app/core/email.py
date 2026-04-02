@@ -28,7 +28,16 @@ def _extract_provider_message_id(response: Any) -> Optional[str]:
     return None
 
 
-def send_email_with_result(to_email: str, subject: str, body: str) -> EmailSendResult:
+async def send_email_with_result(
+    to_email: str,
+    subject: str,
+    body: str,
+    attachments: Optional[list[dict[str, Any]]] = None,
+    headers: Optional[dict[str, str]] = None,
+) -> EmailSendResult:
+    from dotenv import load_dotenv
+    load_dotenv(override=True)
+    
     resend_api_key = str(os.getenv("RESEND_API_KEY", "")).strip()
     email_from = str(os.getenv("EMAIL_FROM", "onboarding@resend.dev")).strip()
     max_attempts = max(1, int(str(os.getenv("EMAIL_SEND_MAX_ATTEMPTS", "2")).strip() or "2"))
@@ -50,6 +59,10 @@ def send_email_with_result(to_email: str, subject: str, body: str) -> EmailSendR
                 "subject": subject,
                 "html": body,
             }
+            if attachments:
+                params["attachments"] = attachments
+            if headers:
+                params["headers"] = headers
             response = resend.Emails.send(params)
             provider_message_id = _extract_provider_message_id(response)
             logger.info(
@@ -83,8 +96,21 @@ def send_email_with_result(to_email: str, subject: str, body: str) -> EmailSendR
     return EmailSendResult(ok=False, error=last_error or "Error desconocido")
 
 
-def send_email(to_email: str, subject: str, body: str) -> bool:
-    return send_email_with_result(to_email=to_email, subject=subject, body=body).ok
+async def send_email(
+    to_email: str,
+    subject: str,
+    body: str,
+    attachments: Optional[list[dict[str, Any]]] = None,
+    headers: Optional[dict[str, str]] = None,
+) -> bool:
+    result = await send_email_with_result(
+        to_email=to_email,
+        subject=subject,
+        body=body,
+        attachments=attachments,
+        headers=headers,
+    )
+    return result.ok
 
 
 def send_reset_password_email(to_email: str, code: str):

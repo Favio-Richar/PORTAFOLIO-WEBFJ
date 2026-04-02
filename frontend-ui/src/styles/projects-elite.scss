@@ -1,16 +1,17 @@
-// Proyectos Elite 2.0 - Midnight Revision
-$elite-dark: #020617; // Deepest Midnight
-$elite-surface: #0f172a; // Surface color
-$elite-glass: rgba(255, 255, 255, 0.03);
-$elite-indigo: #6366f1;
+// Proyectos Elite 2.0 - Dynamic Theme Revision
+$elite-dark: var(--background);
+$elite-surface: var(--background-soft);
+$elite-glass: var(--glass-background);
+$elite-indigo: var(--primary);
 $elite-blue: #3b82f6;
 $elite-emerald: #10b981;
 $elite-amber: #f59e0b;
-$elite-white: #ffffff;
+$elite-white: var(--text-title);
+$elite-text: var(--text-body);
 
 .projects-elite-wrapper {
     background: $elite-dark;
-    color: $elite-white;
+    color: $elite-text;
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
 

@@ -31,6 +31,7 @@ interface BackendBlogRecord {
   author?: string;
   category?: string;
   tags?: string;
+  main_image_url?: string;
   is_published?: boolean;
   created_at?: string;
 }
@@ -301,7 +302,7 @@ const mapBackendBlogToPost = (item: BackendBlogRecord): BlogPost => {
   const editorialFallback = buildEditorialPlainFallback(item.title || "Articulo", item.category);
   const richPlainContent = plainContent.length >= 140 ? plainContent : `${plainContent} ${editorialFallback}`.trim();
   const excerpt = richPlainContent.length > 190 ? `${richPlainContent.slice(0, 189)}...` : richPlainContent;
-  const resolvedImage = extractFirstImage(item.content || "") || resolveCategoryImage(item.category);
+  const resolvedImage = item.main_image_url || extractFirstImage(item.content || "") || resolveCategoryImage(item.category);
 
   return {
     id: item.id,

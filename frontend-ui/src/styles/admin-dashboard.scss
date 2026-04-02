@@ -345,6 +345,7 @@ $brand-accent: #06b6d4; // Cyan 500
     // --- MAIN CONTENT ---
     .admin-main {
         flex: 1;
+        min-width: 0; // CRITICAL: Permite al flex container encogerse y evita el desborde (overflow)
         margin-left: 280px; // Sidebar width
         min-height: 100vh;
         background-color: $admin-bg;

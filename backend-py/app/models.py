@@ -213,6 +213,7 @@ class Blog(SQLModel, table=True):
     author: Optional[str] = "Favio Jiménez"
     category: Optional[str] = None
     tags: Optional[str] = None # JSON string
+    main_image_url: Optional[str] = None
     is_published: bool = Field(default=True)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -282,6 +283,158 @@ class Quote(SQLModel, table=True):
     status: str = Field(default="pending", index=True) # pending, reviewed, contacted
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = None
+
+# ========== END QUOTE ==========
+
+# ========== SYSTEM NOTIFICATION ==========
+
+class SystemNotification(SQLModel, table=True):
+    __tablename__ = "system_notification"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str
+    message: str
+    type: str = Field(default="info", index=True) # info, success, warning, error
+    link: Optional[str] = None
+    is_read: bool = Field(default=False, index=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+
+class QuoteHistory(SQLModel, table=True):
+    __tablename__ = "quote_history"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    proposal_id: int = Field(index=True)
+    action: str
+    user_name: Optional[str] = "System"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class LeadCommunication(SQLModel, table=True):
+    """Historial de comunicaciones (Chat/Email) para cada Lead"""
+    __tablename__ = "lead_communication"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    lead_id: int = Field(index=True)
+    lead_type: str = Field(index=True) # quote | advisory | direct
+    sender: str = Field(default="system") # system | admin | client
+    content: str
+    html_content: Optional[str] = Field(default=None)
+    subject: Optional[str] = Field(default=None)
+    channel: str = Field(default="email") # email | whatsapp | note
+    message_id: Optional[str] = Field(default=None, index=True) # Para IMAP deduplicación
+    thread_id: Optional[str] = Field(default=None, index=True)
+    in_reply_to: Optional[str] = Field(default=None, index=True)
+    references_header: Optional[str] = Field(default=None)
+    direction: str = Field(default="incoming", index=True) # incoming | outgoing
+    folder: Optional[str] = Field(default=None, index=True)
+    from_email: Optional[str] = Field(default=None, index=True)
+    to_email: Optional[str] = Field(default=None, index=True)
+    status: str = Field(default="pending", index=True) # pending | read | spam | trash | sent
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class DirectInquiry(SQLModel, table=True):
+    """Correos directos que no provienen de formularios de la web"""
+    __tablename__ = "direct_inquiry"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    nombre: str = Field(default="Cliente Directo")
+    email: str = Field(index=True)
+    subject: Optional[str] = None
+    html_content: Optional[str] = Field(default=None)
+    status: str = Field(default="pending", index=True) # pending, contacted, processed
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = None
+
+class LeadContactOverride(SQLModel, table=True):
+    """Persistencia manual de datos de contacto para leads del CRM."""
+    __tablename__ = "lead_contact_override"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    email: str = Field(index=True, unique=True)
+    phone: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class SystemSetting(SQLModel, table=True):
+    __tablename__ = "system_setting"
+    key: str = Field(primary_key=True)
+    value: str
+    description: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+# ========== CALENDARIO ==========
+
+class CalendarEvent(SQLModel, table=True):
+    __tablename__ = "calendar_event"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    date: str = Field(index=True) # YYYY-MM-DD
+    title: str
+    description: Optional[str] = None
+    type: str = Field(default="work", index=True) # work | reminder | important | personal | deadline
+    time: Optional[str] = None # HH:MM
+    completed: bool = Field(default=False, index=True)
+    
+    # Track integration
+    is_auto_generated: bool = Field(default=False)
+    related_booking_code: Optional[str] = Field(default=None, index=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class EnterpriseProposal(SQLModel, table=True):
+    """Modelo robusto para cotizaciones profesionales generadas por el administrador (Elite Sales Ops)"""
+    __tablename__ = "enterprise_proposal"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    quote_number: str = Field(index=True, unique=True)
+    
+    # Client info
+    client_name: str
+    client_company: Optional[str] = None
+    client_email: str = Field(index=True)
+    client_phone: Optional[str] = None
+    client_rfc: Optional[str] = None
+    client_address: Optional[str] = None
+    
+    # Track and user
+    public_token: Optional[str] = Field(default=None, index=True, unique=True)
+    user_id: Optional[int] = Field(default=None, index=True)
+
+    # Proposal configuration
+    currency: str = Field(default="CLP")
+    urgency_level: str = Field(default="Standard")
+    valid_days: int = Field(default=30)
+    lead_time: str = Field(default="4-6 Weeks")
+    
+    # Financial breakdown
+    # items: List[dict] serializado como JSON string
+    items: str = Field(default="[]") 
+    subtotal: float = Field(default=0.0)
+    discount_percent: float = Field(default=0.0)
+    discount_amount: float = Field(default=0.0)
+    tax_percent: float = Field(default=19.0)
+    tax_amount: float = Field(default=0.0)
+    final_total: float = Field(default=0.0)
+    
+    # Payment & Terms
+    bank_name: Optional[str] = None
+    bank_account: Optional[str] = None
+    bank_clabe: Optional[str] = None
+    payment_terms: Optional[str] = None
+    project_objective: Optional[str] = None # Strategic purpose
+    payment_schedule: str = Field(default="[]") # JSON string for milestones
+    legal_terms: Optional[str] = None # Custom T&C
+    notes: Optional[str] = None
+    
+    # Payment Lifecycle (Elite Flow)
+    payment_method: Optional[str] = Field(default=None, index=True) # paypal, mercadopago, transfer
+    payment_receipt_url: Optional[str] = None
+    payment_status: str = Field(default="pending", index=True) # pending, verifying, paid
+    
+    # Lifecycle
+    status: str = Field(default="Pending", index=True) # Pending, Approved, Rejected, Expired
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = None
+    sent_at: Optional[datetime] = None
+    accepted_at: Optional[datetime] = None
+    rejected_at: Optional[datetime] = None
 
 class AdditionalService(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

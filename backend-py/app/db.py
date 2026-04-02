@@ -2,6 +2,7 @@ import os
 from sqlalchemy import text
 from sqlmodel import SQLModel, Session, create_engine, select
 import json
+from app.core.email_threading import clean_message_id, normalize_email_address, parse_reference_ids
 
 # IMPORTANTE: Importar todos los modelos para que SQLModel los registre
 from app.models import (
@@ -13,7 +14,8 @@ from app.models import (
     ServiceComboDiagnosticCard, ServiceComboHighlightCard, ServiceMarqueeCard,
     NewsletterSubscriber, NewsletterCampaign, NewsletterDelivery,
     NewsletterCampaignContent, NewsletterCampaignRecipientRule,
-    Quote
+    Quote, EnterpriseProposal, GlobalSetting, QuoteHistory,
+    SystemNotification, LeadCommunication, DirectInquiry, LeadContactOverride
 )
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/portafolio-web")
@@ -1023,12 +1025,208 @@ def _ensure_newsletter_columns():
             )
         )
 
+def _ensure_enterprise_proposal_columns():
+    backend = engine.url.get_backend_name()
+    with engine.begin() as conn:
+        if backend == "sqlite":
+            pragma_rows = conn.execute(text("PRAGMA table_info('enterprise_proposal')")).fetchall()
+            columns = {str(row[1]) for row in pragma_rows}
+            if "public_token" not in columns:
+                conn.execute(text("ALTER TABLE enterprise_proposal ADD COLUMN public_token VARCHAR"))
+                conn.execute(text("CREATE INDEX IF NOT EXISTS ix_ent_prop_token ON enterprise_proposal (public_token)"))
+            if "user_id" not in columns:
+                conn.execute(text("ALTER TABLE enterprise_proposal ADD COLUMN user_id INTEGER"))
+            if "accepted_at" not in columns:
+                conn.execute(text("ALTER TABLE enterprise_proposal ADD COLUMN accepted_at DATETIME"))
+            if "rejected_at" not in columns:
+                conn.execute(text("ALTER TABLE enterprise_proposal ADD COLUMN rejected_at DATETIME"))
+            return
+
+        conn.execute(text("ALTER TABLE enterprise_proposal ADD COLUMN IF NOT EXISTS public_token VARCHAR"))
+        conn.execute(text("ALTER TABLE enterprise_proposal ADD COLUMN IF NOT EXISTS user_id INTEGER"))
+        conn.execute(text("ALTER TABLE enterprise_proposal ADD COLUMN IF NOT EXISTS accepted_at TIMESTAMP NULL"))
+        conn.execute(text("ALTER TABLE enterprise_proposal ADD COLUMN IF NOT EXISTS rejected_at TIMESTAMP NULL"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_ent_prop_token ON enterprise_proposal (public_token)"))
+
+
+def _ensure_lead_communication_columns():
+    """Asegura la existencia de metadatos de threading para correo."""
+    backend = engine.url.get_backend_name()
+    with engine.begin() as conn:
+        if backend == "sqlite":
+            pragma_rows = conn.execute(text("PRAGMA table_info('lead_communication')")).fetchall()
+            columns = {str(row[1]) for row in pragma_rows}
+            sqlite_columns = {
+                "message_id": "VARCHAR",
+                "thread_id": "VARCHAR",
+                "in_reply_to": "VARCHAR",
+                "references_header": "TEXT",
+                "direction": "VARCHAR DEFAULT 'incoming'",
+                "folder": "VARCHAR",
+                "from_email": "VARCHAR",
+                "to_email": "VARCHAR",
+            }
+            for column_name, column_type in sqlite_columns.items():
+                if column_name not in columns:
+                    conn.execute(text(f"ALTER TABLE lead_communication ADD COLUMN {column_name} {column_type}"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_msgid ON lead_communication (message_id)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_thread ON lead_communication (thread_id)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_inreply ON lead_communication (in_reply_to)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_direction ON lead_communication (direction)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_folder ON lead_communication (folder)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_fromemail ON lead_communication (from_email)"))
+            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_toemail ON lead_communication (to_email)"))
+            return
+
+        conn.execute(text("ALTER TABLE lead_communication ADD COLUMN IF NOT EXISTS message_id VARCHAR NULL"))
+        conn.execute(text("ALTER TABLE lead_communication ADD COLUMN IF NOT EXISTS thread_id VARCHAR NULL"))
+        conn.execute(text("ALTER TABLE lead_communication ADD COLUMN IF NOT EXISTS in_reply_to VARCHAR NULL"))
+        conn.execute(text("ALTER TABLE lead_communication ADD COLUMN IF NOT EXISTS references_header TEXT NULL"))
+        conn.execute(text("ALTER TABLE lead_communication ADD COLUMN IF NOT EXISTS direction VARCHAR NOT NULL DEFAULT 'incoming'"))
+        conn.execute(text("ALTER TABLE lead_communication ADD COLUMN IF NOT EXISTS folder VARCHAR NULL"))
+        conn.execute(text("ALTER TABLE lead_communication ADD COLUMN IF NOT EXISTS from_email VARCHAR NULL"))
+        conn.execute(text("ALTER TABLE lead_communication ADD COLUMN IF NOT EXISTS to_email VARCHAR NULL"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_msgid ON lead_communication (message_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_thread ON lead_communication (thread_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_inreply ON lead_communication (in_reply_to)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_direction ON lead_communication (direction)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_folder ON lead_communication (folder)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_fromemail ON lead_communication (from_email)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_lead_comm_toemail ON lead_communication (to_email)"))
+
+
+def _backfill_lead_communication_metadata():
+    """Normaliza correos históricos para que no se agrupen por asunto."""
+    with Session(engine) as session:
+        rows = session.exec(
+            select(LeadCommunication).order_by(LeadCommunication.created_at, LeadCommunication.id)
+        ).all()
+
+        if not rows:
+            return
+
+        changed = False
+
+        for row in rows:
+            legacy_sender = str(row.sender or "").strip()
+            legacy_sender_lower = legacy_sender.lower()
+            inferred_outgoing = (
+                str(row.direction or "").lower() == "outgoing"
+                or str(row.status or "").lower() == "sent"
+                or legacy_sender_lower == "admin"
+                or legacy_sender_lower.startswith("admin_to_")
+                or "@resend.dev" in legacy_sender_lower
+            )
+
+            normalized_from_email = normalize_email_address(row.from_email)
+            normalized_to_email = normalize_email_address(row.to_email)
+            legacy_contact = normalize_email_address(legacy_sender.replace("admin_to_", ""))
+
+            if not normalized_from_email:
+                normalized_from_email = legacy_contact if not inferred_outgoing else normalize_email_address(os.getenv("EMAIL_FROM") or os.getenv("IMAP_USER"))
+            if not normalized_to_email and inferred_outgoing:
+                normalized_to_email = legacy_contact
+
+            clean_mid = clean_message_id(row.message_id)
+            clean_reply_to = clean_message_id(row.in_reply_to)
+            clean_references = " ".join(parse_reference_ids(row.references_header)) or None
+            inferred_direction = "outgoing" if inferred_outgoing else "incoming"
+            inferred_folder = row.folder or ("sent" if inferred_outgoing else "inbox")
+
+            if row.message_id != clean_mid:
+                row.message_id = clean_mid
+                changed = True
+            if row.in_reply_to != clean_reply_to:
+                row.in_reply_to = clean_reply_to
+                changed = True
+            if row.references_header != clean_references:
+                row.references_header = clean_references
+                changed = True
+            if row.direction != inferred_direction:
+                row.direction = inferred_direction
+                changed = True
+            if row.folder != inferred_folder:
+                row.folder = inferred_folder
+                changed = True
+            if row.from_email != normalized_from_email:
+                row.from_email = normalized_from_email or None
+                changed = True
+            if row.to_email != normalized_to_email:
+                row.to_email = normalized_to_email or None
+                changed = True
+
+        if changed:
+            session.flush()
+
+        known_threads: dict[str, str] = {}
+
+        for row in rows:
+            message_id = clean_message_id(row.message_id)
+            if message_id and row.thread_id:
+                known_threads[message_id] = row.thread_id
+
+        for row in rows:
+            if row.thread_id:
+                continue
+
+            resolved_thread_id = None
+            for candidate in [clean_message_id(row.in_reply_to), *reversed(parse_reference_ids(row.references_header))]:
+                if candidate and candidate in known_threads:
+                    resolved_thread_id = known_threads[candidate]
+                    break
+
+            if not resolved_thread_id:
+                resolved_thread_id = clean_message_id(row.message_id) or f"legacy-email-{row.id}"
+
+            row.thread_id = resolved_thread_id
+            changed = True
+
+            message_id = clean_message_id(row.message_id)
+            if message_id:
+                known_threads[message_id] = resolved_thread_id
+
+        if changed:
+            session.commit()
+
+
 def init_db():
     """Crear todas las tablas definidas en los modelos"""
     SQLModel.metadata.create_all(engine)
     _ensure_review_table_exists()
     _ensure_advisory_booking_columns()
     _ensure_newsletter_columns()
+    _ensure_enterprise_proposal_columns()
+    _ensure_lead_communication_columns()
+    _backfill_lead_communication_metadata()
+    # Asegurar tabla para correos directos
+    with engine.begin() as conn:
+        backend = engine.url.get_backend_name()
+        if backend == "sqlite":
+            cursor = conn.connection.cursor()
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS direct_inquiry (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nombre TEXT DEFAULT 'Cliente Directo',
+                    email TEXT NOT NULL,
+                    subject TEXT,
+                    status TEXT DEFAULT 'pending',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP
+                )
+            """)
+        else:
+            conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS direct_inquiry (
+                    id SERIAL PRIMARY KEY,
+                    nombre VARCHAR DEFAULT 'Cliente Directo',
+                    email VARCHAR NOT NULL,
+                    subject VARCHAR,
+                    status VARCHAR DEFAULT 'pending',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP
+                )
+            """))
+    
     _seed_additional_services()
     _seed_service_combos()
     _seed_combo_diagnostic_cards()

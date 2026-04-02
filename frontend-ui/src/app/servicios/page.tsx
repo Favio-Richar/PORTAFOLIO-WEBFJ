@@ -348,6 +348,20 @@ const parsePriceValue = (price: string): number => {
   return Number.isFinite(numeric) ? numeric : 0;
 };
 
+const makeAnchorSlug = (text: string): string => {
+  const normalized = String(text || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, " ")
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\s/g, "-");
+  return normalized || "item";
+};
+
 const LIVE_ID_OFFSETS = {
   plan: 100000,
   service: 200000,
@@ -1917,7 +1931,7 @@ export default function ServicesPage() {
           badge: "bg-cyan-500/10 text-cyan-100 border-cyan-300/30",
           check: "text-cyan-300",
           price: "text-cyan-100",
-          button: "bg-cyan-500/10 text-cyan-100 border border-cyan-300/30 hover:bg-cyan-500/20 hover:text-white",
+          button: "bg-cyan-500/10 text-cyan-100 border border-cyan-300/30 hover:bg-cyan-500/20 hover:text-[var(--text-title)]",
           title: "group-hover:text-cyan-100",
         };
       case "marketing":
@@ -1930,7 +1944,7 @@ export default function ServicesPage() {
           badge: "bg-emerald-500/10 text-emerald-100 border-emerald-300/30",
           check: "text-emerald-300",
           price: "text-emerald-100",
-          button: "bg-emerald-500/10 text-emerald-100 border border-emerald-300/30 hover:bg-emerald-500/20 hover:text-white",
+          button: "bg-emerald-500/10 text-emerald-100 border border-emerald-300/30 hover:bg-emerald-500/20 hover:text-[var(--text-title)]",
           title: "group-hover:text-emerald-100",
         };
       case "diseno":
@@ -1956,7 +1970,7 @@ export default function ServicesPage() {
           badge: "bg-sky-500/10 text-sky-100 border-sky-300/30",
           check: "text-sky-300",
           price: "text-sky-100",
-          button: "bg-sky-500/10 text-sky-100 border border-sky-300/30 hover:bg-sky-500/20 hover:text-white",
+          button: "bg-blue-500/10 text-blue-100 border border-blue-300/30 hover:bg-blue-500/20 hover:text-[var(--text-title)]",
           title: "group-hover:text-sky-100",
         };
       case "soporte":
@@ -1969,7 +1983,7 @@ export default function ServicesPage() {
           badge: "bg-amber-500/10 text-amber-100 border-amber-300/30",
           check: "text-amber-300",
           price: "text-amber-100",
-          button: "bg-amber-500/10 text-amber-100 border border-amber-300/30 hover:bg-amber-500/20 hover:text-white",
+          button: "bg-amber-500/10 text-amber-100 border border-amber-300/30 hover:bg-amber-500/20 hover:text-[var(--text-title)]",
           title: "group-hover:text-amber-100",
         };
       default:
@@ -2248,7 +2262,7 @@ export default function ServicesPage() {
     );
   };
   return (
-    <div ref={containerRef} className="min-h-screen bg-slate-950 text-white overflow-x-hidden font-sans selection:bg-indigo-500 selection:text-white">
+    <div ref={containerRef} className="min-h-screen bg-[var(--background)] text-[var(--text-body)] overflow-x-hidden font-sans selection:bg-[var(--primary)] selection:text-white">
 
       {/* HERO SECTION CON IMAGEN DE FONDO */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden isolate">
@@ -2261,9 +2275,9 @@ export default function ServicesPage() {
             className="object-cover scale-[1.03] saturate-[1.05]"
             priority
           />
-          <div className="absolute inset-0 bg-[linear-gradient(125deg,rgba(2,6,23,0.9)_0%,rgba(2,6,23,0.78)_45%,rgba(2,6,23,0.92)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(125deg,var(--background) 0%,rgba(2,6,23,0.78) 45%,var(--background-soft) 100%)] opacity-90" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_52%_22%,rgba(56,189,248,0.22),transparent_37%),radial-gradient(circle_at_12%_86%,rgba(16,185,129,0.14),transparent_34%),radial-gradient(circle_at_88%_10%,rgba(129,140,248,0.16),transparent_30%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-slate-950 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[var(--background)] to-transparent" />
         </div>
 
         <div className="container-elite relative z-10 px-6 py-32 text-center max-w-6xl mx-auto">
@@ -2382,7 +2396,7 @@ export default function ServicesPage() {
       </section>
 
       {/* STATS BAR */}
-      <section className="py-12 bg-slate-900/50 border-y border-white/5">
+      <section className="py-12 bg-[var(--background-soft)] border-y border-[var(--border)]">
         <div className="container-elite max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {serviceStats.map((stat, i) => (
@@ -2392,11 +2406,11 @@ export default function ServicesPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-5 text-center"
+                className="rounded-2xl border border-[var(--border)] bg-[var(--background-card)] px-4 py-5 text-center"
               >
                 <div className="mb-3 flex justify-center text-cyan-200">{stat.icon}</div>
-                <div className="text-2xl md:text-3xl font-black text-white mb-2">{stat.number}</div>
-                <div className="text-xs md:text-sm text-slate-400 uppercase tracking-wider">{stat.label}</div>
+                <div className="text-2xl md:text-3xl font-black text-[var(--text-title)] mb-2">{stat.number}</div>
+                <div className="text-xs md:text-sm text-[var(--text-muted)] uppercase tracking-wider">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -2404,7 +2418,7 @@ export default function ServicesPage() {
       </section>
 
       {/* INDUSTRIES SECTION */}
-      <section className="py-24 bg-slate-950 relative overflow-hidden">
+      <section className="py-24 bg-[var(--background)] relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_18%_18%,rgba(56,189,248,0.09),transparent_38%),radial-gradient(circle_at_82%_82%,rgba(250,204,21,0.08),transparent_35%)]" />
         <div className="container-elite max-w-7xl mx-auto px-6">
           <div className="mb-16 relative z-10 mx-auto max-w-5xl text-center lg:text-left">
@@ -2416,10 +2430,10 @@ export default function ServicesPage() {
                 Especialistas por Industria
               </h2>
               <div className="max-w-3xl space-y-4">
-                <p className="text-slate-200 text-lg leading-relaxed">
+                <p className="text-[var(--text-body)] text-lg leading-relaxed">
                   Conocemos las particularidades de cada rubro en Chile y aterrizamos la solucion segun el contexto real de tu empresa.
                 </p>
-                <p className="text-slate-300/90 text-base leading-relaxed">
+                <p className="text-[var(--text-muted)] text-base leading-relaxed">
                   Te acompaniamos con lenguaje simple, tiempos claros y propuestas realistas para que tomes decisiones con confianza desde el primer contacto.
                 </p>
               </div>
@@ -2437,18 +2451,19 @@ export default function ServicesPage() {
               return (
                 <motion.div
                   key={industry.id}
+                  id={`industria-${makeAnchorSlug(industry.name)}`}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                   viewport={{ once: true }}
-                  className={`group bg-gradient-to-b from-white/[0.08] to-white/[0.03] border border-white/15 rounded-3xl p-8 transition-all cursor-pointer ${theme.border} ${theme.glow}`}
+                  className={`group bg-[var(--background-card)] border border-[var(--border)] rounded-3xl p-8 transition-all cursor-pointer ${theme.border} ${theme.glow}`}
                   onClick={() => openWhatsApp(`Hola, me interesa una web para ${industry.name}`)}
                 >
                   <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6 transition-all ${theme.iconBox} ${theme.iconColor}`}>
                     {industry.icon}
                   </div>
-                  <h3 className="text-2xl font-black mb-3 text-white group-hover:text-slate-50">{industry.name}</h3>
-                  <p className="text-slate-200/90 mb-5 leading-relaxed">{industry.description}</p>
+                  <h3 className="text-2xl font-black mb-3 text-[var(--text-title)] group-hover:text-cyan-300 transition-colors">{industry.name}</h3>
+                  <p className="text-[var(--text-body)] mb-5 leading-relaxed">{industry.description}</p>
                   <div className="flex flex-wrap gap-2">
                     {industry.examples.map((example, j) => (
                       <span key={j} className={`text-xs px-3 py-1 rounded-full ${theme.chip}`}>
@@ -2467,7 +2482,7 @@ export default function ServicesPage() {
 
 
       {/* SECCIÓN DE EXCELENCIA Y CONSISTENCIA (BENEFICIOS PREMIUM) */}
-      <section className='bg-slate-950 py-32 px-6 relative overflow-hidden'>
+      <section className='bg-[var(--background)] py-32 px-6 relative overflow-hidden'>
         {/* Glow effects background */}
         <div className="absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-indigo-600/5 blur-[120px] rounded-full pointer-events-none" />
@@ -2477,7 +2492,7 @@ export default function ServicesPage() {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className='bg-slate-900/80 border border-white/10 text-sm text-cyan-100/80 px-7 py-2.5 rounded-full font-bold uppercase tracking-widest backdrop-blur-sm'
+            className='bg-[var(--background-soft)] border border-[var(--border)] text-sm text-cyan-100/80 px-7 py-2.5 rounded-full font-bold uppercase tracking-widest backdrop-blur-sm'
           >
             Servicios estrategicos
           </motion.button>
@@ -2498,7 +2513,7 @@ export default function ServicesPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className='text-lg md:text-xl text-slate-300 max-w-3xl mt-4 font-medium leading-relaxed'
+            className='text-lg md:text-xl text-[var(--text-body)] max-w-3xl mt-4 font-medium leading-relaxed'
           >
             Desarrollamos sitios web, automatizaciones y sistemas para que tu empresa capte mejor, responda mas rapido y opere con mas control.
           </motion.p>
@@ -2517,20 +2532,20 @@ export default function ServicesPage() {
                     {card.title}
                   </h3>
 
-                  <p className='mt-5 text-base leading-relaxed text-slate-300'>
+                  <p className='mt-5 text-base leading-relaxed text-[var(--text-body)]'>
                     {card.description}
                   </p>
 
                   <ul className='mt-6 space-y-3'>
                     {card.highlights.map((item) => (
-                      <li key={`${card.title}-${item}`} className='flex items-center gap-3 text-sm text-slate-200'>
+                      <li key={`${card.title}-${item}`} className='flex items-center gap-3 text-sm text-[var(--text-body)]'>
                         <span className='h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_10px_rgba(103,232,249,0.55)]' />
                         <span>{item}</span>
                       </li>
                     ))}
                   </ul>
 
-                  <p className='mt-6 border-t border-white/10 pt-5 text-sm leading-relaxed text-slate-400'>
+                  <p className='mt-6 border-t border-[var(--border)] pt-5 text-sm leading-relaxed text-[var(--text-muted)]'>
                     {card.support}
                   </p>
                 </div>
@@ -2544,7 +2559,7 @@ export default function ServicesPage() {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.08 }}
                   whileHover={{ y: -6 }}
-                  className='group overflow-hidden rounded-[2.25rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.94),rgba(2,8,23,0.98))] shadow-[0_26px_70px_rgba(2,12,35,0.34)] transition-all duration-300 hover:border-cyan-400/25'
+                  className='group overflow-hidden rounded-[2.25rem] border border-[var(--border)] bg-[var(--background-card)] shadow-[0_26px_70px_rgba(2,12,35,0.34)] transition-all duration-300 hover:border-cyan-400/25'
                 >
                   {isMockup ? (
                     <div className='flex h-full flex-col'>
@@ -2731,7 +2746,7 @@ export default function ServicesPage() {
       </section>
 
       {/* PLANS SECTION MEJORADA */}
-      <section id="planes" className="py-32 bg-slate-950 relative">
+      <section id="planes" className="py-32 bg-[var(--background)] relative">
         <div className="container-elite max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <span className="inline-flex items-center px-5 py-2 rounded-full border border-[#2E6D7D]/35 bg-[linear-gradient(180deg,rgba(16,32,46,0.94),rgba(10,22,35,0.8))] text-[#68A9B8] text-xs md:text-sm font-semibold uppercase tracking-[0.24em] mb-6 shadow-[0_12px_30px_-24px_rgba(54,122,142,0.7)]">
@@ -2749,10 +2764,10 @@ export default function ServicesPage() {
             >
               Planes y precios para implementar con claridad
             </h2>
-            <p className="text-slate-300 text-lg max-w-3xl mx-auto leading-relaxed">
+            <p className="text-[var(--text-body)] text-lg max-w-3xl mx-auto leading-relaxed">
               Compara alcances, entregables y nivel de soporte para elegir la alternativa que mejor responde a la etapa de crecimiento de tu empresa.
             </p>
-            <p className="text-slate-400 text-base max-w-3xl mx-auto mt-3 leading-relaxed">
+            <p className="text-[var(--text-muted)] text-base max-w-3xl mx-auto mt-3 leading-relaxed">
               Trabajamos con tiempos realistas, alcance definido y acompanamiento consultivo para que la inversion se traduzca en resultados visibles desde el inicio.
             </p>
           </div>
@@ -2793,9 +2808,12 @@ export default function ServicesPage() {
             className="max-w-5xl mx-auto"
           >
             {displayPlans.filter((p) => p.id === activePlan).map((plan) => (
-              <div key={plan.id} className={`group relative rounded-[2.5rem] overflow-hidden shadow-[0_30px_80px_-35px_rgba(14,165,233,0.35)] ${plan.popular
-                ? 'bg-gradient-to-br from-indigo-900/45 via-slate-900 to-sky-950/40 border-2 border-indigo-400/60'
-                : 'bg-gradient-to-br from-slate-900/95 via-slate-900 to-slate-950 border border-white/10'
+              <div
+                key={plan.id}
+                id={`plan-${makeAnchorSlug(plan.name)}`}
+                className={`group relative rounded-[2.5rem] overflow-hidden shadow-[0_30px_80px_-35px_rgba(14,165,233,0.35)] ${plan.popular
+                ? 'bg-gradient-to-br from-indigo-900/45 via-[var(--background-soft)] to-sky-950/40 border-2 border-indigo-400/60'
+                : 'bg-gradient-to-br from-[var(--background-soft)] via-[var(--background-card)] to-[var(--background)] border border-[var(--border)]'
                 }`}>
                 <div className="pointer-events-none absolute inset-0">
                   <div className="absolute -top-24 -left-16 h-56 w-56 rounded-full bg-cyan-400/15 blur-3xl" />
@@ -2816,9 +2834,9 @@ export default function ServicesPage() {
                     <h3 className="text-3xl md:text-4xl font-extrabold mb-4 leading-tight text-[#76C6D7]">
                       {plan.name}
                     </h3>
-                    <p className="text-slate-300/95 mb-7 leading-relaxed">{plan.description}</p>
+                    <p className="text-[var(--text-body)] mb-7 leading-relaxed">{plan.description}</p>
                     <div className="inline-flex flex-col mb-8">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Inversión desde</span>
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">Inversión desde</span>
                       <div className="text-4xl md:text-5xl font-extrabold text-[#F3B562] drop-shadow-[0_0_20px_rgba(243,181,98,0.18)]">
                         {plan.price}
                       </div>
@@ -2830,10 +2848,10 @@ export default function ServicesPage() {
                     >
                       Solicitar Cotización Detallada
                     </button>
-                    <p className="text-xs text-slate-400 text-center">Asesoría inicial + respuesta en menos de 2 horas</p>
+                    <p className="text-xs text-[var(--text-muted)] text-center">Asesoría inicial + respuesta en menos de 2 horas</p>
                   </div>
 
-                  <div className="p-8 md:p-12 bg-slate-900/50 border-l border-white/10 backdrop-blur-sm">
+                  <div className="p-8 md:p-12 bg-[var(--background-soft)]/50 border-l border-[var(--border)] backdrop-blur-sm">
                     <h4 className="font-bold mb-6 text-lg text-cyan-100">¿Qué incluye?</h4>
                     <div className="space-y-4 mb-8">
                       {plan.includes.map((item, i) => (
@@ -2863,19 +2881,20 @@ export default function ServicesPage() {
             {displayPlans.filter((p) => p.id !== activePlan).slice(0, 3).map((plan) => (
               <motion.div
                 key={plan.id}
+                id={`plan-${makeAnchorSlug(plan.name)}`}
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
                 onClick={() => setActivePlan(plan.id)}
-                className="relative overflow-hidden bg-gradient-to-br from-slate-900/90 via-slate-900 to-slate-950 border border-white/10 rounded-2xl p-6 hover:border-cyan-300/50 transition-all cursor-pointer group shadow-lg shadow-slate-950/60"
+                className="relative overflow-hidden bg-gradient-to-br from-[var(--background-soft)] via-[var(--background-card)] to-[var(--background)] border border-[var(--border)] rounded-2xl p-6 hover:border-cyan-300/50 transition-all cursor-pointer group shadow-lg shadow-slate-950/60"
               >
                 <div className="pointer-events-none absolute -top-14 -right-14 h-32 w-32 rounded-full bg-cyan-400/10 blur-2xl group-hover:bg-cyan-300/20 transition-all" />
                 <h3 className="text-xl font-bold mb-2 text-[#7CCFDE] group-hover:text-[#A6E3EE] transition-colors">
                   {plan.name}
                 </h3>
-                <p className="text-slate-300/90 text-sm mb-4 line-clamp-2">{plan.description}</p>
+                <p className="text-[var(--text-body)] text-sm mb-4 line-clamp-2">{plan.description}</p>
                 <div className="text-2xl font-extrabold text-[#F0B35B]">{plan.price}</div>
               </motion.div>
             ))}
@@ -2884,7 +2903,7 @@ export default function ServicesPage() {
       </section>
 
       {/* ADDITIONAL SERVICES - TODOS LOS SERVICIOS */}
-      <section className="py-32 bg-slate-900/30 relative overflow-hidden">
+      <section className="py-32 bg-[var(--background-soft)]/30 relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(34,211,238,0.12),transparent_45%)]" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_80%,rgba(99,102,241,0.12),transparent_45%)]" />
         <div className="container-elite max-w-7xl mx-auto px-6 relative z-10">
@@ -2919,12 +2938,13 @@ export default function ServicesPage() {
               return (
                 <motion.div
                   key={service.id}
+                  id={`extra-${makeAnchorSlug(service.name)}`}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   whileHover={{ y: -8, scale: 1.01 }}
                   transition={{ duration: 0.45, delay: i * 0.04 }}
                   viewport={{ once: true }}
-                  className={`group relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-slate-900/95 via-[#111b39] to-slate-950 border backdrop-blur-sm transition-all duration-300 ${theme.cardBorder} ${theme.glow}`}
+                  className={`group relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-[var(--background-card)] via-[var(--background-soft)] to-[var(--background)] border backdrop-blur-sm transition-all duration-300 ${theme.cardBorder} ${theme.glow}`}
                 >
                   <div className={`pointer-events-none absolute -top-16 -right-16 h-36 w-36 rounded-full blur-3xl ${theme.orb}`} />
 
@@ -2999,7 +3019,7 @@ export default function ServicesPage() {
       </section>
 
       {/* TESTIMONIALS CON BOTÓN DEJAR RESEÑA */}
-      <section className="py-32 bg-slate-950 relative overflow-hidden">
+      <section className="py-32 bg-[var(--background)] relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,0.1),transparent_50%)]" />
 
         <div className="container-elite max-w-7xl mx-auto px-6 relative z-10">
@@ -3041,7 +3061,7 @@ export default function ServicesPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-white/5 border border-white/10 rounded-3xl p-8 relative hover:border-indigo-500/30 transition-all"
+                className="bg-[var(--background-card)] border border-[var(--border)] rounded-3xl p-8 relative hover:border-indigo-500/30 transition-all"
               >
                 <FaQuoteLeft className="text-4xl text-indigo-500/20 absolute top-6 left-6" />
                 <div className="flex gap-1 mb-6 pt-8">
@@ -3049,7 +3069,7 @@ export default function ServicesPage() {
                     <FaStar key={i} className="text-yellow-500 text-sm" />
                   ))}
                 </div>
-                <p className="text-slate-300 mb-6 leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
+                <p className="text-[var(--text-body)] mb-6 leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-indigo-600/20 flex items-center justify-center text-indigo-400 font-bold overflow-hidden">
                     {testimonial.image ? (
@@ -3059,9 +3079,9 @@ export default function ServicesPage() {
                     )}
                   </div>
                   <div>
-                    <div className="font-semibold text-white">{testimonial.name}</div>
-                    <div className="text-sm text-slate-500">{testimonial.role}, {testimonial.company}</div>
-                    <div className="text-xs text-slate-600 mt-1">{testimonial.date}</div>
+                    <div className="font-semibold text-[var(--text-title)]">{testimonial.name}</div>
+                    <div className="text-sm text-[var(--text-muted)]">{testimonial.role}, {testimonial.company}</div>
+                    <div className="text-xs text-[var(--text-muted)] mt-1">{testimonial.date}</div>
                   </div>
                 </div>
               </motion.div>
@@ -3070,16 +3090,16 @@ export default function ServicesPage() {
 
           {/* Trust Indicators */}
           <div className="mt-16 flex flex-wrap justify-center gap-8 items-center opacity-50">
-            <div className="flex items-center gap-2 text-slate-400">
+            <div className="flex items-center gap-2 text-[var(--text-muted)]">
               <FaGoogle /> Google Ads
             </div>
-            <div className="flex items-center gap-2 text-slate-400">
+            <div className="flex items-center gap-2 text-[var(--text-muted)]">
               <FaFacebook /> Meta Ads
             </div>
-            <div className="flex items-center gap-2 text-slate-400">
+            <div className="flex items-center gap-2 text-[var(--text-muted)]">
               <FaShopify /> Shopify
             </div>
-            <div className="flex items-center gap-2 text-slate-400">
+            <div className="flex items-center gap-2 text-[var(--text-muted)]">
               <FaWordpress /> WordPress
             </div>
           </div>
@@ -3088,7 +3108,7 @@ export default function ServicesPage() {
 
       {/* FAQ SECTION */}
       {/* 14. FAQ SECTION - REDESIGNED */}
-      <section className="py-32 px-6 relative bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] border-t border-white/[0.04] overflow-hidden">
+      <section className="py-32 px-6 relative bg-gradient-to-br from-[var(--background)] via-[var(--background-soft)] to-[var(--background)] border-t border-[var(--border)] overflow-hidden">
         {/* Decorative Ambient Background */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-indigo-500/05 blur-[120px] pointer-events-none -z-10" />
 
@@ -3142,26 +3162,26 @@ export default function ServicesPage() {
                 <span className="text-[10px] font-black tracking-[0.2em] uppercase text-indigo-300">Preguntas Frecuentes</span>
               </div>
 
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight leading-tight">
+              <h2 className="text-4xl md:text-5xl font-black text-[var(--text-title)] mb-6 tracking-tight leading-tight">
                 ¿Buscas <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-cyan-300">respuesta</span>?
               </h2>
-              <p className="text-slate-400 leading-relaxed text-lg max-w-xl">
+              <p className="text-[var(--text-muted)] leading-relaxed text-lg max-w-xl">
                 Resolvemos tus dudas críticas para que inicies tu proyecto con una ruta tecnológica clara y resultados comerciales medibles.
               </p>
             </div>
 
             {/* Accordion Logic */}
-            <div className="divide-y divide-white/10 border-t border-white/10">
+            <div className="divide-y divide-[var(--border)] border-t border-[var(--border)]">
               {displayFaqs.map((faq, i) => (
                 <div key={i} className="py-2 transition-all duration-300">
                   <button
                     onClick={() => setActiveFaq(activeFaq === i ? null : i)}
                     className="w-full flex items-center justify-between py-6 text-left group"
                   >
-                    <h3 className={`text-lg font-semibold transition-all duration-300 pr-8 ${activeFaq === i ? 'text-indigo-300 scale-[1.02]' : 'text-slate-200 group-hover:text-white'}`}>
+                    <h3 className={`text-lg font-semibold transition-all duration-300 pr-8 ${activeFaq === i ? 'text-indigo-300 scale-[1.02]' : 'text-[var(--text-body)] group-hover:text-[var(--text-title)]'}`}>
                       {faq.q}
                     </h3>
-                    <div className={`shrink-0 w-6 h-6 rounded-full border border-white/10 flex items-center justify-center transition-all duration-500 ${activeFaq === i ? 'bg-indigo-500 border-indigo-400 text-white rotate-180' : 'text-slate-500 group-hover:border-indigo-400 group-hover:text-indigo-300'}`}>
+                    <div className={`shrink-0 w-6 h-6 rounded-full border border-[var(--border)] flex items-center justify-center transition-all duration-500 ${activeFaq === i ? 'bg-indigo-500 border-indigo-400 text-white rotate-180' : 'text-[var(--text-muted)] group-hover:border-indigo-400 group-hover:text-indigo-300'}`}>
                       <FaChevronDown size={10} />
                     </div>
                   </button>
@@ -3176,7 +3196,7 @@ export default function ServicesPage() {
                         className="overflow-hidden"
                       >
                         <div className="pb-8 pr-12">
-                          <p className="text-slate-400 leading-relaxed text-[0.95rem]">
+                          <p className="text-[var(--text-muted)] leading-relaxed text-[0.95rem]">
                             {faq.a}
                           </p>
                         </div>
@@ -3347,10 +3367,10 @@ export default function ServicesPage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-lg bg-slate-900 rounded-3xl p-8 border border-white/10 shadow-2xl"
+              className="relative w-full max-w-lg bg-[var(--background-card)] rounded-3xl p-8 border border-[var(--border)] shadow-2xl"
             >
               <button
-                className="absolute top-4 right-4 text-slate-400 hover:text-white"
+                className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-title)]"
                 onClick={() => {
                   setReviewError("");
                   setReviewSuccess("");
@@ -3362,7 +3382,7 @@ export default function ServicesPage() {
               </button>
 
               <h3 className="text-2xl font-bold mb-2">Deja tu reseña</h3>
-              <p className="text-slate-400 mb-6">Tu opinión nos ayuda a mejorar y ayuda a otros clientes.</p>
+              <p className="text-[var(--text-muted)] mb-6">Tu opinión nos ayuda a mejorar y ayuda a otros clientes.</p>
 
               <form onSubmit={handleReviewSubmit} className="space-y-4">
                 <div>
@@ -3372,7 +3392,7 @@ export default function ServicesPage() {
                     required
                     value={reviewForm.name}
                     onChange={(e) => setReviewForm({ ...reviewForm, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-indigo-500 focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-[var(--background-card)] border border-[var(--border)] rounded-xl focus:border-indigo-500 focus:outline-none transition-colors text-[var(--text-body)]"
                     placeholder="Tu nombre"
                   />
                 </div>
@@ -3383,7 +3403,7 @@ export default function ServicesPage() {
                     type="text"
                     value={reviewForm.company}
                     onChange={(e) => setReviewForm({ ...reviewForm, company: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-indigo-500 focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-[var(--background-card)] border border-[var(--border)] rounded-xl focus:border-indigo-500 focus:outline-none transition-colors text-[var(--text-body)]"
                     placeholder="Nombre de tu empresa"
                   />
                 </div>
@@ -3395,7 +3415,7 @@ export default function ServicesPage() {
                     required
                     value={reviewForm.email}
                     onChange={(e) => setReviewForm({ ...reviewForm, email: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-indigo-500 focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-[var(--background-card)] border border-[var(--border)] rounded-xl focus:border-indigo-500 focus:outline-none transition-colors text-[var(--text-body)]"
                     placeholder="tucorreo@gmail.com"
                   />
                 </div>
@@ -3423,7 +3443,7 @@ export default function ServicesPage() {
                     rows={4}
                     value={reviewForm.message}
                     onChange={(e) => setReviewForm({ ...reviewForm, message: e.target.value })}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-indigo-500 focus:outline-none transition-colors resize-none"
+                    className="w-full px-4 py-3 bg-[var(--background-card)] border border-[var(--border)] rounded-xl focus:border-indigo-500 focus:outline-none transition-colors resize-none text-[var(--text-body)]"
                     placeholder="Cuéntanos sobre tu experiencia trabajando con nosotros..."
                   />
                 </div>
@@ -3467,10 +3487,10 @@ export default function ServicesPage() {
               initial={{ scale: 0.92, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.92, opacity: 0 }}
-              className="relative w-full max-w-xl bg-slate-900 rounded-3xl p-8 border border-white/10 shadow-2xl"
+              className="relative w-full max-w-xl bg-[var(--background-soft)] rounded-3xl p-8 border border-[var(--border-strong)] shadow-2xl"
             >
               <button
-                className="absolute top-4 right-4 text-slate-400 hover:text-white"
+                className="absolute top-4 right-4 text-[var(--text-muted)] hover:text-[var(--text-title)]"
                 onClick={() => {
                   setShowReviewVerifyModal(false);
                   setReviewPublishMode("idle");
@@ -3480,7 +3500,7 @@ export default function ServicesPage() {
               </button>
 
               <h3 className="text-2xl font-bold mb-2">Verificar reseña</h3>
-              <p className="text-slate-400 mb-6">
+              <p className="text-[var(--text-muted)] mb-6">
                 Puedes validar con Google para registrar foto/perfil, o publicar sin validar.
               </p>
 

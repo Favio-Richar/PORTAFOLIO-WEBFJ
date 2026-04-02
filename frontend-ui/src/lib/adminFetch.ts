@@ -11,8 +11,21 @@ export const withAuthHeaders = (headers?: HeadersInit): Headers => {
 };
 
 export const adminFetch = (input: RequestInfo | URL, init: RequestInit = {}) => {
-  return fetch(input, {
+  let url = input;
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+  if (typeof input === "string" && input.startsWith("/api")) {
+    url = `${backendUrl}${input}`;
+  }
+
+  const headers = withAuthHeaders(init.headers);
+  if (init.body && typeof init.body === "string" && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  return fetch(url, {
     ...init,
-    headers: withAuthHeaders(init.headers),
+    credentials: "include",
+    headers,
   });
 };

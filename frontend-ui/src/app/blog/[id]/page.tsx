@@ -13,6 +13,7 @@ interface BackendBlogRecord {
   author?: string;
   category?: string;
   tags?: string;
+  main_image_url?: string;
   created_at?: string;
 }
 
@@ -250,7 +251,7 @@ const ensureRichHtmlContent = (
 };
 
 const mapBackendBlogToDetail = (item: BackendBlogRecord): BlogDetailPost => {
-  const resolvedImage = extractFirstImage(item.content || "") || resolveCategoryImage(item.category);
+  const resolvedImage = item.main_image_url || extractFirstImage(item.content || "") || resolveCategoryImage(item.category);
   const fallbackViews = `${(3 + ((item.id || 1) % 6) * 0.7).toFixed(1)}K`;
   const tagList = parseTags(item.tags);
   const author = (item.author || "Equipo Editorial").trim() || "Equipo Editorial";

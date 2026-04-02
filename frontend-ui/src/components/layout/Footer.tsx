@@ -141,7 +141,7 @@ export default function Footer() {
     };
   }, []);
 
-  if (pathname?.startsWith("/auth") || pathname?.startsWith("/admin")) {
+  if (pathname?.startsWith("/auth") || pathname?.startsWith("/admin") || pathname?.includes("/seguimiento")) {
     return null;
   }
 
@@ -221,23 +221,23 @@ export default function Footer() {
   return (
     <footer
       suppressHydrationWarning
-      className="relative overflow-hidden border-t border-white/10 bg-[#040507] text-slate-300"
+      className="relative overflow-hidden border-t border-[var(--border)] bg-[var(--background)] text-[var(--text-body)]"
     >
       <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${accent.line}`} />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_18%,rgba(56,189,248,0.08),transparent_28%),radial-gradient(circle_at_85%_78%,rgba(99,102,241,0.08),transparent_26%),radial-gradient(circle_at_50%_100%,rgba(59,130,246,0.04),transparent_22%)] pointer-events-none" />
 
       <div className="relative mx-auto max-w-7xl px-6 pb-8 pt-12">
-        <div className={`mb-10 flex flex-col gap-6 rounded-[1.75rem] border ${accent.border} bg-white/[0.03] px-6 py-6 backdrop-blur-xl md:flex-row md:items-center md:justify-between ${accent.glow}`}>
+        <div className={`mb-10 flex flex-col gap-6 rounded-[1.75rem] border border-[var(--border)] bg-[var(--background-soft)] px-6 py-6 backdrop-blur-xl md:flex-row md:items-center md:justify-between ${accent.glow}`}>
           <div className="max-w-2xl space-y-3">
-            <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] ${accent.pill}`}>
+            <span className={`inline-flex items-center gap-2 rounded-full border border-[var(--border)] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] bg-[var(--background-card)]/50 text-[var(--text-body)]`}>
               <FaClock className="text-[10px]" />
               Agenda abierta | Diagnostico en 24h
             </span>
             <div className="space-y-2">
-              <h2 className="text-2xl font-black tracking-tight text-white md:text-[2rem]">
+              <h2 className="text-2xl font-black tracking-tight text-[var(--text-title)] md:text-[2rem]">
                 Un cierre serio para una agencia que vende con confianza.
               </h2>
-              <p className="max-w-xl text-sm leading-7 text-slate-400 md:text-[15px]">
+              <p className="max-w-xl text-sm leading-7 text-[var(--text-muted)] md:text-[15px]">
                 Disenamos plataformas, automatizaciones y sistemas empresariales con una presentacion pulida, estructura clara y foco en resultados reales.
               </p>
             </div>
@@ -259,37 +259,37 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="grid gap-10 border-b border-white/10 pb-10 lg:grid-cols-[1.2fr_0.8fr_0.8fr_1fr]">
+        <div className="grid gap-10 border-b border-[var(--border)] pb-10 lg:grid-cols-[1.2fr_0.8fr_0.8fr_1fr]">
           <div className="space-y-6">
             <Link href="/" className="inline-flex items-center gap-4">
               <div className="relative">
                 <div className={`absolute inset-0 rounded-2xl blur-xl ${accent.soft}`} />
-                <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-[#0d1220] to-[#05070d] text-white font-black text-lg tracking-[0.18em]">
+                <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--background-card)] text-[var(--text-title)] font-black text-lg tracking-[0.18em]">
                   FJ
                 </div>
               </div>
               <div className="space-y-1">
-                <p className="text-lg font-black leading-none tracking-tight text-white md:text-xl">
+                <p className="text-lg font-black leading-none tracking-tight text-[var(--text-title)] md:text-xl">
                   FJ Digital Engineering
                 </p>
-                <p className="text-[11px] uppercase tracking-[0.28em] text-slate-500">
+                <p className="text-[11px] uppercase tracking-[0.28em] text-[var(--text-muted)]">
                   Arquitectura digital y sistemas con proposito
                 </p>
               </div>
             </Link>
 
-            <p className="max-w-md text-sm leading-7 text-slate-400">
+            <p className="max-w-md text-sm leading-7 text-[var(--text-body)]">
               Construimos experiencias digitales sobrias, claras y escalables para empresas que necesitan crecer con control, tecnologia bien pensada y ejecucion confiable.
             </p>
 
             <div className="flex flex-wrap gap-3">
-              <span className={`inline-flex items-center rounded-full border px-3 py-2 text-[11px] font-semibold ${accent.pill}`}>
+              <span className={`inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--background-card)]/50 px-3 py-2 text-[11px] font-semibold text-[var(--text-body)]`}>
                 Respuesta &lt; 24h
               </span>
-              <span className={`inline-flex items-center rounded-full border px-3 py-2 text-[11px] font-semibold ${accent.pill}`}>
+              <span className={`inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--background-card)]/50 px-3 py-2 text-[11px] font-semibold text-[var(--text-body)]`}>
                 Remoto Chile y LATAM
               </span>
-              <span className={`inline-flex items-center rounded-full border px-3 py-2 text-[11px] font-semibold ${accent.pill}`}>
+              <span className={`inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--background-card)]/50 px-3 py-2 text-[11px] font-semibold text-[var(--text-body)]`}>
                 Soporte continuo
               </span>
             </div>
@@ -303,7 +303,7 @@ export default function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={item.label}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-slate-300 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/35 hover:bg-cyan-400/10 hover:text-white"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--background-card)] text-[var(--text-body)] transition-all duration-300 hover:-translate-y-1 hover:border-cyan-500/50 hover:bg-cyan-500/10 hover:text-cyan-500"
                   >
                     {item.icon}
                   </a>
@@ -334,16 +334,16 @@ export default function Footer() {
                   href={item.href}
                   target={item.href.startsWith("http") ? "_blank" : undefined}
                   rel={item.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="group flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 transition-all duration-300 hover:border-cyan-300/25 hover:bg-white/[0.04]"
+                  className="group flex items-start gap-3 rounded-xl border border-[var(--border)] bg-[var(--background-soft)] px-4 py-3 transition-all duration-300 hover:border-cyan-500/30 hover:bg-[var(--background-card)]"
                 >
-                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-[#0b101a] text-cyan-300">
+                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--background)] text-cyan-500">
                     {item.icon}
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-[10px] uppercase tracking-[0.24em] text-slate-500">
+                    <span className="block text-[10px] uppercase tracking-[0.24em] text-[var(--text-muted)]">
                       {item.label}
                     </span>
-                    <span className="mt-1 block text-sm leading-6 text-slate-200 group-hover:text-white break-words">
+                    <span className="mt-1 block text-sm leading-6 text-[var(--text-body)] group-hover:text-[var(--text-title)] break-words">
                       {item.value}
                     </span>
                   </span>
@@ -351,9 +351,9 @@ export default function Footer() {
               ))}
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-4">
-              <p className="text-sm font-semibold text-white">Atencion profesional</p>
-              <p className="mt-2 text-sm leading-6 text-slate-400">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--background-soft)] px-4 py-4">
+              <p className="text-sm font-semibold text-[var(--text-title)]">Atencion profesional</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-body)]">
                 Diagnostico, propuesta y ejecucion orientada a resultados medibles.
               </p>
             </div>
@@ -362,28 +362,28 @@ export default function Footer() {
 
         <div className="flex flex-col gap-6 py-6 md:flex-row md:items-end md:justify-between">
           <div className="space-y-2">
-            <p className="text-sm font-semibold text-slate-200">
+            <p className="text-sm font-semibold text-[var(--text-body)]">
               &copy; {year} FJ Digital Engineering. Todos los derechos reservados.
             </p>
-            <p className="max-w-xl text-xs uppercase tracking-[0.18em] text-slate-500">
+            <p className="max-w-xl text-xs uppercase tracking-[0.18em] text-[var(--text-muted)]">
               Ingenieria digital, automatizacion y sistemas empresariales para marcas que buscan una presencia premium y funcional.
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 text-sm text-slate-400 md:items-end">
+          <div className="flex flex-col gap-3 text-sm text-[var(--text-body)] md:items-end">
             <div className="flex flex-wrap items-center gap-3">
               <span>{contactData.location || defaultContact.location}</span>
-              <span className="hidden h-1 w-1 rounded-full bg-slate-600 md:inline-block" />
+              <span className="hidden h-1 w-1 rounded-full bg-[var(--border)] md:inline-block" />
               <span>{contactData.email || defaultContact.email}</span>
             </div>
             <div className="flex flex-wrap items-center gap-5 text-xs uppercase tracking-[0.18em]">
-              <Link href="/privacidad" className="transition-colors hover:text-white">
+              <Link href="/privacidad" className="transition-colors hover:text-[var(--text-title)]">
                 Privacidad
               </Link>
-              <Link href="/terminos" className="transition-colors hover:text-white">
+              <Link href="/terminos" className="transition-colors hover:text-[var(--text-title)]">
                 Terminos
               </Link>
-              <Link href="/contacto" className="transition-colors hover:text-white">
+              <Link href="/contacto" className="transition-colors hover:text-[var(--text-title)]">
                 Contacto
               </Link>
             </div>
@@ -397,8 +397,8 @@ export default function Footer() {
 function FooterHeading({ title, accentClass }: { title: string; accentClass: string }) {
   return (
     <div className="flex items-center gap-3">
-      <span className={`h-5 w-[3px] rounded-full ${accentClass.replace("text-", "bg-")}`} />
-      <h3 className="text-sm font-black uppercase tracking-[0.22em] text-white">{title}</h3>
+      <span className={`h-5 w-[3px] rounded-full bg-cyan-500`} />
+      <h3 className="text-sm font-black uppercase tracking-[0.22em] text-[var(--text-title)]">{title}</h3>
     </div>
   );
 }
@@ -432,12 +432,12 @@ function FooterInternalLink({
   return (
     <Link
       href={href}
-      className="group block rounded-2xl border border-transparent px-3 py-3 transition-all duration-300 hover:border-white/10 hover:bg-white/[0.03]"
+      className="group block rounded-2xl border border-transparent px-3 py-3 transition-all duration-300 hover:border-[var(--border)] hover:bg-[var(--background-soft)]"
     >
-      <span className="block text-sm font-semibold text-slate-100 transition-colors group-hover:text-white">
+      <span className="block text-sm font-semibold text-[var(--text-body)] transition-colors group-hover:text-[var(--text-title)]">
         {label}
       </span>
-      <span className="mt-1 block text-xs leading-5 text-slate-500">{meta}</span>
+      <span className="mt-1 block text-xs leading-5 text-[var(--text-muted)]">{meta}</span>
     </Link>
   );
 }

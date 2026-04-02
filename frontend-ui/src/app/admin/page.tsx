@@ -17,9 +17,13 @@ import TestimonialsAdmin from "@/components/admin/TestimonialsAdmin";
 import BlogAdmin from "@/components/admin/BlogAdmin";
 import ServicesAdmin from "@/components/admin/ServicesAdmin";
 import AdvisoriesAdmin from "@/components/admin/AdvisoriesAdmin";
-import QuotesAdmin from "@/components/admin/QuotesAdmin";
+import QuotesAdmin, { type Lead } from "@/components/admin/QuotesAdmin";
 import SettingsAdmin from "@/components/admin/SettingsAdmin";
 import SubscribersAdmin from "@/components/admin/SubscribersAdmin";
+import MessagesAdmin from "@/components/admin/MessagesAdmin";
+import CalendarAdmin from "@/components/admin/CalendarAdmin";
+import LibraryAdmin from "@/components/admin/LibraryAdmin";
+import DocumentsAdmin from "@/components/admin/DocumentsAdmin";
 import API_BASE from "@/lib/apiBase";
 import { adminFetch } from "@/lib/adminFetch";
 
@@ -42,9 +46,40 @@ type RawCertification = {
 export default function AdminPanel() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [activeSection, setActiveSection] = useState("dashboard");
+  const [activeRecordId, setActiveRecordId] = useState<string | number | null>(null);
+
+  const handleSetActiveSection = (section: string, recordId?: string | number) => {
+    setActiveSection(section);
+    if (recordId !== undefined) {
+      setActiveRecordId(recordId);
+    } else {
+      setActiveRecordId(null);
+    }
+  };
 
   const [certifications, setCertifications] = useState<Certification[]>(initialCertifications);
   const [contact, setContact] = useState<ContactData>(defaultContact);
+  const [leadToConvert, setLeadToConvert] = useState<Lead | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const section = new URLSearchParams(window.location.search).get("section");
+    if (
+      section &&
+      [
+        "dashboard",
+        "quotes",
+        "messages",
+        "blog",
+        "clients",
+        "services",
+        "projects",
+        "settings",
+      ].includes(section)
+    ) {
+      queueMicrotask(() => setActiveSection(section));
+    }
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -86,7 +121,7 @@ export default function AdminPanel() {
   const renderContent = () => {
     switch (activeSection) {
       case "dashboard":
-        return <DashboardHome />;
+        return <DashboardHome setActiveSection={handleSetActiveSection} />;
       case "about":
       case "profile":
         return (
@@ -96,17 +131,31 @@ export default function AdminPanel() {
           />
         );
       case "projects":
+      case "proyectos":
         return <ProjectsAdmin />;
       case "services":
+      case "servicios":
         return <ServicesAdmin />;
       case "advisories":
+      case "bookings":
+      case "asesoria":
+      case "amonestados":
         return <AdvisoriesAdmin />;
       case "blog":
         return <BlogAdmin />;
       case "clients":
         return <ClientsAdmin />;
       case "quotes":
-        return <QuotesAdmin />;
+      case "proposals":
+      case "cotizaciones":
+      case "leads":
+        return <QuotesAdmin prefilledLead={leadToConvert} onPrefillUsed={() => setLeadToConvert(null)} preFilledQuoteId={activeSection === "leads" ? "leads" : activeRecordId} />;
+      case "messages":
+      case "inbox":
+        return <MessagesAdmin onConvert={(lead) => {
+          setLeadToConvert(lead);
+          handleSetActiveSection("quotes");
+        }} />;
       case "subscribers":
         return <SubscribersAdmin />;
       case "contact":
@@ -116,9 +165,16 @@ export default function AdminPanel() {
       case "ads":
         return <AdsAdmin />;
       case "testimonials":
+      case "reviews":
         return <TestimonialsAdmin />;
       case "settings":
         return <SettingsAdmin />;
+      case "calendar":
+        return <CalendarAdmin />;
+      case "library":
+        return <LibraryAdmin />;
+      case "documents":
+        return <DocumentsAdmin />;
       default:
         return <PlaceholderSection name={activeSection} />;
     }
@@ -128,7 +184,7 @@ export default function AdminPanel() {
     <div className="admin-dashboard-wrapper">
       <AdminSidebar
         activeSection={activeSection}
-        setActiveSection={setActiveSection}
+        setActiveSection={handleSetActiveSection}
         isCollapsed={isSidebarCollapsed}
       />
 
@@ -139,9 +195,10 @@ export default function AdminPanel() {
         <AdminHeader
           toggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           activeSection={activeSection}
+          setActiveSection={handleSetActiveSection}
         />
 
-        <div className="admin-content">{renderContent()}</div>
+        <div className={`admin-content ${activeSection === 'messages' ? '!p-0' : ''}`}>{renderContent()}</div>
       </div>
     </div>
   );

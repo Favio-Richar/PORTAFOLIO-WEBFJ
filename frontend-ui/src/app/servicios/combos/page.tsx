@@ -61,6 +61,20 @@ const normalizeWhatsappNumber = (value?: string | null): string =>
 const normalizeComboSegment = (value?: string | null): ComboSegment =>
   String(value || "").trim().toLowerCase() === "empresarial" ? "Empresarial" : "PYMEs";
 
+const makeAnchorSlug = (text: string): string => {
+  const normalized = String(text || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, " ")
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\s/g, "-");
+  return normalized || "item";
+};
+
 const parseListField = (value?: string | string[] | null): string[] => {
   if (Array.isArray(value)) {
     return value.map((item) => String(item || "").trim()).filter(Boolean);
@@ -429,7 +443,10 @@ function ComboCard({
   const savingsPercent = individualAmount > 0 ? Math.round((savings / individualAmount) * 100) : 0;
 
   return (
-    <article className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#0b1534]/90 via-[#0c1f4f]/75 to-[#060d25]/95 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/40 hover:shadow-[0_20px_45px_-28px_rgba(34,211,238,0.6)]">
+    <article
+      id={`combo-${makeAnchorSlug(combo.title)}`}
+      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#0b1534]/90 via-[#0c1f4f]/75 to-[#060d25]/95 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-300/40 hover:shadow-[0_20px_45px_-28px_rgba(34,211,238,0.6)]"
+    >
       <div className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-cyan-300/15 blur-2xl" />
       <div className="relative z-10 space-y-4">
         <div className="flex items-center justify-between gap-2">

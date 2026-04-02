@@ -7,6 +7,8 @@ import {
   FaCalendarCheck,
   FaCalendarDay,
   FaCheckCircle,
+  FaChevronLeft,
+  FaChevronRight,
   FaClock,
   FaEdit,
   FaEnvelopeOpenText,
@@ -334,6 +336,7 @@ export default function AdvisoriesAdmin() {
   const [reminderStatus, setReminderStatus] = useState<ReminderStatusResponse | null>(null);
   const blockDatePickerRef = useRef<HTMLInputElement | null>(null);
   const blockTimePickerRef = useRef<HTMLInputElement | null>(null);
+  const rescheduleFormRef = useRef<HTMLElement | null>(null);
 
   const [weeklyAvailability, setWeeklyAvailability] = useState<WeeklyAvailability>(DEFAULT_WEEKLY_AVAILABILITY);
   const todayIso = useMemo(() => formatISODate(new Date()), []);
@@ -685,6 +688,11 @@ export default function AdvisoriesAdmin() {
       setRescheduleNotes("");
       setRescheduleNotifyClient(true);
       setRescheduleAvailableTimes([]);
+
+      // Scroll suave automático al formulario
+      setTimeout(() => {
+        rescheduleFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
     },
     [providerOptions]
   );
@@ -925,8 +933,8 @@ export default function AdvisoriesAdmin() {
                 type="button"
                 onClick={() => setAgendaMode("day")}
                 className={`px-3 py-2 text-xs font-black uppercase tracking-[0.12em] border ${agendaMode === "day"
-                    ? "border-emerald-300/60 bg-emerald-500/30 text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.25)]"
-                    : "border-white/15 bg-white/5 text-white/75 hover:bg-white/10"
+                  ? "border-emerald-300/60 bg-emerald-500/30 text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.25)]"
+                  : "border-white/15 bg-white/5 text-white/75 hover:bg-white/10"
                   }`}
               >
                 Dia
@@ -935,8 +943,8 @@ export default function AdvisoriesAdmin() {
                 type="button"
                 onClick={() => setAgendaMode("week")}
                 className={`px-3 py-2 text-xs font-black uppercase tracking-[0.12em] border ${agendaMode === "week"
-                    ? "border-emerald-300/60 bg-emerald-500/30 text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.25)]"
-                    : "border-white/15 bg-white/5 text-white/75 hover:bg-white/10"
+                  ? "border-emerald-300/60 bg-emerald-500/30 text-emerald-50 shadow-[0_0_16px_rgba(16,185,129,0.25)]"
+                  : "border-white/15 bg-white/5 text-white/75 hover:bg-white/10"
                   }`}
               >
                 Semana
@@ -1044,6 +1052,14 @@ export default function AdvisoriesAdmin() {
             </article>
           ))}
         </div>
+
+        <div className="border-t border-emerald-400/10 pt-4 mt-2 flex justify-between items-center text-[10px] uppercase tracking-widest text-emerald-100/30 font-bold">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Agenda Operativa Sincronizada</span>
+          </div>
+          <span>FJ Digital Engineering</span>
+        </div>
       </section>
 
       <section className="border border-cyan-300/20 bg-[#061224]/85 p-5 space-y-4">
@@ -1136,34 +1152,30 @@ export default function AdvisoriesAdmin() {
                             onClick={() => viewBooking(booking)}
                             type="button"
                             className="px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] border border-blue-400/35 bg-blue-500/20 text-blue-100 hover:bg-blue-500/30"
-                            title={booking.meeting_link ? "Ver enlace de reunion" : "Ver en agenda"}
+                            title="Ver detalles de la reserva"
                           >
                             Ver
                           </button>
+
+                          {booking.customer_phone && (
+                            <a
+                              href={`https://wa.me/${booking.customer_phone.replace(/\D/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] border border-emerald-400/35 bg-emerald-500/20 text-emerald-100 hover:bg-emerald-500/30 flex items-center gap-1"
+                              title="Continuar seguimiento por WhatsApp"
+                            >
+                              WhatsApp
+                            </a>
+                          )}
+
                           <button
                             onClick={() => openRescheduleForm(booking)}
                             type="button"
                             className="px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] border border-violet-400/35 bg-violet-500/20 text-violet-100 hover:bg-violet-500/30"
-                            title="Editar reserva"
+                            title="Mover o reagendar reserva"
                           >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => showBookingHistory(booking)}
-                            type="button"
-                            className="px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] border border-cyan-400/35 bg-cyan-500/20 text-cyan-100 hover:bg-cyan-500/30"
-                            title="Ver historial de recordatorios"
-                          >
-                            Historial
-                          </button>
-                          <button
-                            onClick={() => deleteBooking(booking)}
-                            type="button"
-                            disabled={savingKey === `delete-${booking.id}`}
-                            className="px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] border border-rose-400/35 bg-rose-500/20 text-rose-100 hover:bg-rose-500/30 disabled:opacity-60 disabled:cursor-not-allowed"
-                            title="Borrar reserva definitivamente"
-                          >
-                            Borrar
+                            Reagendar
                           </button>
                         </div>
                       </td>
@@ -1173,6 +1185,27 @@ export default function AdvisoriesAdmin() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Paginación Estilo Pro - Historial */}
+        <div className="border border-white/10 bg-[#0a0a0d] p-4 mt-6 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-4 shadow-2xl">
+          <div className="text-[9px] uppercase tracking-[0.25em] text-white/40 font-black">
+            VISUALIZANDO <span className="text-cyan-400">1 - {reminderHistoryRows.length}</span> DE <span className="text-white">{reminderHistoryRows.length}</span> REGISTROS DE ACTIVIDAD
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button className="w-8 h-8 flex items-center justify-center border border-white/10 bg-white/5 text-white/40 hover:bg-white/10 transition-all rounded-md">
+              <FaChevronLeft size={10} />
+            </button>
+            <button className="w-8 h-8 flex items-center justify-center border border-cyan-500/50 bg-cyan-600 text-white text-[11px] font-black shadow-[0_0_20px_rgba(8,145,178,0.4)] rounded-md">
+              1
+            </button>
+            <button className="w-8 h-8 flex items-center justify-center border border-white/10 bg-white/5 text-white/40 hover:bg-white/10 transition-all rounded-md cursor-not-allowed opacity-50">
+              2
+            </button>
+            <button className="w-8 h-8 flex items-center justify-center border border-white/10 bg-white/5 text-white/40 hover:bg-white/10 transition-all rounded-md">
+              <FaChevronRight size={10} />
+            </button>
+          </div>
         </div>
       </section>
 
@@ -1244,18 +1277,18 @@ export default function AdvisoriesAdmin() {
                           <button
                             onClick={() => updateBookingStatus(booking.id, "cancelled")}
                             disabled={savingKey === `status-${booking.id}-cancelled`}
-                            className="p-2 border border-rose-400/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 disabled:opacity-60"
+                            className="p-2 border border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg shadow-red-500/20 rounded disabled:opacity-30"
                             title="Marcar como cancelada"
                           >
-                            <FaTimesCircle />
+                            <FaTimesCircle style={{ color: '#ff0000' }} />
                           </button>
                           <button
                             onClick={() => deleteBooking(booking)}
                             disabled={savingKey === `delete-${booking.id}`}
-                            className="p-2 border border-rose-500/45 bg-rose-600/20 text-rose-200 hover:bg-rose-600/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                            className="p-2 border border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg shadow-red-500/20 rounded disabled:opacity-30"
                             title="Borrar reserva definitivamente"
                           >
-                            <FaTrashAlt />
+                            <FaTrashAlt style={{ color: '#ff0000', filter: 'drop-shadow(0 0 5px rgba(255,0,0,0.5))' }} />
                           </button>
                           <button
                             onClick={() => resendConfirmation(booking.id)}
@@ -1284,6 +1317,24 @@ export default function AdvisoriesAdmin() {
               </table>
             </div>
           )}
+
+          {/* Paginación Estilo Pro - Listado Main */}
+          <div className="border border-white/10 bg-[#0a0a0d] p-4 mt-6 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-4 shadow-2xl">
+            <div className="text-[9px] uppercase tracking-[0.25em] text-white/40 font-black">
+              MOSTRANDO <span className="text-cyan-400">1 - {bookings.length}</span> DE <span className="text-white">{bookings.length}</span> ASESORÍAS REGISTRADAS
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button disabled className="w-8 h-8 flex items-center justify-center border border-white/5 bg-white/5 text-white/20 cursor-not-allowed rounded-md">
+                <FaChevronLeft size={10} />
+              </button>
+              <button className="w-8 h-8 flex items-center justify-center border border-cyan-500/50 bg-cyan-600 text-white text-[11px] font-black shadow-[0_0_20px_rgba(8,145,178,0.4)] rounded-md">
+                1
+              </button>
+              <button className="w-8 h-8 flex items-center justify-center border border-white/10 bg-white/5 text-white/40 hover:bg-white/10 transition-all rounded-md">
+                <FaChevronRight size={10} />
+              </button>
+            </div>
+          </div>
         </article>
 
         <aside className="xl:col-span-4 space-y-5">
@@ -1350,9 +1401,14 @@ export default function AdvisoriesAdmin() {
                 Refrescar
               </button>
             </div>
+
+            <div className="border-t border-emerald-400/10 pt-3 mt-1 flex justify-between items-center text-[9px] uppercase tracking-widest text-emerald-100/30 font-bold">
+              <span>Worker: {reminderStatus?.worker_running ? "Running" : "Idle"}</span>
+              <span>Reminders System</span>
+            </div>
           </article>
 
-          <article className="border border-white/10 bg-[#070b14]/70 p-5 space-y-4">
+          <article ref={rescheduleFormRef} className="border border-white/10 bg-[#070b14]/70 p-5 space-y-4">
             <h3 className="text-lg font-black text-white flex items-center gap-2">
               <FaCalendarDay className="text-violet-300" />
               Reagendar reserva
@@ -1493,6 +1549,11 @@ export default function AdvisoriesAdmin() {
                 {savingKey === `reschedule-${rescheduleBookingId}` ? "Reprogramando..." : "Guardar reprogramacion"}
               </button>
             </div>
+
+            <div className="border-t border-white/5 pt-3 mt-1 flex justify-between items-center text-[9px] uppercase tracking-widest text-white/20 font-bold">
+              <span>Módulo de Reagendamiento</span>
+              <span>Propagación de Enlaces OK</span>
+            </div>
           </article>
 
           <article className="border border-white/10 bg-[#070b14]/70 p-5 space-y-4">
@@ -1597,16 +1658,21 @@ export default function AdvisoriesAdmin() {
                         <button
                           onClick={() => unblockSlot(slot.id)}
                           disabled={savingKey === `unblock-${slot.id}`}
-                          className="p-2 border border-rose-400/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20 disabled:opacity-60"
+                          className="p-2 border border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg shadow-red-500/20 rounded disabled:opacity-30"
                           title="Desbloquear"
                         >
-                          <FaTrashAlt />
+                          <FaTrashAlt style={{ color: '#ff0000', filter: 'drop-shadow(0 0 5px rgba(255,0,0,0.5))' }} />
                         </button>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
+            </div>
+
+            <div className="border-t border-white/5 pt-3 mt-1 flex justify-between items-center text-[9px] uppercase tracking-widest text-white/20 font-bold">
+              <span>Control de Exclusiones</span>
+              <span>Slots Protegidos</span>
             </div>
           </article>
 
@@ -1671,6 +1737,11 @@ export default function AdvisoriesAdmin() {
               <FaSave />
               {savingKey === "weekly-save" ? "Guardando..." : "Guardar disponibilidad"}
             </button>
+
+            <div className="border-t border-white/5 pt-3 mt-1 flex justify-between items-center text-[9px] uppercase tracking-widest text-white/20 font-bold">
+              <span>Configuración Semanal</span>
+              <span>Sync con Agenda</span>
+            </div>
           </article>
         </aside>
       </section>

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-
 import "./globals.css"; // 👈 SOLO UN SISTEMA DE ESTILOS
 import "../styles/services-elite.scss";
 import "../styles/blog-elite.scss";
@@ -66,12 +65,29 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('theme');
+                  if (theme === 'light') {
+                    document.body.classList.add('light-mode');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
         suppressHydrationWarning
         className={`
           min-h-screen
           antialiased
           relative
+          transition-colors duration-300
         `}
       >
         <GlobalThemeBackground />

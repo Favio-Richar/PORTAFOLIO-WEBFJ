@@ -669,10 +669,10 @@ const TechMarquee = ({ items }: { items: AboutStackEntry[] }) => {
   const marqueeItems = [...items, ...items, ...items, ...items];
 
   return (
-    <div className="relative py-12 bg-zinc-950/50 border-y border-white/5 overflow-hidden group">
+    <div className="relative py-12 bg-[var(--background-soft)]/50 border-y border-[var(--border)] overflow-hidden group">
       {/* Horizontal Fades */}
-      <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-zinc-950 to-transparent z-10 pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-zinc-950 to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[var(--background)] to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[var(--background)] to-transparent z-10 pointer-events-none" />
 
       <div className="flex overflow-hidden">
         <motion.div
@@ -687,9 +687,9 @@ const TechMarquee = ({ items }: { items: AboutStackEntry[] }) => {
           {marqueeItems.map((tech, i) => (
             <div
               key={`${tech.name}-${i}`}
-              className="flex items-center gap-3 px-6 py-3 rounded-xl bg-slate-800/20 border border-white/5 hover:border-amber-300/30 hover:bg-slate-800/40 transition-all cursor-default whitespace-nowrap min-w-fit"
+              className="flex items-center gap-3 px-6 py-3 rounded-xl bg-[var(--background-soft)]/30 border border-[var(--border)] hover:border-amber-300/30 hover:bg-[var(--background-soft)] transition-all cursor-default whitespace-nowrap min-w-fit"
             >
-              <div className="w-8 h-8 rounded-lg bg-slate-700/45 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-[var(--background-soft)]/60 flex items-center justify-center">
                 <StackTechIcon
                   name={tech.name}
                   iconKey={tech.icon_key}
@@ -709,7 +709,7 @@ const TechMarquee = ({ items }: { items: AboutStackEntry[] }) => {
 
 const VideoBackground = () => {
   return (
-    <div className="absolute inset-0 bg-[#040404]">
+    <div className="absolute inset-0 bg-[var(--background)]">
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-92"
         style={{
@@ -718,7 +718,7 @@ const VideoBackground = () => {
           transform: "scale(1.03)",
         }}
       />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,7,7,0.14)_0%,rgba(0,0,0,0.38)_100%)]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)]/20 to-[var(--background)]/60" />
     </div>
   );
 };
@@ -1110,7 +1110,7 @@ export default function SobreNosotrosPage() {
   const terminalSceneDone = terminalVisibleLines.length >= activeTerminalScene.length;
 
   return (
-    <div className="about-elite-container w-full overflow-hidden bg-zinc-950">
+    <div className="about-elite-container w-full overflow-hidden bg-[var(--background)]">
       <section className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
         <VideoBackground />
 
@@ -1183,7 +1183,7 @@ export default function SobreNosotrosPage() {
 
       <TechMarquee items={stackForRender} />
 
-      <section id="identidad" className="about-section-identity py-28 px-4 border-y border-white/5">
+      <section id="identidad" className="about-section-identity py-28 px-4 border-y border-[var(--border)]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
             <motion.span className="text-amber-300 font-semibold text-sm tracking-widest uppercase mb-4 block" {...fadeInUp}>
@@ -1201,7 +1201,7 @@ export default function SobreNosotrosPage() {
             {companyOverview.map((item, i) => (
               <motion.article
                 key={item.title}
-                className="premium-card identity-card relative p-8 rounded-3xl border border-white/10 bg-slate-900/40 backdrop-blur-md overflow-hidden"
+                className="premium-card identity-card relative p-8 rounded-3xl border border-[var(--border)] bg-[var(--background-card)] backdrop-blur-md overflow-hidden"
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -1241,7 +1241,7 @@ export default function SobreNosotrosPage() {
               {milestones.map((step, i) => (
                 <motion.div
                   key={step.year}
-                  className="premium-card timeline-card relative rounded-2xl border border-white/10 bg-slate-900/35 p-6 md:p-7 overflow-hidden"
+                  className="premium-card timeline-card relative rounded-2xl border border-[var(--border)] bg-[var(--background-soft)] p-6 md:p-7 overflow-hidden"
                   initial={{ opacity: 0, x: -30 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
@@ -1272,7 +1272,7 @@ export default function SobreNosotrosPage() {
               {businessMetrics.map((metric, i) => (
                 <motion.div
                   key={metric.label}
-                  className="premium-card metric-panel p-6 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/65 to-slate-800/20"
+                   className="premium-card metric-panel p-6 rounded-2xl border border-[var(--border)] bg-gradient-to-br from-[var(--background-soft)] to-transparent"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -1314,7 +1314,7 @@ export default function SobreNosotrosPage() {
                 "Visibilidad de costos y rendimiento",
                 "Documentacion para evolucion a largo plazo",
               ].map((item) => (
-                <div key={item} className="premium-chip flex items-center gap-3 p-4 rounded-xl border border-white/10 bg-slate-900/45">
+                <div key={item} className="premium-chip flex items-center gap-3 p-4 rounded-xl border border-[var(--border)] bg-[var(--background-soft)]">
                   <FaCheck className="w-4 h-4 text-amber-300 flex-shrink-0" />
                   <span className="text-slate-200 text-sm">{item}</span>
                 </div>
@@ -1324,13 +1324,13 @@ export default function SobreNosotrosPage() {
 
           <div className="relative">
             <motion.div
-              className="premium-card terminal-script-card relative z-10 bg-slate-800/45 backdrop-blur-xl rounded-3xl p-8 border border-white/10"
+              className="premium-card terminal-script-card relative z-10 bg-[var(--background-card)] backdrop-blur-xl rounded-3xl p-8 border border-[var(--border)]"
               initial={{ opacity: 0, scale: 0.94, rotateY: 10 }}
               whileInView={{ opacity: 1, scale: 1, rotateY: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.9 }}
             >
-              <div className="terminal-script-window bg-zinc-950 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="terminal-script-window bg-[var(--background)] rounded-2xl overflow-hidden shadow-2xl">
                 <div className="flex items-center gap-2 px-4 py-3 bg-slate-900/80 border-b border-white/5">
                   <div className="flex gap-2">
                     <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -1412,7 +1412,7 @@ export default function SobreNosotrosPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 mb-10">
-            <Card3D className="mission-card premium-card group relative p-10 rounded-3xl bg-slate-800/30 border border-white/10 overflow-hidden">
+            <Card3D className="mission-card premium-card group relative p-10 rounded-3xl bg-[var(--background-card)] border border-[var(--border)] overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
               <AnimatePresence mode="wait">
                 {!showMissionDetail ? (
@@ -1473,7 +1473,7 @@ export default function SobreNosotrosPage() {
               </AnimatePresence>
             </Card3D>
 
-            <Card3D className="mission-card mission-card--accent premium-card group relative p-10 rounded-3xl bg-slate-800/30 border border-white/10 overflow-hidden">
+            <Card3D className="mission-card mission-card--accent premium-card group relative p-10 rounded-3xl bg-[var(--background-card)] border border-[var(--border)] overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
               <AnimatePresence mode="wait">
                 {!showVisionDetail ? (
@@ -1539,7 +1539,7 @@ export default function SobreNosotrosPage() {
             {valuePillars.map((pillar, i) => (
               <motion.div
                 key={pillar.title}
-                className="premium-card pillar-card p-6 rounded-2xl border border-white/10 bg-slate-900/35"
+                className="premium-card pillar-card p-6 rounded-2xl border border-[var(--border)] bg-[var(--background-card)]"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -1578,7 +1578,7 @@ export default function SobreNosotrosPage() {
             {differentiators.map((item, i) => (
               <motion.article
                 key={item.title}
-                className="premium-card differential-card p-7 rounded-2xl border border-white/10 bg-slate-900/45 hover:border-amber-300/35 transition-all"
+                className="premium-card differential-card p-7 rounded-2xl border border-[var(--border)] bg-[var(--background-card)] hover:border-amber-300/35 transition-all"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -1611,13 +1611,13 @@ export default function SobreNosotrosPage() {
             {impactCases.map((item, i) => (
               <motion.article
                 key={item.sector}
-                className="premium-card case-card rounded-3xl border border-white/10 bg-slate-900/45 overflow-hidden"
+                className="premium-card case-card rounded-3xl border border-[var(--border)] bg-[var(--background-card)] overflow-hidden"
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
               >
-                <div className="p-7 border-b border-white/10 bg-gradient-to-r from-slate-900/80 to-slate-800/40">
+                <div className="p-7 border-b border-[var(--border)] bg-gradient-to-r from-[var(--background-soft)] to-transparent">
                   <p className="text-xs uppercase tracking-[0.2em] text-amber-200 mb-2">Sector</p>
                   <h3 className="text-white text-2xl font-display font-semibold">{item.sector}</h3>
                 </div>
@@ -1669,7 +1669,7 @@ export default function SobreNosotrosPage() {
               return (
                 <motion.article
                   key={cert.id}
-                  className={`premium-card cert-card p-7 rounded-2xl border border-white/10 flex flex-col ${isDegree ? "cert-card--degree" : ""
+                  className={`premium-card cert-card p-7 rounded-2xl border border-[var(--border)] flex flex-col ${isDegree ? "cert-card--degree" : ""
                     }`}
                   style={certCardStyle as React.CSSProperties}
                   initial={{ opacity: 0, y: 24 }}
@@ -1726,7 +1726,7 @@ export default function SobreNosotrosPage() {
         <AboutReviewsSection pageContext="sobre-mi" />
       </section>
 
-      <section id="equipo" className="py-24 px-4 bg-black/40 border-y border-white/5">
+      <section id="equipo" className="py-24 px-4 bg-[var(--background-soft)]/40 border-y border-[var(--border)]">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left Content - Text and Button */}
           <motion.div
@@ -1755,7 +1755,7 @@ export default function SobreNosotrosPage() {
               {[teamMembers[0], teamMembers[4]].map((member, i) => (
                 <motion.div
                   key={member?.id || `fallback-c1-${i}`}
-                  className="group relative overflow-hidden rounded-2xl aspect-[3/4] border border-white/10"
+                  className="group relative overflow-hidden rounded-2xl aspect-[3/4] border border-[var(--border)]"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}

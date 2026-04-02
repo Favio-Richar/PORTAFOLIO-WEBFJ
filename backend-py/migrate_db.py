@@ -52,6 +52,13 @@ def migrate():
             print("Tabla 'media' creada o ya existente.")
         except Exception as e:
             print(f"Error al crear tabla 'media': {e}")
+
+        # 3. Actualizar tabla blog
+        try:
+            session.execute(text("ALTER TABLE blog ADD COLUMN IF NOT EXISTS main_image_url TEXT"))
+            print("Columna 'main_image_url' añadida o ya existente en 'blog'.")
+        except Exception as e:
+            print(f"Error al actualizar tabla 'blog': {e}")
             
         session.commit()
         print("Migración completada con éxito.")

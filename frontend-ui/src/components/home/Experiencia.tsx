@@ -59,22 +59,22 @@ export default function Experiencia() {
             transition={{ duration: 0.8 }}
             className="space-y-8"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card border-cyan-400/25">
-              <span className="text-cyan-300 mono text-sm">01.</span>
-              <span className="text-sm text-slate-300">Sobre mi y la empresa</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card border border-[var(--border)] bg-[var(--background-card)]">
+              <span className="text-cyan-400 mono text-sm font-bold">01.</span>
+              <span className="text-sm text-[var(--text-body)]">Sobre mi y la empresa</span>
             </div>
 
-            <h2 className="text-3xl md:text-4xl font-bold leading-tight font-display" id="about-title">
+            <h2 className="text-3xl md:text-4xl font-bold leading-tight font-display text-[var(--text-title)]" id="about-title">
               FJ Digital Engineering con arquitectura con proposito.
               <br />
               <span className="gradient-text">Tecnologia que impulsa negocios reales.</span>
             </h2>
 
-            <p className="text-lg text-slate-300 leading-relaxed font-display">
+            <p className="text-lg text-[var(--text-body)] leading-relaxed font-display">
               Soy Favio Jimenez, ingeniero full stack y consultor tecnologico. Lidero FJ Digital Engineering para construir soluciones web y empresariales que mejoran la operacion, el control y la toma de decisiones.
             </p>
 
-            <p className="text-base text-slate-400 leading-relaxed font-display">
+            <p className="text-base text-[var(--text-muted)] leading-relaxed font-display">
               Combinamos desarrollo, automatizacion e integracion de sistemas para convertir objetivos comerciales en plataformas escalables, estables y medibles.
             </p>
 
@@ -90,7 +90,7 @@ export default function Experiencia() {
                     <div className={`relative w-10 h-10 rounded-lg flex items-center justify-center ${card.iconWrapClass}`}>
                       <CardIcon className={`w-5 h-5 ${card.iconClass}`} />
                     </div>
-                    <span className="relative text-sm font-semibold text-white font-display">{card.label}</span>
+                    <span className="relative text-sm font-semibold text-[var(--text-title)] font-display">{card.label}</span>
                   </div>
                 );
               })}
@@ -104,39 +104,39 @@ export default function Experiencia() {
             transition={{ duration: 0.8 }}
             className="relative"
           >
-            <div className="glass-card rounded-3xl p-8 border border-cyan-400/20 shadow-[0_24px_50px_rgba(14,165,233,0.12)]">
-              <div className="bg-[#050811] rounded-2xl p-6 text-sm font-mono border border-cyan-400/15">
+            <div className="glass-card rounded-3xl p-8 border border-[var(--border-strong)] shadow-[0_24px_50px_rgba(14,165,233,0.12)]">
+              <div className="bg-[var(--background-soft)] rounded-2xl p-6 text-sm font-mono border border-[var(--border)] overflow-hidden">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-3 h-3 rounded-full bg-red-500"></div>
                   <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                   <div className="w-3 h-3 rounded-full bg-green-500"></div>
                 </div>
-                <div className="text-slate-300 text-xs overflow-x-auto">
-                  <span className="text-cyan-300">const</span> <span className="text-amber-200">fjDigitalEngineering</span> = {'{'}
+                <div className="text-[var(--text-body)] text-xs overflow-x-auto">
+                  <span className="text-indigo-500 font-bold">const</span> <span className="text-violet-500 font-bold">fjDigitalEngineering</span> = {'{'}
                   <br />
-                  &nbsp;&nbsp;<span className="text-sky-300">founder</span>: <span className="text-emerald-300">&quot;Favio Jimenez&quot;</span>,
+                  &nbsp;&nbsp;<span className="text-sky-500 font-bold">founder</span>: <span className="text-emerald-500">&quot;Favio Jimenez&quot;</span>,
                   <br />
-                  &nbsp;&nbsp;<span className="text-sky-300">profile</span>: <span className="text-emerald-300">&quot;Ingenieria Full Stack + Consultoria&quot;</span>,
+                  &nbsp;&nbsp;<span className="text-sky-500 font-bold">profile</span>: <span className="text-emerald-500">&quot;Ingenieria Full Stack + Consultoria&quot;</span>,
                   <br />
-                  &nbsp;&nbsp;<span className="text-sky-300">focus</span>: [<span className="text-emerald-300">&quot;Web&quot;</span>, <span className="text-emerald-300">&quot;Automatizacion&quot;</span>, <span className="text-emerald-300">&quot;Escalamiento&quot;</span>]
+                  &nbsp;&nbsp;<span className="text-sky-500 font-bold">focus</span>: [<span className="text-emerald-500">&quot;Web&quot;</span>, <span className="text-emerald-500">&quot;Automatizacion&quot;</span>, <span className="text-emerald-500">&quot;Escalamiento&quot;</span>]
                   <br />
                   {'}'};
                   <br />
                   <br />
-                  <span className="text-cyan-300">async function</span> <span className="text-amber-200">deliverBusinessValue</span>() {'{'}
+                  <span className="text-indigo-500 font-bold">async function</span> <span className="text-amber-500 font-bold">deliverBusinessValue</span>() {'{'}
                   <br />
-                  &nbsp;&nbsp;<span className="text-cyan-300">const</span> <span className="text-sky-300">diagnosis</span> = <span className="text-emerald-300">&quot;completed&quot;</span>;
+                  &nbsp;&nbsp;<span className="text-indigo-500 font-bold">const</span> <span className="text-sky-500 font-bold">diagnosis</span> = <span className="text-emerald-500">&quot;completed&quot;</span>;
                   <br />
-                  &nbsp;&nbsp;<span className="text-cyan-300">const</span> <span className="text-sky-300">architecture</span> = <span className="text-emerald-300">&quot;validated&quot;</span>;
+                  &nbsp;&nbsp;<span className="text-indigo-500 font-bold">const</span> <span className="text-sky-500 font-bold">architecture</span> = <span className="text-emerald-500">&quot;validated&quot;</span>;
                   <br />
-                  &nbsp;&nbsp;<span className="text-cyan-300">const</span> <span className="text-sky-300">deployment</span> = <span className="text-emerald-300">&quot;production-ready&quot;</span>;
+                  &nbsp;&nbsp;<span className="text-indigo-500 font-bold">const</span> <span className="text-sky-500 font-bold">deployment</span> = <span className="text-emerald-500">&quot;production-ready&quot;</span>;
                   <br />
-                  &nbsp;&nbsp;<span className="text-cyan-300">return</span> {'{'} <span className="text-sky-300">status</span>: <span className="text-emerald-300">&quot;EXITO_TOTAL&quot;</span>, <span className="text-sky-300">impact</span>: <span className="text-emerald-300">&quot;medible&quot;</span> {'}'};
+                  &nbsp;&nbsp;<span className="text-indigo-500 font-bold">return</span> {'{'} <span className="text-sky-500 font-bold">status</span>: <span className="text-emerald-500">&quot;EXITO_TOTAL&quot;</span>, <span className="text-sky-300">impact</span>: <span className="text-emerald-300">&quot;medible&quot;</span> {'}'};
                   <br />
                   {'}'}
                 </div>
                 <div className="mt-4 rounded-xl border border-emerald-400/35 bg-emerald-500/10 px-4 py-3 text-[11px]">
-                  <span className="text-emerald-300">$ resultado =&gt; EXITO_TOTAL | Plataforma operativa, marca solida y cliente satisfecho</span>
+                  <span className="text-emerald-500 font-bold">$ resultado =&gt; EXITO_TOTAL | Plataforma operativa, marca solida y cliente satisfecho</span>
                 </div>
               </div>
             </div>

@@ -1,91 +1,64 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { FaCheckCircle, FaRocket, FaChevronRight, FaCalendarAlt } from "react-icons/fa";
-import confetti from "canvas-confetti";
+import { FaCheckCircle, FaArrowRight, FaSpinner } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import API_BASE from "@/lib/apiBase";
 
-export default function GraciasPage() {
-    useEffect(() => {
-        const duration = 3 * 1000;
-        const end = Date.now() + duration;
+export default function PagosGraciasPage() {
+  const [confirming, setConfirming] = useState(false);
+  const [isContact, setIsContact] = useState(true);
 
-        const frame = () => {
-            confetti({
-                particleCount: 2,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: ["#6366f1", "#a855f7"]
-            });
-            confetti({
-                particleCount: 2,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: ["#6366f1", "#a855f7"]
-            });
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const bookingId = params.get("booking_id");
+    
+    if (bookingId) {
+      setIsContact(false);
+      setConfirming(true);
+      // Notifica al backend que el pago en Stripe fue exitoso
+      fetch(`${API_BASE}/api/asesoria/bookings/${bookingId}/confirm-payment`, {
+        method: "POST"
+      })
+      .catch(err => console.error("Error al confirmar reserva:", err))
+      .finally(() => setConfirming(false));
+    }
+  }, []);
 
-            if (Date.now() < end) {
-                requestAnimationFrame(frame);
-            }
-        };
-        frame();
-    }, []);
+  return (
+    <main className="min-h-screen bg-[#040917] text-white flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
 
-    return (
-        <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6 relative overflow-hidden">
-            {/* Background Decor */}
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.05),transparent_50%)] z-0" />
-
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="max-w-xl w-full bg-slate-900/40 backdrop-blur-3xl border border-white/10 p-12 rounded-[3rem] text-center relative z-10 shadow-2xl"
-            >
-                <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", damping: 10, stiffness: 100, delay: 0.2 }}
-                    className="w-24 h-24 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center text-5xl text-emerald-500 mx-auto mb-8 shadow-[0_0_30px_rgba(16,185,129,0.2)]"
-                >
-                    <FaCheckCircle />
-                </motion.div>
-
-                <h1 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter mb-4">
-                    ¡Solicitud <span className="text-indigo-500">Recibida!</span>
-                </h1>
-
-                <p className="text-slate-400 font-medium mb-10 leading-relaxed">
-                    Hemos procesado tu información con éxito. Un ingeniero de nuestro equipo revisará tu requerimiento y te contactará en menos de <span className="text-white font-bold">24 horas</span>.
-                </p>
-
-                <div className="grid grid-cols-1 gap-4 mb-10">
-                    <div className="flex items-center gap-4 p-4 bg-white/5 border border-white/5 rounded-2xl text-left">
-                        <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-                            <FaCalendarAlt />
-                        </div>
-                        <div>
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Paso Siguiente</h4>
-                            <p className="text-xs text-slate-300 font-bold">Revisa tu bandeja de entrada o WhatsApp.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/" className="flex-1 px-8 py-5 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-widest hover:bg-indigo-500 hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
-                        Volver al Inicio
-                    </Link>
-                    <Link href="/asesoria" className="flex-1 px-8 py-5 rounded-2xl bg-indigo-600 text-white font-black text-xs uppercase tracking-widest hover:bg-indigo-500 transition-all duration-300 flex items-center justify-center gap-2 group">
-                        Reservar Asesoría <FaChevronRight className="group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                </div>
-
-                <div className="mt-12 flex items-center justify-center gap-2 text-[9px] font-black text-slate-600 uppercase tracking-[0.3em]">
-                    <FaRocket className="text-indigo-500/50" /> Next Level Software Pro · Ingeniería Digital de Élite
-                </div>
-            </motion.div>
+      <div className="max-w-md w-full relative z-10 text-center space-y-8 p-10 bg-black/40 border border-white/10 rounded-3xl backdrop-blur-xl shadow-2xl">
+        <div className="mx-auto w-20 h-20 bg-emerald-500/20 border border-emerald-400/30 rounded-full flex items-center justify-center animate-bounce">
+          <FaCheckCircle className="text-4xl text-emerald-400" />
         </div>
-    );
+
+        <div className="space-y-3">
+          <h1 className="text-3xl font-black text-emerald-50">
+            {isContact ? "¡Mensaje Recibido!" : "¡Pago Exitoso!"}
+          </h1>
+          <p className="text-slate-300 leading-relaxed text-sm">
+            {isContact 
+              ? "Hemos recibido tu consulta técnica. Nuestro equipo de ingeniería revisará tu requerimiento y te contactará en un máximo de 24 horas."
+              : "Hemos recibido la confirmación de tu pago de forma segura por parte de Stripe. En breve recibirás el enlace de la reunión en tu correo electrónico."}
+          </p>
+          
+          {confirming && (
+             <p className="text-xs text-emerald-300 flex items-center justify-center gap-2 mt-4">
+               <FaSpinner className="animate-spin" /> Verificando confirmación en el servidor...
+             </p>
+          )}
+        </div>
+
+        <Link
+          href="/"
+          className="mx-auto inline-flex items-center justify-center gap-2 rounded-xl bg-white text-black px-6 py-4 text-sm font-black uppercase tracking-wider transition hover:bg-slate-200"
+        >
+          Volver al Inicio
+          <FaArrowRight className="text-xs" />
+        </Link>
+      </div>
+    </main>
+  );
 }

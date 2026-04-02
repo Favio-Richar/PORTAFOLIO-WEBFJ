@@ -221,25 +221,25 @@ export default function BlogHome() {
 
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-6 border-cyan-400/25">
-            <span className="text-cyan-300 mono text-sm">05.</span>
-            <span className="text-sm text-slate-300">Blog</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-6 border border-[var(--border)] bg-[var(--background-card)]">
+            <span className="text-cyan-500 font-bold mono text-sm">05.</span>
+            <span className="text-sm text-[var(--text-body)]">Blog</span>
           </div>
 
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 font-display text-white">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 font-display text-[var(--text-title)]">
             Insights tecnicos para <span className="gradient-text">decisiones de negocio</span>
           </h2>
 
-          <p className="max-w-3xl mx-auto text-base md:text-lg text-slate-300 font-display leading-relaxed">
+          <p className="max-w-3xl mx-auto text-base md:text-lg text-[var(--text-body)] font-display leading-relaxed">
             Publicamos casos reales, guias accionables y criterios de arquitectura para ayudarte a vender mas, reducir errores y escalar con control.
           </p>
 
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/15 bg-white/5 text-xs font-semibold text-slate-200">
-              <FaNewspaper className="text-cyan-300" /> Casos aplicados
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[var(--border)] bg-[var(--background-soft)] text-xs font-semibold text-[var(--text-body)]">
+              <FaNewspaper className="text-cyan-500" /> Casos aplicados
             </span>
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/15 bg-white/5 text-xs font-semibold text-slate-200">
-              <FaRegLightbulb className="text-amber-300" /> Guias sin relleno
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[var(--border)] bg-[var(--background-soft)] text-xs font-semibold text-[var(--text-body)]">
+              <FaRegLightbulb className="text-amber-500" /> Guias sin relleno
             </span>
           </div>
         </div>
@@ -253,7 +253,7 @@ export default function BlogHome() {
             className="group lg:col-span-2 rounded-3xl p-[1px] overflow-hidden"
             style={{ background: CARD_ACCENTS[0].borderGradient }}
           >
-            <div className="rounded-3xl h-full bg-[linear-gradient(165deg,rgba(8,20,34,0.92),rgba(6,14,26,0.98))] overflow-hidden flex flex-col">
+            <div className="rounded-3xl h-full bg-[var(--background-soft)] overflow-hidden flex flex-col">
               <div className="relative min-h-[430px] overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -261,13 +261,13 @@ export default function BlogHome() {
                   alt={featured.title}
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#05070f] via-[#05070f]/80 to-[#05070f]/20" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--background-soft)] via-[var(--background-soft)]/80 to-transparent" />
                 <div className="relative p-6 md:p-8 h-full flex flex-col justify-end">
                   <div className="mb-4 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex px-3 py-1 rounded-full bg-cyan-500/18 border border-cyan-300/35 text-cyan-200 text-xs font-bold uppercase tracking-wide">
+                    <span className="inline-flex px-3 py-1 rounded-full bg-[var(--background-card)] border border-[var(--border)] text-[var(--text-title)] text-xs font-bold uppercase tracking-wide">
                       {featured.category}
                     </span>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/35 border border-white/15 text-slate-200 text-xs">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--background-card)]/50 border border-[var(--border)] text-[var(--text-body)] text-xs">
                       <FaCalendarAlt className="text-[10px]" /> {featured.date}
                     </span>
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/35 border border-white/15 text-slate-200 text-xs">
@@ -278,10 +278,10 @@ export default function BlogHome() {
                     </span>
                   </div>
 
-                  <h3 className="text-2xl md:text-3xl font-black text-white font-display leading-tight max-w-3xl mb-3">
+                  <h3 className="text-2xl md:text-3xl font-black text-[var(--text-title)] font-display leading-tight max-w-3xl mb-3">
                     {featured.title}
                   </h3>
-                  <p className="text-slate-200/90 text-base md:text-lg font-display leading-relaxed max-w-2xl mb-5">
+                  <p className="text-[var(--text-body)] opacity-90 text-base md:text-lg font-display leading-relaxed max-w-2xl mb-5">
                     {featured.excerpt}
                   </p>
 
@@ -295,20 +295,20 @@ export default function BlogHome() {
                 </div>
               </div>
 
-              <div className="p-5 md:p-6 border-t border-cyan-400/20 bg-[linear-gradient(135deg,rgba(8,145,178,0.12),rgba(15,23,42,0.9))]">
-                <p className="text-xs uppercase tracking-[0.2em] text-cyan-300/90 font-bold mb-3">Como aplicarlo en tu negocio</p>
+              <div className="p-5 md:p-6 border-t border-[var(--border-strong)] bg-[var(--background-card)]">
+                <p className="text-xs uppercase tracking-[0.2em] text-cyan-500 font-bold mb-3">Como aplicarlo en tu negocio</p>
                 <div className="grid sm:grid-cols-3 gap-3 mb-4">
-                  <div className="rounded-xl border border-cyan-300/20 bg-cyan-500/8 p-3">
-                    <p className="text-[11px] text-cyan-200 font-semibold mb-1">Diagnostico inicial</p>
-                    <p className="text-xs text-slate-200/90">En 72h definimos mejoras y prioridades.</p>
+                  <div className="rounded-xl border border-[var(--border)] bg-[var(--background-soft)] p-3">
+                    <p className="text-[11px] text-cyan-600 dark:text-cyan-200 font-semibold mb-1">Diagnostico inicial</p>
+                    <p className="text-xs text-[var(--text-body)]">En 72h definimos mejoras y prioridades.</p>
                   </div>
-                  <div className="rounded-xl border border-cyan-300/20 bg-cyan-500/8 p-3">
-                    <p className="text-[11px] text-cyan-200 font-semibold mb-1">Roadmap ejecutable</p>
-                    <p className="text-xs text-slate-200/90">Plan por fases con tiempo y alcance claro.</p>
+                  <div className="rounded-xl border border-[var(--border)] bg-[var(--background-soft)] p-3">
+                    <p className="text-[11px] text-cyan-600 dark:text-cyan-200 font-semibold mb-1">Roadmap ejecutable</p>
+                    <p className="text-xs text-[var(--text-body)]">Plan por fases con tiempo y alcance claro.</p>
                   </div>
-                  <div className="rounded-xl border border-cyan-300/20 bg-cyan-500/8 p-3">
-                    <p className="text-[11px] text-cyan-200 font-semibold mb-1">Implementacion guiada</p>
-                    <p className="text-xs text-slate-200/90">Soporte tecnico y seguimiento real.</p>
+                  <div className="rounded-xl border border-[var(--border)] bg-[var(--background-soft)] p-3">
+                    <p className="text-[11px] text-cyan-600 dark:text-cyan-200 font-semibold mb-1">Implementacion guiada</p>
+                    <p className="text-xs text-[var(--text-body)]">Soporte tecnico y seguimiento real.</p>
                   </div>
                 </div>
 
@@ -343,28 +343,28 @@ export default function BlogHome() {
                   className="group rounded-2xl p-[1px] overflow-hidden"
                   style={{ background: accent.borderGradient }}
                 >
-                  <div className="rounded-2xl bg-[linear-gradient(160deg,rgba(15,22,36,0.95),rgba(7,12,24,0.98))] overflow-hidden">
-                    <div className="relative h-36 overflow-hidden border-b border-white/10">
+                  <div className="rounded-2xl bg-[var(--background-card)] overflow-hidden">
+                    <div className="relative h-36 overflow-hidden border-b border-[var(--border)]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={post.image}
                         alt={post.title}
                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#05070f]/85 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[var(--background-card)]/85 to-transparent" />
                       <span className="absolute top-3 left-3 inline-flex px-2.5 py-1 rounded-full bg-black/40 border border-white/20 text-[10px] font-bold text-white uppercase tracking-wide">
                         {post.category}
                       </span>
                     </div>
 
                     <div className="p-4">
-                      <div className="flex items-center gap-3 text-[11px] text-slate-400 mb-2 mono">
+                      <div className="flex items-center gap-3 text-[11px] text-[var(--text-muted)] mb-2 mono">
                         <span className="inline-flex items-center gap-1"><FaCalendarAlt className="text-[10px]" /> {post.date}</span>
                         <span className="inline-flex items-center gap-1"><FaClock className="text-[10px]" /> {post.readTime}</span>
                       </div>
 
-                      <h3 className="text-base font-bold text-white font-display leading-snug mb-2 line-clamp-2">{post.title}</h3>
-                      <p className="text-slate-300 text-sm font-display leading-relaxed line-clamp-2 mb-3">{post.excerpt}</p>
+                      <h3 className="text-base font-bold text-[var(--text-title)] font-display leading-snug mb-2 line-clamp-2">{post.title}</h3>
+                      <p className="text-[var(--text-body)] text-sm font-display leading-relaxed line-clamp-2 mb-3">{post.excerpt}</p>
 
                       <Link
                         href={`/blog/${post.id}`}

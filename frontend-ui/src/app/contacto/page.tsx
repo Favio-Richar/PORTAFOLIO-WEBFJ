@@ -333,7 +333,7 @@ export default function Contacto() {
     setErrorMsg("");
 
     try {
-      const res = await fetch("/api/enviar-cotizacion", {
+      const res = await fetch(`${API_BASE}/api/enviar-cotizacion`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -341,7 +341,7 @@ export default function Contacto() {
           email: form.email,
           telefono: form.phone,
           servicio: form.subject || "Consulta General",
-          descripcion: form.message,
+          mensaje: form.message,
         }),
       });
 

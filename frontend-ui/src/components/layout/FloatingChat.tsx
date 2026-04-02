@@ -2,8 +2,9 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaPaperPlane, FaRobot, FaTimes, FaWhatsapp } from "react-icons/fa";
+import { FaPaperPlane, FaRobot, FaTimes, FaWhatsapp, FaCalendarCheck } from "react-icons/fa";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import API_BASE from "@/lib/apiBase";
 import "@/styles/floating-chat.scss";
 
@@ -11,6 +12,7 @@ interface Message {
   id: number;
   text: string;
   sender: "user" | "agent";
+  actionType?: "whatsapp" | "booking";
 }
 
 type FloatingChatProps = {
@@ -85,35 +87,17 @@ export default function FloatingChat({ pageContext = "sitio-web" }: FloatingChat
         throw new Error(data.detail || "Error en la comunicacion con la IA");
       }
 
-      // 3. Agregar respuesta de la IA
+      // 3. Agregar respuesta de la IA (incluyendo la acción)
       setMessages((prev) => [
         ...prev,
         {
           id: getNextMessageId(),
           sender: "agent",
           text: data.response,
+          actionType: (data.action === "whatsapp" || data.action === "booking") ? data.action : undefined,
         },
       ]);
 
-      // 4. Manejar acciones automáticas (WhatsApp o Booking)
-      if (data.action === "whatsapp") {
-        setTimeout(() => {
-          setMessages(prev => [...prev, {
-            id: getNextMessageId(),
-            sender: "agent",
-            text: "Redirigiéndote a WhatsApp..."
-          }]);
-          window.open("https://wa.me/56971464296", "_blank");
-        }, 1500);
-      } else if (data.action === "booking") {
-        setTimeout(() => {
-          setMessages(prev => [...prev, {
-            id: getNextMessageId(),
-            sender: "agent",
-            text: "Puedes agendar aquí: /asesoria"
-          }]);
-        }, 1000);
-      }
 
     } catch (error) {
       console.error("Chat Error:", error);
@@ -158,12 +142,24 @@ export default function FloatingChat({ pageContext = "sitio-web" }: FloatingChat
               {messages.map((msg) => (
                 <div key={msg.id} className={msg.sender === "agent" ? "ai-message-container" : "flex justify-end mb-2"}>
                   {msg.sender === "agent" ? (
-                    <>
-                      <div className="ai-avatar">
-                        <FaRobot className="text-white" size={16} />
+                    <div className="flex flex-col items-start max-w-[85%]">
+                      <div className="flex items-end">
+                        <div className="ai-avatar shrink-0 mb-1 mr-2">
+                          <FaRobot className="text-white" size={16} />
+                        </div>
+                        <div className="ai-bubble bg-[#233256] text-white p-3 rounded-2xl rounded-bl-sm text-sm shadow-sm">{msg.text}</div>
                       </div>
-                      <div className="ai-bubble">{msg.text}</div>
-                    </>
+                      {msg.actionType === "whatsapp" && (
+                        <a href="https://wa.me/56971464296" target="_blank" rel="noopener noreferrer" className="ml-10 mt-2 bg-[#25D366]/20 hover:bg-[#25D366]/40 text-[#D9FFE8] transition-colors px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-2 border border-[#25D366]/30">
+                          <FaWhatsapp size={14} /> Continuar en WhatsApp
+                        </a>
+                      )}
+                      {msg.actionType === "booking" && (
+                        <Link href="/asesoria" className="ml-10 mt-2 bg-cyan-500/20 hover:bg-cyan-500/40 text-cyan-100 transition-colors px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-2 border border-cyan-400/30">
+                          <FaCalendarCheck size={14} /> Agendar Asesoría
+                        </Link>
+                      )}
+                    </div>
                   ) : (
                     <div className="bg-blue-600 rounded-xl p-3 max-w-[80%] text-white text-sm shadow-md">{msg.text}</div>
                   )}

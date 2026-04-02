@@ -36,6 +36,44 @@
   --radius-xl: 1rem;
   --radius-lg: 0.75rem;
   --radius-md: 0.5rem;
+
+  /* Skeleton loaders */
+  --skeleton-base: rgba(255, 255, 255, 0.04);
+  --skeleton-shine: rgba(255, 255, 255, 0.08);
+
+  /* Glass card helpers */
+  --card-overlay: rgba(15, 23, 42, 0.6);
+  --card-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+
+  /* Scroll indicator */
+  --scroll-indicator: #64748b;
+}
+
+/* ===============================
+   THEME: LIGHT MODE
+   =============================== */
+.light-mode {
+  --background: #f8fafc;        /* Slate 50 */
+  --background-soft: #ffffff;    /* White */
+  --background-card: rgba(255, 255, 255, 0.7);
+
+  --text-title: #0f172a;        /* Slate 900 */
+  --text-body: #334155;         /* Slate 700 */
+  --text-muted: #64748b;        /* Slate 500 */
+
+  --border: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.15);
+
+  /* Skeleton loaders (light-adapted) */
+  --skeleton-base: rgba(15, 23, 42, 0.06);
+  --skeleton-shine: rgba(15, 23, 42, 0.10);
+
+  /* Glass overlay for cards on light bg */
+  --card-overlay: rgba(255, 255, 255, 0.55);
+  --card-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+
+  /* Scroll indicator */
+  --scroll-indicator: #94a3b8;
 }
 
 /* ===============================

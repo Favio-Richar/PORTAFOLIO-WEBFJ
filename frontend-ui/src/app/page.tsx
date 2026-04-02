@@ -13,7 +13,7 @@ import '@/styles/home-elite.scss';
 
 export default function HomePage() {
   return (
-    <div className="w-full min-h-screen grid-bg bg-[#0a0a0f] text-[#f0f0f5] overflow-x-hidden font-display">
+    <div className="w-full min-h-screen grid-bg bg-[var(--background)] text-[var(--text-body)] overflow-x-hidden font-display transition-colors duration-300">
 
       {/* Background Floating Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">

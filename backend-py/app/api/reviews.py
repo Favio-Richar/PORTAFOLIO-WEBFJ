@@ -14,7 +14,7 @@ from sqlalchemy import func
 from sqlmodel import Session, select
 
 from app.db import get_session
-from app.models import Review, User
+from app.models import Review, User, SystemNotification
 from app.core.admin_auth import require_admin
 
 router = APIRouter()
@@ -330,6 +330,19 @@ def create_review(payload: ReviewCreatePayload, request: Request, session: Sessi
         session.commit()
         session.refresh(review)
 
+        # Trigger System Notification (Senior Feature)
+        try:
+            new_notif = SystemNotification(
+                title="Nueva Reseña (Google)",
+                message=f"{google_name} ha calificado con {rating} estrellas.",
+                type="success" if rating >= 4 else "info",
+                link="/admin/reviews"
+            )
+            session.add(new_notif)
+            session.commit()
+        except Exception as e:
+            print(f"Error creating notification for google review: {str(e)}")
+
         item = _serialize_review(review, {int(user.id): user} if user.id else {})
         message = "Resena publicada" if status == "approved" else "Resena enviada a revision"
         return {"ok": True, "item": item, "message": message}
@@ -362,6 +375,19 @@ def create_review(payload: ReviewCreatePayload, request: Request, session: Sessi
         session.add(review)
         session.commit()
         session.refresh(review)
+
+        # Trigger System Notification (Senior Feature)
+        try:
+            new_notif = SystemNotification(
+                title="Nueva Reseña Recibida",
+                message=f"{display_name} ha dejado un comentario de {rating} estrellas.",
+                type="success" if rating >= 4 else "info",
+                link="/admin/reviews"
+            )
+            session.add(new_notif)
+            session.commit()
+        except Exception as e:
+            print(f"Error creating notification for review: {str(e)}")
 
         item = _serialize_review(review, {})
         message = "Resena enviada" if status == "approved" else "Resena enviada a revision"

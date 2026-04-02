@@ -44,27 +44,34 @@ async def ai_chat_handler(request: ChatRequest):
     
     if not openai_key:
         # --- SMART FALLBACK LOGIC ---
-        if any(word in msg for word in ["cotizar", "precio", "costo", "cuanto", "valer"]):
+        if any(word in msg for word in ["cotizar", "precio", "costo", "cuanto", "valer", "presupuesto"]):
             return {
-                "response": f"Para darte un presupuesto exacto necesito conocer mas de tu proyecto. {context}. ¿Te gustaria que te redirija a WhatsApp para hablar con un especialista?",
-                "action": "whatsapp"
+                "response": "Entiendo, cada proyecto es único y me encantaría que recibieras una cotización exacta. Como soy un asistente virtual, ¿te gustaría que te conecte directamente por WhatsApp con uno de nuestros ingenieros para hablar de los detalles?",
+                "action": "whatsapp_offer"
             }
         
-        if any(word in msg for word in ["hola", "buen", "quien", "ayuda"]):
+        if any(word in msg for word in ["hola", "buen", "dia", "tarde", "quien", "ayuda"]):
             return {
-                "response": "Hola! Soy el asistente virtual de FJ Digital Engineering. Puedo ayudarte con informacion sobre nuestros servicios de desarrollo, asesorias TI y automatizacion. ¿En que puedo apoyarte hoy?",
+                "response": "¡Hola! Soy el asistente virtual inteligente de FJ Digital Engineering. Estoy aquí para resolver tus dudas sobre nuestros servicios de desarrollo y automatización. ¿Cuentas con un proyecto en mente o buscas información general?",
                 "action": None
             }
 
-        if any(word in msg for word in ["agendar", "cita", "reunion", "hablar", "asesoria"]):
+        if any(word in msg for word in ["agendar", "cita", "reunion", "hablar", "asesoria", "entrevista"]):
             return {
-                "response": "Puedes agendar una asesoria tecnica estrategica directamente en nuestra plataforma para que analicemos tu caso a fondo.",
-                "action": "booking"
+                "response": "¡Claro que sí! Una reunión es el mejor paso para entender tu negocio. Contamos con una sección dedicada para agendar asesorías. ¿Te gustaría que te comparta el enlace directo?",
+                "action": "booking_offer"
+            }
+            
+        if any(word in msg for word in ["si", "claro", "por favor", "ok", "bueno", "dale"]):
+            # Respuesta comodin para afirmaciones
+            return {
+                "response": "¡Excelente! Si buscabas conversar con un ingeniero, te dejo nuestro canal directo aquí.",
+                "action": "whatsapp"
             }
 
         return {
-            "response": "Entiendo. Tenemos amplia experiencia en ingenieria digital y automatizacion. ¿Te gustaria conocer mas sobre nuestros servicios o hablar con un humano por WhatsApp?",
-            "action": "whatsapp"
+            "response": "Comprendo lo que me comentas. Para poder darte el mejor servicio técnico y personalizado de parte de nuestra agencia, lo ideal sería que converses con uno de nuestros ingenieros especialistas. ¿Deseas que te derive a nuestro canal directo de WhatsApp?",
+            "action": "whatsapp_offer"
         }
     
     # --- LLM INTEGRATION (OpenAI/Anthropic) ---

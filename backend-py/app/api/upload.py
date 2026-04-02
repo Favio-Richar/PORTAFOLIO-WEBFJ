@@ -32,12 +32,31 @@ ALLOWED_VIEW_HOSTS = {
 }
 
 
+def _get_thumbnail_url(url: str, resource_type: str) -> str:
+    if not url or "cloudinary.com" not in url:
+        return url
+    
+    # Transformacion: square crop 250x250, auto quality, auto format
+    transformation = "w_250,h_250,c_fill,q_auto,f_auto"
+    
+    if resource_type == "video":
+        # Cambiar extension a .jpg para obtener un frame de video y agregar so_auto (start offset auto)
+        base_url = re.sub(r"\.[a-zA-Z0-9]+$", ".jpg", url)
+        return base_url.replace("/upload/", f"/upload/{transformation},so_auto/")
+    
+    return url.replace("/upload/", f"/upload/{transformation}/")
+
+
 def _map_cloudinary_resource(resource: Dict) -> Dict:
+    url = resource.get("secure_url") or resource.get("url")
+    resource_type = resource.get("resource_type", "image")
+    
     return {
         "asset_id": resource.get("asset_id"),
         "public_id": resource.get("public_id"),
-        "url": resource.get("secure_url") or resource.get("url"),
-        "resource_type": resource.get("resource_type"),
+        "url": url,
+        "thumbnail_url": _get_thumbnail_url(url, resource_type) if url else None,
+        "resource_type": resource_type,
         "format": resource.get("format"),
         "bytes": resource.get("bytes"),
         "width": resource.get("width"),

@@ -1,19 +1,19 @@
 .about-elite-container {
-  --about-bg-0: #020202;
-  --about-bg-1: #050505;
-  --about-bg-2: #080808;
-  --about-card-top: rgba(29, 21, 11, 0.84);
-  --about-card-bottom: rgba(5, 5, 5, 0.94);
-  --about-border: rgba(251, 191, 36, 0.26);
-  --about-border-soft: rgba(251, 191, 36, 0.14);
+  --about-bg-0: var(--background);
+  --about-bg-1: var(--background-soft);
+  --about-bg-2: var(--background-card);
+  --about-card-top: var(--background-card);
+  --about-card-bottom: var(--background);
+  --about-border: var(--border-strong);
+  --about-border-soft: var(--border);
   --about-gold: #fbbf24;
   --about-gold-bright: #fde68a;
   --about-gold-deep: #d97706;
-  --about-text-main: #fafaf9;
-  --about-text-muted: #d6d3d1;
-  --about-text-subtle: #a8a29e;
-  --about-title-main: #f5e4bc;
-  --about-title-secondary: #ead6aa;
+  --about-text-main: var(--text-body);
+  --about-text-muted: var(--text-muted);
+  --about-text-subtle: var(--text-muted);
+  --about-title-main: var(--text-title);
+  --about-title-secondary: var(--text-title);
 
   background:
     radial-gradient(circle at 8% 0%, rgba(251, 191, 36, 0.05) 0%, transparent 32%),
@@ -44,7 +44,8 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: radial-gradient(circle at center, transparent 42%, rgba(0, 0, 0, 0.24) 100%);
+    background: radial-gradient(circle at center, transparent 42%, var(--background) 100%);
+    opacity: 0.4;
     z-index: 1;
   }
 
@@ -69,8 +70,8 @@
     backdrop-filter: blur(14px);
     border: 1px solid var(--about-border-soft);
     box-shadow:
-      0 18px 40px rgba(0, 0, 0, 0.5),
-      0 6px 18px rgba(0, 0, 0, 0.35),
+      0 18px 40px rgba(0, 0, 0, 0.12),
+      0 6px 18px rgba(0, 0, 0, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.04);
     transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
     position: relative;
@@ -717,36 +718,36 @@
   }
 
   .about-section-identity {
-    background: linear-gradient(180deg, #0b0b0b 0%, #070707 52%, #0a0a0a 100%);
+    background: transparent;
   }
-
+  
   .about-section-history {
-    background: linear-gradient(180deg, #080808 0%, #050505 55%, #080808 100%);
+    background: transparent;
   }
-
+  
   .about-section-prop {
-    background: linear-gradient(180deg, #0a0a0a 0%, #060606 52%, #0a0a0a 100%);
+    background: transparent;
   }
-
+  
   .about-section-diff {
-    background: linear-gradient(180deg, #090909 0%, #050505 100%);
+    background: transparent;
   }
-
+  
   .about-section-cases {
-    background: linear-gradient(180deg, #0a0a0a 0%, #060606 100%);
+    background: transparent;
   }
-
+  
   .about-section-certs {
-    background: linear-gradient(180deg, #080808 0%, #050505 100%);
+    background: transparent;
   }
-
+  
   .about-section-stack {
-    background: linear-gradient(180deg, #090909 0%, #050505 100%);
+    background: transparent;
   }
-
+  
   .about-section-contact {
     position: relative;
-    background: linear-gradient(180deg, #080808 0%, #050505 100%);
+    background: transparent;
   }
 
   @keyframes contact-phone-pulse {
